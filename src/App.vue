@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <img class="school-logo" src="assets/logo.jpg" alt="">
     <router-view/>
   </div>
 </template>
@@ -13,6 +12,10 @@ export default {
 
 <style lang="less">
   // @import './style/common';  
+  body{
+    margin: 0;
+    padding: 0;
+  }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -27,4 +30,5 @@ export default {
 // .el-submenu .el-menu-item{
 //   min-width: 0;
 // }
+
 </style>

@@ -22,9 +22,6 @@
         </el-row>
     </div>
 </template>
-
-
-
 <script>
 export default {
   data() {
@@ -52,7 +49,7 @@ export default {
               type: "success",
               message: "登录成功"
             });
-            this.$router.push("manage");
+            this.$router.push("main");
           } else {
             this.$message({
               type: "error",
