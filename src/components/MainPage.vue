@@ -1,17 +1,20 @@
 <template>
   <div class="main">
     <el-row class="header">
-      <el-col :span="20">
-        <p>管理员</p>
-      </el-col>
-      <el-col :span="4">
+      <el-col :span="2">
         <img class="logo" src="../assets/logo.jpg" alt="">
+      </el-col>
+      <el-col :span="20" class="admin-text">
+        <p>管理员，你好</p>
+      </el-col>
+      <el-col :span="2" class="log-out">
+        <el-button @click="logOut">退出</el-button>
       </el-col>
     </el-row>
     <el-row style="min-height: 100%">
       <el-col :span="4" style="min-height: 100%; background-color: #324057;">
-        <el-menu default-active="1" style="min-height: 100%" theme="dark" router>
-          <el-menu-item index="mainPage">
+        <el-menu :default-active="defaultActive" style="min-height: 100%" router>
+          <el-menu-item index="main">
             <i class="el-icon-tickets"></i>
             <span slot="title">首页</span>
           </el-menu-item>
@@ -47,19 +50,36 @@
 </template>
 <script>
 export default {
-  methods: {}
+  mounted(){
+  },
+  methods: {
+    logOut(){
+      this.$router.push('/');
+    }
+  },
+  computed:{
+    defaultActive(){
+      return this.$route.path.replace('/','')
+    }
+  }
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style  lang="less" scoped>
-.header{
+.header {
   border-bottom: 1px solid #dddddd;
-  height: 50px;
+  height: 55px;
+  .admin-text {
+    text-align: right;
+  }
+  .log-out{
+    margin-top: 7.5px;
+  }
 }
 .logo {
   width: 50px;
   height: 50px;
   margin: 0;
-  padding: 0;  
+  padding: 0;
 }
 </style>
