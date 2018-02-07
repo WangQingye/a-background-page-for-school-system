@@ -7,6 +7,7 @@ const login = r => require.ensure([], () => r(require('@/components/Login')), 'l
 const main = r => require.ensure([], () => r(require('@/components/MainPage')), 'main');
 const mainInfo = r => require.ensure([], () => r(require('@/components/MainInfo')), 'mainInfo');
 const userFeedBack = r => require.ensure([], () => r(require('@/components/UserFeedBack')), 'userFeedBack');
+const addStudent = r => require.ensure([], () => r(require('@/components/addStudent')), 'addStudent');
 
 export default new Router({
   routes: [
@@ -28,7 +29,12 @@ export default new Router({
         {
           path:'/userFeedBack',
           component: userFeedBack,
-          meta:['用户反馈']
+          meta:['家长反馈']
+        },
+        {
+          path:'/addStudent',
+          component: addStudent,
+          meta:['添加学员']
         }
       ]
     }

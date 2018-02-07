@@ -32,11 +32,11 @@
               <span>学员管理</span>
             </template>
             <el-menu-item index="classmates">学员列表</el-menu-item>
-            <el-menu-item index="addClassmate">学员添加</el-menu-item>
+            <el-menu-item index="addStudent">学员添加</el-menu-item>
           </el-submenu>
           <el-menu-item index="userFeedBack">
             <i class="el-icon-message"></i>
-            <span slot="title">用户反馈</span>
+            <span slot="title">家长反馈</span>
           </el-menu-item>
         </el-menu>
       </el-col>
@@ -50,16 +50,15 @@
 </template>
 <script>
 export default {
-  mounted(){
-  },
+  mounted() {},
   methods: {
-    logOut(){
-      this.$router.push('/');
+    logOut() {
+      this.$router.push("/");
     }
   },
-  computed:{
-    defaultActive(){
-      return this.$route.path.replace('/','')
+  computed: {
+    defaultActive() {
+      return this.$route.path.replace("/", "");
     }
   }
 };
@@ -72,7 +71,7 @@ export default {
   .admin-text {
     text-align: right;
   }
-  .log-out{
+  .log-out {
     margin-top: 7.5px;
   }
 }
