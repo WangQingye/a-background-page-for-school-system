@@ -1,10 +1,11 @@
 <template>
   <div class="main">
     <el-row class="header">
-      <el-col :span="2">
+      <el-col :span="5">
         <img class="logo" src="../assets/logo.jpg" alt="">
+        <p class="logo-text">巧克力梦工厂后台管理系统</p>
       </el-col>
-      <el-col :span="20" class="admin-text">
+      <el-col :span="14" class="admin-text">
         <p>管理员，你好</p>
       </el-col>
       <el-col :span="2" class="log-out">
@@ -31,7 +32,7 @@
               <i class="el-icon-service"></i>
               <span>学员管理</span>
             </template>
-            <el-menu-item index="classmates">学员列表</el-menu-item>
+            <el-menu-item index="studentList">学员列表</el-menu-item>
             <el-menu-item index="addStudent">学员添加</el-menu-item>
           </el-submenu>
           <el-menu-item index="userFeedBack">
@@ -80,5 +81,8 @@ export default {
   height: 50px;
   margin: 0;
   padding: 0;
+}
+.logo-text{
+  float:right;
 }
 </style>
