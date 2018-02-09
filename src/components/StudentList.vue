@@ -25,9 +25,11 @@
           <span>{{calClass(scope.row.class)}}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="restClass" align="center" label="剩余课时" width="120">
+      </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
-          <el-button v-show="!scope.row.reply" @click="replyFeedBack(scope.row)" type="text" size="small">
+          <el-button @click="showStudentDetail(scope.row)" type="text" size="small">
             查看详情
           </el-button>
         </template>
@@ -37,27 +39,12 @@
       <el-pagination ref="paginat" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
       </el-pagination>
     </div>
-    <!-- <el-dialog title="修改店铺信息">
-      <el-tabs type="border-card">
-        <el-tab-pane label="用户管理">用户管理</el-tab-pane>
-        <el-tab-pane label="配置管理">配置管理</el-tab-pane>
-        <el-tab-pane label="角色管理">角色管理</el-tab-pane>
-        <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane>
-      </el-tabs>
-    </el-dialog> -->
-    <el-dialog title="学员详情" :visible.sync="dialogVisible" width="60%">
-      <el-tabs>
-        <el-tab-pane label="基本信息">
-
-        </el-tab-pane>
-        <el-tab-pane label="课程记录">配置管理</el-tab-pane>
-      </el-tabs>
-
-    </el-dialog>
+    <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentIndex="detailIndex"></student-detail>
   </div>
 </template>
 <script>
 import Search from "./tools/Search.vue";
+import StudentDetail from "./subpages/StudentDetail.vue";
 export default {
   data() {
     function mockData() {
@@ -90,8 +77,8 @@ export default {
       searchData: [],
       currentPage: 1,
       count: 100,
-      searchText: "",
-      dialogVisible: true
+      dialogVisible: false,
+      detailIndex: 0 // 打开详情时传入的学生编号，用于向服务器请求
     };
   },
   mounted() {
@@ -125,10 +112,20 @@ export default {
         this.currentPage * 10 - 10,
         this.currentPage * 10
       );
+    },
+    showStudentDetail(data) {
+      this.dialogVisible = true;
+      this.detailIndex = data.index;
+    },
+    closeDetail() {
+      console.log(22);
+      this.dialogVisible = false;
     }
   },
+  computed: {},
   components: {
-    Search
+    Search,
+    StudentDetail
   }
 };
 </script>
@@ -156,5 +153,8 @@ export default {
 }
 .class-progress-text {
   display: inline;
+}
+.detail-form {
+  text-align: left;
 }
 </style>

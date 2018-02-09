@@ -17,7 +17,7 @@
           <el-option label="锦江校区" value="beijing"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="总充值课时" prop="allClass">
+      <el-form-item label="可使用课时" prop="allClass">
         <el-input-number v-model="form.allClass" :min="0" :max="1000" label="描述文字"></el-input-number>
       </el-form-item>
       <el-form-item label="单个课程课时" prop="singleClass">
@@ -75,10 +75,7 @@ export default {
       rules: {
         studentName: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
         parentName: [{ required: true, message: "请输入家长称呼", trigger: "blur" }],
-        parentContact: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }],
-        allClass: [],
-        singleClass: [],
-        restClass: [],
+        parentContact: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }]
       },
       classData: generateData()
     };
@@ -101,23 +98,23 @@ export default {
       });
     },
     changeClass(value, direction, movedKeys) {
-      if (this.allClass - this.classChoose.length * 16 < 0) {
+      if (this.form.allClass - this.form.classChoose.length * 16 < 0) {
         this.$message.error("您的剩余课时不够添加这些课程哦");
         movedKeys.forEach(key => {
-          this.classChoose.splice(
-            this.classChoose.findIndex(value => {
+          this.form.classChoose.splice(
+            this.form.classChoose.findIndex(value => {
               return value == key;
             })
           );
         }, this);
         return;
       }
-      this.restClass = this.allClass - this.classChoose.length * 16;
+      this.form.restClass = this.form.allClass - this.form.classChoose.length * 16;
     }
   },
   watch: {
     allClass() {
-      this.restClass = this.allClass;
+      this.form.restClass = this.form.allClass;
     }
   }
 };
