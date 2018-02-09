@@ -61,7 +61,7 @@ export default {
     };
     return {
       form: {
-        studentName: "111",
+        studentName: "",
         parentName: "",
         parentContact: "",
         school: "天府校区",
