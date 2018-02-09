@@ -45,12 +45,16 @@
                 <el-tab-pane label="课程记录">
                     <el-table :data="tableData" style="width: 100%">
                         <el-table-column prop="date" label="上课时间" sortable width="180">
+                            <template slot-scope="scope">
+                                <i class="el-icon-time"></i>
+                                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                            </template>
                         </el-table-column>
                         <el-table-column prop="name" label="课程名称" width="280">
                         </el-table-column>
                         <el-table-column prop="address" label="备注" :formatter="formatter">
                         </el-table-column>
-                        <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }]" :filter-method="filterTag" filter-placement="bottom-end">
+                        <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
                             <template slot-scope="scope">
                                 <el-tag :type="calClassType(scope.row.tag)" close-transition>{{scope.row.tag}}</el-tag>
                             </template>
@@ -101,7 +105,7 @@ export default {
         school: "天府校区",
         allClass: 0, // 总充值课程数
         singleClass: 0, // 单个课程的课时
-        restClass: 0, // 剩余（未使用）课时数
+        restClass: 32, // 剩余（未使用）课时数
         classChoose: [], //选择要参加的课时
         type: [],
         desc: ""
