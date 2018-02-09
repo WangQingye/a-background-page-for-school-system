@@ -1,11 +1,11 @@
 <template>
   <div class="main">
     <el-row class="header">
-      <el-col :span="5">
+      <el-col :span="6">
         <img class="logo" src="../assets/logo.jpg" alt="">
         <p class="logo-text">巧克力梦工厂后台管理系统</p>
       </el-col>
-      <el-col :span="14" class="admin-text">
+      <el-col :span="16" class="admin-text">
         <p>管理员，你好</p>
       </el-col>
       <el-col :span="2" class="log-out">

@@ -23,7 +23,7 @@
       <el-form-item label="单个课程课时" prop="singleClass">
         <el-input-number v-model="form.singleClass" :min="0" :max="1000" label="描述文字"></el-input-number>
       </el-form-item>
-      <el-form-item label="已参加课程">
+      <el-form-item label="添加课程">
         <el-checkbox-group v-model="form.type">
           <el-transfer @change="changeClass" v-model="form.classChoose" :titles="['校区课程', '参加课程']" :data="classData"></el-transfer>
         </el-checkbox-group>
