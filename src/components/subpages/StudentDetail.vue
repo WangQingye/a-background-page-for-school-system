@@ -52,7 +52,7 @@
                         </el-table-column>
                         <el-table-column prop="name" label="课程名称" width="280">
                         </el-table-column>
-                        <el-table-column prop="address" label="备注" :formatter="formatter">
+                        <el-table-column prop="address" label="备注">
                         </el-table-column>
                         <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
                             <template slot-scope="scope">

@@ -9,6 +9,14 @@
       <el-table-column prop="contact" align="center" label="联系方式" width="120">
       </el-table-column>
       <el-table-column prop="info" align="center" label="反馈内容" width="auto">
+        <template slot-scope="scope">
+          <p style="margin-left: 10px">{{ scope.row.info }}</p>
+          <div v-show="scope.row.reply">
+
+            <i class="el-icon-message"></i>
+            <span style="color:orange">回复内容：{{scope.row.reply}}</span>
+          </div>
+        </template>
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
@@ -46,14 +54,14 @@ export default {
           contact: "18888888888",
           info: "教学质量非常好，希望出更多更好更精彩的课程",
           zip: 200333,
-          reply: 1
+          reply: "谢谢您的支持，我们会再接再厉！"
         },
         {
           date: "2018-01-04",
           name: "王小虎",
           contact: "18888888888",
           info: "教学质量非常好，希望出更多更好更精彩的课程",
-          zip: 200333,
+          zip: 200333,  
           reply: 0
         },
         {
@@ -62,7 +70,7 @@ export default {
           contact: "18888888888",
           info: "教学质量非常好，希望出更多更好更精彩的课程",
           zip: 200333,
-          reply: 1
+          reply: "谢谢您的支持，我们会再接再厉！"
         },
         {
           date: "2018-01-08",
@@ -131,7 +139,8 @@ export default {
       console.log(row);
       this.$prompt("请输入回复", `回复家长${row.name}的留言`, {
         confirmButtonText: "回复",
-        cancelButtonText: "取消"
+        cancelButtonText: "取消",
+        inputType: 'textarea'
       })
         .then(({ value }) => {
           this.$message({
@@ -163,5 +172,8 @@ export default {
   display: block;
   width: 460px;
   margin: 0 auto;
+}
+.el-input__inner{
+  row: 14;
 }
 </style>

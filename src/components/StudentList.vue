@@ -2,12 +2,13 @@
   <div class="student-list">
     <p class="text">学员列表</p>
     <search :place-text="'请输入学生姓名'" @search="search"></search>
-    <el-table stripe class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="1000">
+    <el-table stripe class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="2000">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
           <el-form label-position="left" inline class="demo-table-expand">
             <el-form-item v-for="(cls, index) in scope.row.class" :key="index" :label="cls.className">
-              <el-progress class="class-progress" :stroke-width="16" :percentage="cls.finishPercnet" :status="cls.finishPercnet == 100 ? 'success':''"></el-progress>
+              <el-progress :show-text="false" class="class-progress" :stroke-width="16" :percentage="calPercent(cls.finishPercnet)" :status="calProgressBarStatus(cls.finishPercnet)"></el-progress>
+              <span class="class-progress-text">{{cls.finishPercnet}}</span>
             </el-form-item>
           </el-form>
         </template>
@@ -25,7 +26,9 @@
           <span>{{calClass(scope.row.class)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="restClass" align="center" label="剩余课时" width="120">
+      <el-table-column prop="haveDeadline" align="center" label="有课程即将到期" width="120">
+      </el-table-column>
+      <el-table-column prop="restClass" align="center" label="剩余/总充值课时" width="160">
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
@@ -58,14 +61,15 @@ export default {
           class: [
             {
               className: "领袖口才2017期" + i,
-              finishPercnet: Math.floor(Math.random() * 100)
+              finishPercnet: Math.floor(Math.random() * 16) + "/16"
             },
             {
               className: "形象气质2017期",
-              finishPercnet: Math.floor(Math.random() * 100)
+              finishPercnet: Math.floor(Math.random() * 16) + "/16"
             }
           ],
-          restClass: 66,
+          haveDeadline: "是",
+          restClass: "66 / 96",
           index: i
         });
       }
@@ -90,9 +94,6 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val;
-      // this.tableData4.forEach(item => {
-      //   item.name = `王小虎${val}`;
-      // });
       this.nowData = this.allData.slice(val * 10 - 10, val * 10);
     },
     calClass(classArr) {
@@ -102,8 +103,17 @@ export default {
       });
       return text;
     },
+    calPercent(str) {
+      return Math.floor(eval(str) * 100);
+    },
+    calProgressBarStatus(str) {
+      /* 本门课的剩余课时等于总课时减去已经上过的 */
+      let restClass = Number(str.split("/")[1]) - Number(str.split("/")[0]);
+      console.log(restClass);
+      if (restClass == 0) return "success";
+      if (restClass < 5) return "exception";
+    },
     search(text) {
-      console.log(text);
       this.searchData = this.allData.filter(item => {
         return item.name.indexOf(text) !== -1;
       });
@@ -118,7 +128,6 @@ export default {
       this.detailIndex = data.index;
     },
     closeDetail() {
-      console.log(22);
       this.dialogVisible = false;
     }
   },
@@ -146,13 +155,17 @@ export default {
 .class-progress {
   width: 150px;
   margin-top: 10px;
-  margin-right: 50px;
+  display: inline-block;
 }
 .form {
   display: block;
 }
 .class-progress-text {
-  display: inline;
+  display: inline-block;
+  height: 40px;
+  margin-left: 20px;
+  margin-right: 50px;
+  font-size: 18px;
 }
 .detail-form {
   text-align: left;
