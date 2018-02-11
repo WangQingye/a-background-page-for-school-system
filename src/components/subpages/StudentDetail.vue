@@ -42,7 +42,8 @@
                         </el-form-item>
                     </el-form>
                 </el-tab-pane>
-                <el-tab-pane label="课程记录">
+                <el-tab-pane label="课程情况">
+                    <p>上课记录</p>
                     <el-table :data="tableData" style="width: 100%">
                         <el-table-column prop="date" label="上课时间" sortable width="180">
                             <template slot-scope="scope">

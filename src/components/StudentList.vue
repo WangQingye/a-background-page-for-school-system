@@ -123,10 +123,6 @@ export default {
       });
       return text;
     },
-    filterTag(value, row) {
-      console.log(this.calDeadLine(row.class), value);
-      return this.calDeadLine(row.class) === value;
-    },
     search(text) {
       this.searchData = this.allData.filter(item => {
         return item.name.indexOf(text) !== -1;
