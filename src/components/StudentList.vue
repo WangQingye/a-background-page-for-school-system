@@ -2,7 +2,7 @@
   <div class="student-list">
     <p class="text">学员列表</p>
     <search :place-text="'请输入学生姓名'" @search="search"></search>
-    <el-table stripe class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="2000">
+    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="2000">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
           <el-form label-position="left" inline class="demo-table-expand">
@@ -26,12 +26,12 @@
           <span>{{calClass(scope.row.class)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="haveDeadline" align="center" label="有课程即将到期" width="140" :filters="[{ text: '是', value: '是' }, { text: '暂无', value: '暂无' }]" :filter-method="filterTag" filter-placement="bottom-end">
+      <el-table-column sortable="custom" prop="haveDeadline" align="center" label="有课程即将到期" width="160">
         <template slot-scope="scope">
           <el-tag :type="calDeadLine(scope.row.class) === '是' ? 'danger' : 'success'" close-transition>{{calDeadLine(scope.row.class)}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="restClass" align="center" label="剩余/总充值课时" width="160">
+      <el-table-column sortable="custom" prop="restClass" align="center" label="剩余/总充值课时" width="160">
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
@@ -71,7 +71,7 @@ export default {
               finishPercnet: Math.floor(Math.random() * 16) + "/16"
             }
           ],
-          restClass: "66 / 96",
+          restClass: Math.floor(Math.random() * 96) + " / 96",
           index: i
         });
       }
@@ -79,7 +79,7 @@ export default {
     }
     return {
       allData: mockData(),
-      nowData: [],
+      // nowData: [],
       searchData: [],
       currentPage: 1,
       count: 100,
@@ -88,7 +88,7 @@ export default {
     };
   },
   mounted() {
-    this.nowData = this.allData.slice(0, 10);
+    // this.nowData = this.allData.slice(0, 10);
   },
   methods: {
     handleSizeChange(val) {
@@ -96,7 +96,7 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val;
-      this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+      // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
     },
     calClass(classArr) {
       let text = "";
@@ -137,6 +137,63 @@ export default {
         this.currentPage * 10
       );
     },
+    handleSortChange(data) {
+      console.log(data);
+      if (data.prop == "restClass") {
+        if (data.order == "descending") {
+          this.allData = this.allData.sort((itemA, itemB) => {
+            let a = Number(itemA.restClass.split("/")[0]);
+            let b = Number(itemB.restClass.split("/")[0]);
+            if (a > b) {
+              return 1;
+            } else if (a == b) {
+              return 0;
+            } else {
+              return -1;
+            }
+          });
+        } else if (data.order == "ascending") {
+          this.allData = this.allData.sort((itemA, itemB) => {
+            let a = Number(itemA.restClass.split("/")[0]);
+            let b = Number(itemB.restClass.split("/")[0]);
+            if (a < b) {
+              return 1;
+            } else if (a == b) {
+              return 0;
+            } else {
+              return -1;
+            }
+          });
+        }
+      }
+      if (data.prop == "haveDeadline") {
+        if (data.order == "descending") {
+          this.allData = this.allData.sort((itemA, itemB) => {
+            let a = this.calDeadLine(itemA.class);
+            let b = this.calDeadLine(itemB.class);
+            if (a == '是') {
+              return 1;
+            } else if (a == b) {
+              return 0;
+            } else {
+              return -1;
+            }
+          });
+        } else if (data.order == "ascending") {
+          this.allData = this.allData.sort((itemA, itemB) => {
+            let a = this.calDeadLine(itemA.class);
+            let b = this.calDeadLine(itemB.class);
+            if (a == '暂无') {
+              return 1;
+            } else if (a == b) {
+              return 0;
+            } else {
+              return -1;
+            }
+          });
+        }
+      }
+    },
     showStudentDetail(data) {
       this.dialogVisible = true;
       this.detailIndex = data.index;
@@ -145,7 +202,14 @@ export default {
       this.dialogVisible = false;
     }
   },
-  computed: {},
+  computed: {
+    nowData() {
+      return this.allData.slice(
+        this.currentPage * 10 - 10,
+        this.currentPage * 10
+      );
+    }
+  },
   components: {
     Search,
     StudentDetail
