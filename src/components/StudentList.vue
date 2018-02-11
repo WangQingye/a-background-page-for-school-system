@@ -26,7 +26,10 @@
           <span>{{calClass(scope.row.class)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="haveDeadline" align="center" label="有课程即将到期" width="120">
+      <el-table-column prop="haveDeadline" align="center" label="有课程即将到期" width="140" :filters="[{ text: '是', value: '是' }, { text: '暂无', value: '暂无' }]" :filter-method="filterTag" filter-placement="bottom-end">
+        <template slot-scope="scope">
+          <el-tag :type="calDeadLine(scope.row.class) === '是' ? 'danger' : 'success'" close-transition>{{calDeadLine(scope.row.class)}}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column prop="restClass" align="center" label="剩余/总充值课时" width="160">
       </el-table-column>
@@ -68,7 +71,6 @@ export default {
               finishPercnet: Math.floor(Math.random() * 16) + "/16"
             }
           ],
-          haveDeadline: "是",
           restClass: "66 / 96",
           index: i
         });
@@ -109,9 +111,21 @@ export default {
     calProgressBarStatus(str) {
       /* 本门课的剩余课时等于总课时减去已经上过的 */
       let restClass = Number(str.split("/")[1]) - Number(str.split("/")[0]);
-      console.log(restClass);
       if (restClass == 0) return "success";
       if (restClass < 5) return "exception";
+    },
+    calDeadLine(classes) {
+      let text = "暂无";
+      classes.forEach(item => {
+        if (this.calProgressBarStatus(item.finishPercnet) == "exception") {
+          text = "是";
+        }
+      });
+      return text;
+    },
+    filterTag(value, row) {
+      console.log(this.calDeadLine(row.class), value);
+      return this.calDeadLine(row.class) === value;
     },
     search(text) {
       this.searchData = this.allData.filter(item => {
