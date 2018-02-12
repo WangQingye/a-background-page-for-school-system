@@ -170,9 +170,9 @@ export default {
         parentContact: [
           { required: true, message: "请输入家长联系方式", trigger: "blur" }
         ],
-        allClass: [],
-        singleClass: [],
-        restClass: []
+        // allClass: [],
+        // singleClass: [],
+        // restClass: []
       },
       changeClassform: {
         className: "",

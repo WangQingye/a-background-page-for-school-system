@@ -5,10 +5,11 @@
         <img class="logo" src="../assets/logo.jpg" alt="">
         <p class="logo-text">巧克力梦工厂后台管理系统</p>
       </el-col>
-      <el-col :span="16" class="admin-text">
+      <el-col :span="14" class="admin-text">
         <p>管理员，你好</p>
       </el-col>
-      <el-col :span="2" class="log-out">
+      <el-col :span="4" class="log-out">
+        <el-button type="primary" @click="dialogVisible = true">账号管理</el-button>
         <el-button @click="logOut">退出</el-button>
       </el-col>
     </el-row>
@@ -47,20 +48,33 @@
         </keep-alive>
       </el-col>
     </el-row>
+    <account-manage @close="closeAccount" :dialogVisible="dialogVisible"></account-manage>
   </div>
 </template>
 <script>
+import AccountManage from "./subpages/AccountManage.vue";
 export default {
+  data(){
+    return {
+      dialogVisible: false
+    }
+  },
   mounted() {},
   methods: {
     logOut() {
       this.$router.push("/");
+    },
+    closeAccount(){
+      this.dialogVisible = false;
     }
   },
   computed: {
     defaultActive() {
       return this.$route.path.replace("/", "");
     }
+  },
+  components: {
+    AccountManage
   }
 };
 </script>
@@ -82,7 +96,7 @@ export default {
   margin: 0;
   padding: 0;
 }
-.logo-text{
-  float:right;
+.logo-text {
+  float: right;
 }
 </style>
