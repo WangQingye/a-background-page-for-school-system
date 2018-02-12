@@ -5,7 +5,7 @@
     <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="2000">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
-          <el-form label-position="left" inline class="demo-table-expand">
+          <el-form inline class="demo-table-expand">
             <el-form-item v-for="(cls, index) in scope.row.class" :key="index" :label="cls.className">
               <el-progress :show-text="false" class="class-progress" :stroke-width="16" :percentage="calPercent(cls.finishPercnet)" :status="calProgressBarStatus(cls.finishPercnet)"></el-progress>
               <span class="class-progress-text">{{cls.finishPercnet}}</span>

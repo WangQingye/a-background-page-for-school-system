@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <el-row class="header">
+    <el-row class="header" type="flex">
       <el-col :span="6">
         <img class="logo" src="../assets/logo.jpg" alt="">
         <p class="logo-text">巧克力梦工厂后台管理系统</p>
@@ -12,7 +12,7 @@
         <el-button @click="logOut">退出</el-button>
       </el-col>
     </el-row>
-    <el-row style="min-height: 100%">
+    <el-row style="min-height: 100%" type="flex">
       <el-col :span="4" style="min-height: 100%; background-color: #324057;">
         <el-menu :default-active="defaultActive" style="min-height: 100%" router>
           <el-menu-item index="main">
