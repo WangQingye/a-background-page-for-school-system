@@ -9,6 +9,8 @@ const mainInfo = r => require.ensure([], () => r(require('@/components/MainInfo'
 const userFeedBack = r => require.ensure([], () => r(require('@/components/UserFeedBack')), 'userFeedBack');
 const addStudent = r => require.ensure([], () => r(require('@/components/addStudent')), 'addStudent');
 const studentList = r => require.ensure([], () => r(require('@/components/studentList')), 'studentList');
+const classList = r => require.ensure([], () => r(require('@/components/classList')), 'classList');
+
 
 export default new Router({
   routes: [
@@ -41,6 +43,10 @@ export default new Router({
           path:'/studentList',
           component: studentList,
           meta:['学员列表']
+        },{
+          path:'/classList',
+          component:classList,
+          meta:['课程表']
         }
       ]
     }
