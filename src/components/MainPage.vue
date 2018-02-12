@@ -24,7 +24,7 @@
               <i class="el-icon-setting"></i>
               <span>课程管理</span>
             </template>
-            <el-menu-item index="class">课程表</el-menu-item>
+            <el-menu-item index="classList">课程表</el-menu-item>
             <el-menu-item index="addClass">课程添加</el-menu-item>
           </el-submenu>
           <el-submenu index="3">
@@ -39,7 +39,7 @@
             <i class="el-icon-message"></i>
             <span slot="title">家长反馈</span>
           </el-menu-item>
-        </el-menu>
+        </el-menu>`
       </el-col>
       <el-col :span="20" style="height: 100%;overflow: auto;">
         <keep-alive>
