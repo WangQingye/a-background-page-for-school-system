@@ -22,6 +22,9 @@ body {
   text-align: center;
   color: #2c3e50;
 }
+.el-row{
+  display: flex;
+}
 // .school-logo{
 //   width: 1rem;
 //   height: 1rem;
