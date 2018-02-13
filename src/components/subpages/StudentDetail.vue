@@ -27,12 +27,12 @@
               <el-input-number v-model="form.singleClass" :min="0" :max="1000" label="描述文字"></el-input-number>
             </el-form-item>
             <el-form-item label="添加课程">
-              <el-checkbox-group v-model="form.type">
+              <el-checkbox-group v-model="form.type" class="class-checkboxs">
                 <el-transfer @change="changeClass" v-model="form.classChoose" :titles="['校区课程', '已参加课程']" :data="classData"></el-transfer>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="添加后剩余课时" prop="restClass">
-              <p class="class-overplus">{{form.restClass}}</p>
+              <span class="class-overplus">{{form.restClass}}</span>
             </el-form-item>
             <el-form-item label="其他备注">
               <el-input type="textarea" v-model="form.desc"></el-input>
@@ -55,6 +55,7 @@
             <el-table-column prop="date" label="上课时间" width="140">
               <template slot-scope="scope">
                 <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                <span style="margin-left: 10px">{{ scope.row.date }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="progress" label="课程进度" width="180">
@@ -73,11 +74,14 @@
               </template>
             </el-table-column>
           </el-table>
+
+        </el-tab-pane>
+        <el-tab-pane label="上课记录">
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>上课记录</span>
           </div>
-          <el-table :data="tableData" style="width: 100%" height="300">
+          <el-table :data="tableData" style="width: 100%">
             <el-table-column prop="date" label="上课时间" sortable width="180">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
@@ -94,6 +98,10 @@
               </template>
             </el-table-column>
           </el-table>
+          <div class="feed-back-pagination" style="text-align: left;margin-top: 10px;">
+            <el-pagination ref="paginat" background @current-change="handleClassHistoryPageChange" :current-page="historyPage" :page-size="10" layout="total, prev, pager, next" :total="count">
+            </el-pagination>
+          </div>
         </el-tab-pane>
       </el-tabs>
       <!-- 修改课时弹出框 -->
@@ -169,7 +177,7 @@ export default {
         parentName: [{ required: true, message: "请输入家长称呼", trigger: "blur" }],
         parentContact: [
           { required: true, message: "请输入家长联系方式", trigger: "blur" }
-        ],
+        ]
         // allClass: [],
         // singleClass: [],
         // restClass: []
@@ -216,6 +224,30 @@ export default {
           name: "形象气质2018期",
           address: "需要自带小板凳",
           tag: "待上"
+        },
+        {
+          date: "2018-05-03",
+          name: "形象气质2018期",
+          address: "需要自带小板凳",
+          tag: "待上"
+        },
+        {
+          date: "2018-05-03",
+          name: "形象气质2018期",
+          address: "需要自带小板凳",
+          tag: "待上"
+        },
+        {
+          date: "2018-05-03",
+          name: "形象气质2018期",
+          address: "需要自带小板凳",
+          tag: "待上"
+        },
+        {
+          date: "2018-05-03",
+          name: "形象气质2018期",
+          address: "需要自带小板凳",
+          tag: "待上"
         }
       ],
       tableData1: [
@@ -238,7 +270,9 @@ export default {
           desc: "天府校区-A教室-小萌老师"
         }
       ],
-      changeClassVisible: false
+      changeClassVisible: false,
+      count: 100,
+      historyPage: 1
     };
   },
   methods: {
@@ -263,6 +297,7 @@ export default {
     filterTag(value, row) {
       return row.tag === value;
     },
+    /* 打开课程课时修改 */
     openClassChange(data) {
       console.log(data);
       this.changeClassform.className = data.className;
@@ -277,10 +312,14 @@ export default {
     openConfirm(type, data) {
       let text;
       console.log(data);
-      if (type == 1){
-        text = `本次操作将从学员剩余课时中扣除${Number(data.progress.split("/")[1])}课时，用以续开一期${data.className}课程，是否确认？`
+      if (type == 1) {
+        text = `本次操作将从学员剩余课时中扣除${Number(
+          data.progress.split("/")[1]
+        )}课时，用以续开一期${data.className}课程，是否确认？`;
       } else if (type == 2) {
-        text =  `本次操作将停止该学员的${data.className}课程，剩余${Number(data.progress.split("/")[1]) - Number(data.progress.split("/")[0])}课时将自动转入该学员剩余课时，是否确认？`
+        text = `本次操作将停止该学员的${data.className}课程，剩余${Number(
+          data.progress.split("/")[1]
+        ) - Number(data.progress.split("/")[0])}课时将自动转入该学员剩余课时，是否确认？`;
       }
       this.$confirm(text, "确认操作", {
         confirmButtonText: "确定",
@@ -315,19 +354,39 @@ export default {
         default:
           break;
       }
-    }
+    },
+    /* 分页请求课程记录 */
+    handleClassHistoryPageChange(val){
+      this.currentPage = val;
+      // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+    },
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 .detail-form {
   width: 800px;
   margin: 0 auto;
 }
 .class-title {
   font-size: 18px;
-  margin-top: 40px;
+  margin-top: 20px;
+}
+/* .class-checkboxs{
+  text-align: center;
+} */
+.el-transfer-panel__item .el-checkbox__input {
+  left: 40px;
+}
+.el-transfer-panel .el-transfer-panel__header {
+  padding-left: 0;
+}
+.el-form-item__content {
+  text-align: left;
+}
+.el-transfer {
+  text-align: center;
 }
 </style>
