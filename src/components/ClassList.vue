@@ -1,11 +1,11 @@
 <template>
-  <div class="class-list">
-    <h1 class="class-list-title">{{title}}</h1>
-    <el-table :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index">
-      <el-table-column :prop="item.prop" :label="item.label" v-for="(item,index) of heads" :key="index">
-      </el-table-column>
-    </el-table>
-  </div>
+    <div class="class-list">
+        <h1 class="class-list-title">{{title}}</h1>
+        <el-table @cell-dblclick="clickCell" :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index">
+            <el-table-column :prop="item.prop" :label="item.label" v-for="(item,index) of heads" :key="index">
+            </el-table-column>
+        </el-table>
+    </div>
 </template>
 <style lang="css">
 .class-list thead {
@@ -24,6 +24,7 @@
 export default {
     data() {
         return {
+            // 课程表名称
             title: '巧克力梦工厂2018春季课表',
             // 表头字段
             heads: [
@@ -74,8 +75,6 @@ export default {
             classList: [
                 [
                     {
-                        // 班级classId
-                        classId: 1,
                         // 上课天
                         week: '周一',
                         // 时间段
@@ -86,14 +85,12 @@ export default {
                         classC: '领袖口才（四级)'
                     },
                     {
-                        classId: 2,
                         week: '周一',
                         noon: '下午',
                         hour: '17:45-18:45',
                         classF: '创意想象（一班）'
                     },
                     {
-                        classId: 3,
                         week: '周一',
                         noon: '下午',
                         hour: '18:30-20:00',
@@ -103,7 +100,6 @@ export default {
                 ],
                 [
                     {
-                        classId: 3,
                         week: '周二',
                         noon: '下午',
                         hour: '18:30-20:00',
@@ -113,21 +109,18 @@ export default {
                 ],
                 [
                     {
-                        classId: 3,
                         week: '周三',
                         noon: '下午',
                         hour: '17:30-19:00',
                         classF: '创意想象'
                     },
                     {
-                        classId: 3,
                         week: '周三',
                         noon: '下午',
                         hour: '18:15-19:45',
                         classE: '领袖口才1级'
                     },
                     {
-                        classId: 3,
                         week: '周三',
                         noon: '晚上',
                         hour: '19:00-20:00',
@@ -137,7 +130,6 @@ export default {
                 ],
                 [
                     {
-                        classId: 3,
                         week: '周四',
                         noon: '下午',
                         hour: '17:00-18:30',
@@ -147,14 +139,12 @@ export default {
                 ],
                 [
                     {
-                        classId: 3,
                         week: '周五',
                         noon: '下午',
                         hour: '17:30-19:00',
                         classF: '炫舞拉丁'
                     },
                     {
-                        classId: 3,
                         week: '周五',
                         noon: '下午',
                         hour: '19:00-20:00',
@@ -165,6 +155,39 @@ export default {
         };
     },
     methods: {
+        clickCell(row, column, cell, event) {
+            const tempName = cell.innerHTML.replace('<div class="cell">', '');
+            const className = tempName.replace('</div>', '');
+
+            const query = {
+                week: row.week,
+                startTime: row.hour.slice(0, 5),
+                endTime: row.hour.slice(-5),
+                location: column.label
+            };
+            // 如果点击空课程表，跳转到课程添加页面
+            if (!className) {
+                this.$router.push({
+                    path: '/addClass',
+                    query: query
+                });
+                return;
+            }
+            if (
+                className.indexOf('周') > -1 ||
+                className.indexOf('上午') > -1 ||
+                className.indexOf('下午') > -1 ||
+                className.indexOf('晚上') > -1 ||
+                className.indexOf('-') > -1
+            ) {
+                console.log(123);
+            } else {
+                this.$router.push({
+                    path: '/classDetail',
+                    query: query
+                });
+            }
+        },
         selectClass(classId) {
             console.log(classId);
         },
