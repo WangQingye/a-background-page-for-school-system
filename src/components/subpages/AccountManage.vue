@@ -12,10 +12,13 @@
                             <el-input v-model="form.nickname"></el-input>
                         </el-form-item>
                         <el-form-item label="密码" prop="password">
-                            <el-input v-model="form.password"></el-input>
+                            <el-input type="password" v-model="form.password"></el-input>
                         </el-form-item>
                         <el-form-item label="重复密码" prop="repassword">
-                            <el-input v-model="form.repassword"></el-input>
+                            <el-input type="password" v-model="form.repassword"></el-input>
+                        </el-form-item>
+                        <el-form-item label="权限选择" prop="repassword">
+                            <el-checkbox v-model="canCharge">充值权限</el-checkbox>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary">添加账号</el-button>
@@ -128,7 +131,10 @@ export default {
         newPassword: "",
         renewPassword: ""
       },
-      changePasswordVisible: false
+      // 是否显示修改密码界面
+      changePasswordVisible: false,
+      // 充值权限
+      canCharge: false
     };
   },
   methods: {
@@ -144,5 +150,8 @@ export default {
 .account-dialog {
   width: 500px;
   margin: 0 auto;
+}
+.el-table th > .cell {
+  text-align: center;
 }
 </style>
