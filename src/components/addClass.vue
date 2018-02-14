@@ -112,7 +112,7 @@ export default {
         };
     },
     created() {
-        console.log(this.$route.query);
+        // console.log(this.$route.query);
         this.getQuery();
     },
     watch: {

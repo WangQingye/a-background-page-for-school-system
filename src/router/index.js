@@ -27,7 +27,12 @@ const classList = r =>
   require.ensure([], () => r(require('@/components/classList')), 'classList');
 const addClass = r =>
   require.ensure([], () => r(require('@/components/addClass')), 'addClass');
-
+const classDetail = r =>
+  require.ensure(
+    [],
+    () => r(require('@/components/subpages/classDetail')),
+    'classDetail'
+  );
 export default new Router({
   routes: [
     {
@@ -69,6 +74,11 @@ export default new Router({
           path: '/addClass',
           component: addClass,
           meta: ['添加课程']
+        },
+        {
+          path: '/classDetail',
+          component: classDetail,
+          meta: ['课程详情']
         }
       ]
     }

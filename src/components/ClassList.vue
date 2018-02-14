@@ -158,16 +158,16 @@ export default {
         clickCell(row, column, cell, event) {
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
             const className = tempName.replace('</div>', '');
+            const query = {
+                week: row.week,
+                startTime: row.hour.slice(0, 5),
+                endTime: row.hour.slice(-5),
+                location: column.label
+            };
             // 如果点击空课程表，跳转到课程添加页面
             if (!className) {
-                const query = {
-                    week: row.week,
-                    startTime: row.hour.slice(0, 5),
-                    endTime: row.hour.slice(-5),
-                    location: column.label
-                };
                 this.$router.push({
-                    path: '/addClass',
+                    path: '/subpages/addClass',
                     query: query
                 });
             }
@@ -180,7 +180,10 @@ export default {
             ) {
                 console.log(123);
             } else {
-                console.log(className);
+                this.$router.push({
+                    path: '/classDetail',
+                    query: query
+                });
             }
         },
         selectClass(classId) {
