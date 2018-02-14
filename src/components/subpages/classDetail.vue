@@ -204,6 +204,9 @@ export default {
         },
         showClassDetail(index) {
             console.log(index);
+            this.$router.push({
+                path: '/studentAttendance'
+            });
         },
         // 提交课程
         changeClass() {

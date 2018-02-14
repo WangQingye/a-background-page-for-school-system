@@ -24,14 +24,20 @@ const studentList = r =>
     'studentList'
   );
 const classList = r =>
-  require.ensure([], () => r(require('@/components/classList')), 'classList');
+  require.ensure([], () => r(require('@/components/ClassList')), 'classList');
 const addClass = r =>
-  require.ensure([], () => r(require('@/components/addClass')), 'addClass');
+  require.ensure([], () => r(require('@/components/AddClass')), 'addClass');
 const classDetail = r =>
   require.ensure(
     [],
-    () => r(require('@/components/subpages/classDetail')),
+    () => r(require('@/components/subpages/ClassDetail')),
     'classDetail'
+  );
+const studentAttendance = r =>
+  require.ensure(
+    [],
+    () => r(require('@/components/subpages/StudentAttendance')),
+    'studentAttendance'
   );
 export default new Router({
   routes: [
@@ -79,6 +85,11 @@ export default new Router({
           path: '/classDetail',
           component: classDetail,
           meta: ['课程详情']
+        },
+        {
+          path: '/studentAttendance',
+          component: studentAttendance,
+          meta: ['课程出勤']
         }
       ]
     }

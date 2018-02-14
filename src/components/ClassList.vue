@@ -158,6 +158,7 @@ export default {
         clickCell(row, column, cell, event) {
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
             const className = tempName.replace('</div>', '');
+
             const query = {
                 week: row.week,
                 startTime: row.hour.slice(0, 5),
@@ -167,9 +168,10 @@ export default {
             // 如果点击空课程表，跳转到课程添加页面
             if (!className) {
                 this.$router.push({
-                    path: '/subpages/addClass',
+                    path: '/addClass',
                     query: query
                 });
+                return;
             }
             if (
                 className.indexOf('周') > -1 ||
