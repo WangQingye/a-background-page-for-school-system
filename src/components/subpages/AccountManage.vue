@@ -18,7 +18,7 @@
                             <el-input type="password" v-model="form.repassword"></el-input>
                         </el-form-item>
                         <el-form-item label="权限选择" prop="repassword">
-                            <el-checkbox v-model="canCharge">充值权限</el-checkbox>
+                            <el-checkbox v-model="form.canCharge">充值权限</el-checkbox>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary">添加账号</el-button>
@@ -39,37 +39,37 @@
                         </el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改信息</el-button>
-                                <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">删除</el-button>
+                                <el-button size="small" type="primary" @click="showPasswordChange(scope.row)">修改信息</el-button>
+                                <el-button size="small" type="danger" @click="openDeleteConfirm(scope.row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
             </el-tabs>
             <!-- 修改密码 -->
-            <!-- <el-dialog width="30%" title="修改课时" :visible.sync="changePasswordVisible" append-to-body>
-                <el-form ref="changeClass" :model="changePasswordForm" label-width="80px">
+            <el-dialog width="400" title="修改账号信息" :visible.sync="changePasswordVisible" append-to-body>
+                <el-form ref="changePassword" :model="changePasswordForm" label-width="80px">
                     <el-form-item label="账号">
-                        <span>王小虎</span>
+                        <span>{{changePasswordForm.account}}</span>
                     </el-form-item>
                     <el-form-item label="昵称">
                         <span>{{changePasswordForm.className}}</span>
                     </el-form-item>
                     <el-form-item label="旧密码">
-
+                        <span>{{changePasswordForm.oldPassword}}</span>
                     </el-form-item>
                     <el-form-item label="新密码">
-                        <span>{{changePasswordForm.totalClass}}</span>
+                        <el-input type="password" v-model="changePasswordForm.newPassword"></el-input>
                     </el-form-item>
                     <el-form-item label="重复密码">
-                        <span>{{changePasswordForm.totalClass}}</span>
+                        <el-input type="password" v-model="changePasswordForm.renewPassword"></el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="submitChangePassword">修改</el-button>
+                        <!-- <el-button type="primary" @click="submitChangePassword">确认修改</el-button> -->
                         <el-button @click="changePasswordVisible = false">取消</el-button>
                     </el-form-item>
                 </el-form>
-            </el-dialog> -->
+            </el-dialog>
         </el-dialog>
     </div>
 </template>
@@ -90,7 +90,9 @@ export default {
         account: "",
         nickname: "",
         password: "",
-        repassword: ""
+        repassword: "",
+        // 充值权限
+        canCharge: false
       },
       rules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
@@ -133,14 +135,18 @@ export default {
       },
       // 是否显示修改密码界面
       changePasswordVisible: false,
-      // 充值权限
-      canCharge: false
     };
   },
   methods: {
     close() {
       this.$emit("close");
-    }
+    },
+    showPasswordChange(data){
+        this.changePasswordVisible = true;
+        this.changePasswordForm.account = data.account;
+        this.changePasswordForm.nickname = data.nickname;
+        this.changePasswordForm.oldPassword = data.password
+    },
   }
 };
 </script>
