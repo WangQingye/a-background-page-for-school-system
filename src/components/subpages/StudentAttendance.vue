@@ -4,7 +4,10 @@
         <el-table :data="students" style="width: 100%">
             <el-table-column align="center" prop="studentName" label="学生姓名" width="180">
             </el-table-column>
-            <el-table-column prop="status" label="出勤情况" width="180">
+            <el-table-column label="出勤情况" width="180">
+                <template slot-scope="scope">
+                    <span :class="{absent: (scope.row.status === '缺席')}">{{ scope.row.status }}</span>
+                </template>
             </el-table-column>
             <el-table-column fixed="right" align="center" label="操作">
                 <template slot-scope="scope">
@@ -86,5 +89,8 @@ export default {
     th div {
         text-align: center;
     }
+}
+.absent {
+    color: red;
 }
 </style>
