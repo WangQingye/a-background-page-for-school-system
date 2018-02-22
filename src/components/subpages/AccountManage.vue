@@ -19,6 +19,7 @@
                         </el-form-item>
                         <el-form-item label="权限选择" prop="repassword">
                             <el-checkbox v-model="form.canCharge">充值权限</el-checkbox>
+                            <el-checkbox v-model="form.canNotify">通知权限</el-checkbox>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary">添加账号</el-button>
@@ -53,7 +54,7 @@
                         <span>{{changePasswordForm.account}}</span>
                     </el-form-item>
                     <el-form-item label="昵称">
-                        <span>{{changePasswordForm.className}}</span>
+                        <el-input type="text" v-model="changePasswordForm.nickname"></el-input>
                     </el-form-item>
                     <el-form-item label="旧密码">
                         <span>{{changePasswordForm.oldPassword}}</span>
@@ -65,7 +66,7 @@
                         <el-input type="password" v-model="changePasswordForm.renewPassword"></el-input>
                     </el-form-item>
                     <el-form-item>
-                        <!-- <el-button type="primary" @click="submitChangePassword">确认修改</el-button> -->
+                        <el-button type="primary" @click="submitChangePassword">确认修改</el-button>
                         <el-button @click="changePasswordVisible = false">取消</el-button>
                     </el-form-item>
                 </el-form>
@@ -92,7 +93,8 @@ export default {
         password: "",
         repassword: "",
         // 充值权限
-        canCharge: false
+        canCharge: false,
+        canNotify: false
       },
       rules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
@@ -134,19 +136,39 @@ export default {
         renewPassword: ""
       },
       // 是否显示修改密码界面
-      changePasswordVisible: false,
+      changePasswordVisible: false
     };
   },
   methods: {
     close() {
       this.$emit("close");
     },
-    showPasswordChange(data){
-        this.changePasswordVisible = true;
-        this.changePasswordForm.account = data.account;
-        this.changePasswordForm.nickname = data.nickname;
-        this.changePasswordForm.oldPassword = data.password
+    showPasswordChange(data) {
+      this.changePasswordVisible = true;
+      this.changePasswordForm.account = data.account;
+      this.changePasswordForm.nickname = data.nickname;
+      this.changePasswordForm.oldPassword = data.password;
     },
+    submitPasswordChange() {},
+    openDeleteConfirm(data) {
+      this.$confirm(`您确定要删除${data.nickname}的账号吗？`, "确认操作", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "info"
+      })
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消修改"
+          });
+        });
+    }
   }
 };
 </script>

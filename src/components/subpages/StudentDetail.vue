@@ -356,10 +356,10 @@ export default {
       }
     },
     /* 分页请求课程记录 */
-    handleClassHistoryPageChange(val){
+    handleClassHistoryPageChange(val) {
       this.currentPage = val;
       // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
-    },
+    }
   }
 };
 </script>
