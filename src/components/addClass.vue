@@ -61,7 +61,7 @@
                 </el-col>
                 <el-col :span="2">-</el-col>
                 <el-col :span="2">
-                    <el-button type="warning" @click="removeTime(index)">删除</el-button>
+                    <el-button type="danger" @click="removeTime(index)">删除</el-button>
                 </el-col>
             </el-form-item>
             <el-form-item label="教师名字" prop="teacher" required>
