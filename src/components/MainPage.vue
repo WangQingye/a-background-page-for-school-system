@@ -53,13 +53,16 @@
 </template>
 <script>
 import AccountManage from "./subpages/AccountManage.vue";
+import {baseUrl} from '../config/env'
 export default {
   data(){
     return {
       dialogVisible: false
     }
   },
-  mounted() {},
+  mounted() {
+    console.log(baseUrl);
+  },
   methods: {
     logOut() {
       this.$router.push("/");

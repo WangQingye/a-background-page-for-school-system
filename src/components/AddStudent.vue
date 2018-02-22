@@ -131,8 +131,6 @@ export default {
   width: 700px;
   margin: 0 auto;
 }
-.class-overplus {
-}
 .el-transfer-panel__item .el-checkbox__input {
   left: 40px;
 }
