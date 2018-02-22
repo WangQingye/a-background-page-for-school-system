@@ -51,7 +51,28 @@ export default {
     },
     methods: {
         changeStudentStatus(index) {
-            console.log(index);
+            this.$confirm('确定要修改此学生的出勤状态吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    if (this.students[index].status === '缺席') {
+                        this.students[index].status = '正常';
+                    } else {
+                        this.students[index].status = '缺席';
+                    }
+                    this.$message({
+                        type: 'success',
+                        message: '已成功修改出勤状态!'
+                    });
+                })
+                .catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消修改操作'
+                    });
+                });
         }
     }
 };
