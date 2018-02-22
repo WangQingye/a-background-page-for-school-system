@@ -1,6 +1,6 @@
 <template>
   <div class="student-detail">
-    <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1100px">
+    <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1200px">
       <el-tabs>
         <!-- 基本信息页 -->
         <el-tab-pane label="基本信息">
@@ -69,6 +69,7 @@
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
+                <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
                 <el-button size="small" type="success" @click="openConfirm(1,scope.row)">续课</el-button>
                 <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">停课</el-button>
               </template>
@@ -122,6 +123,35 @@
           <el-form-item>
             <el-button type="primary" @click="submitChangeHadClass">修改</el-button>
             <el-button @click="changeClassVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <!-- 转班弹出框 -->
+      <el-dialog width="30%" title="转班" :visible.sync="transClassVisible" append-to-body>
+        <el-form ref="changeClass" :model="transClassform" label-width="80px">
+          <el-form-item label="学员姓名">
+            <span>王小虎</span>
+          </el-form-item>
+          <el-form-item label="当前班级">
+            <span>{{transClassform.oldClassName}}</span>
+          </el-form-item>
+          <el-form-item label="课时情况">
+            <span>{{transClassform.progress}}</span>
+          </el-form-item>
+          <el-form-item label="转到">
+            <el-select v-model="transClassform.newClassName" placeholder="选择班级">
+              <el-option label="周一" value="周一"></el-option>
+              <el-option label="周二" value="周二"></el-option>
+              <el-option label="周三" value="周三"></el-option>
+              <el-option label="周四" value="周四"></el-option>
+              <el-option label="周五" value="周五"></el-option>
+              <el-option label="周六" value="周六"></el-option>
+              <el-option label="周日" value="周日"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitTransClass">确定</el-button>
+            <el-button @click="transClassVisible = false">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -186,6 +216,11 @@ export default {
         className: "",
         hadClass: 0,
         totalClass: 0
+      },
+      transClassform: {
+        oldClassName: "",
+        progress: "6/16",
+        newClassName: ""
       },
       classData: generateData(),
       tableData: [
@@ -271,6 +306,7 @@ export default {
         }
       ],
       changeClassVisible: false,
+      transClassVisible: false,
       count: 100,
       historyPage: 1
     };
@@ -307,6 +343,17 @@ export default {
     },
     submitChangeHadClass() {
       console.log("确定修改课时");
+    },
+    /* 打开课程课时修改 */
+    openClassTrans(data) {
+      console.log(data);
+      this.transClassform.oldClassName = data.className;
+      this.transClassform.progress = data.progress;
+      this.transClassVisible = true;
+    },
+    submitTransClass() {
+      console.log("确定转班");
+      console.log(this.transClassform);      
     },
     /* 确认框，暂时分为续课和停课 */
     openConfirm(type, data) {

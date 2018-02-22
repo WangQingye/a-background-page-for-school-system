@@ -5,7 +5,7 @@
  * baseImagePath: 图片存放地址
  */
 
- let baseUrl = 'class.wuxin.ren/api';
+ let baseUrl = 'http://class.wuxin.ren/api';
  let routerMode = 'history';
 
  export {
