@@ -163,277 +163,302 @@
 
 <script>
 export default {
-  props: {
-    placeText: {
-      type: String,
-      default: "请输入搜索内容"
-    },
-    dialogVisible: {
-      type: Boolean,
-      default: false
-    },
-    studentIndex: {
-      type: Number,
-      default: 0
-    }
-  },
-  data() {
-    const generateData = _ => {
-      const data = [];
-      for (let i = 1; i <= 15; i++) {
-        data.push({
-          key: i,
-          label: `课程 ${i}`
-          // disabled: i % 4 === 0
-        });
-      }
-      return data;
-    };
-    return {
-      form: {
-        studentName: "",
-        parentName: "",
-        parentContact: "",
-        school: "天府校区",
-        allClass: 0, // 总充值课程数
-        singleClass: 0, // 单个课程的课时
-        restClass: 32, // 剩余（未使用）课时数
-        classChoose: [], //选择要参加的课时
-        type: [],
-        desc: ""
-      },
-      rules: {
-        studentName: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
-        parentName: [{ required: true, message: "请输入家长称呼", trigger: "blur" }],
-        parentContact: [
-          { required: true, message: "请输入家长联系方式", trigger: "blur" }
-        ]
-        // allClass: [],
-        // singleClass: [],
-        // restClass: []
-      },
-      changeClassform: {
-        className: "",
-        hadClass: 0,
-        totalClass: 0
-      },
-      transClassform: {
-        oldClassName: "",
-        progress: "6/16",
-        newClassName: ""
-      },
-      classData: generateData(),
-      tableData: [
-        {
-          date: "2017-05-02",
-          name: "领袖口才2017期",
-          address: "无",
-          tag: "到课"
+    props: {
+        placeText: {
+            type: String,
+            default: '请输入搜索内容'
         },
-        {
-          date: "2017-05-04",
-          name: "形象气质2017期",
-          address: "家人出门旅游",
-          tag: "请假"
+        dialogVisible: {
+            type: Boolean,
+            default: false
         },
-        {
-          date: "2017-05-01",
-          name: "领袖口才2017期",
-          address: "家长课后约谈",
-          tag: "到课"
+        studentIndex: {
+            type: Number,
+            default: 0
         },
-        {
-          date: "2017-05-03",
-          name: "形象气质2017期",
-          address: "参加学校考试",
-          tag: "请假"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "无",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
+        studentId: {
+            type: Number,
+            default: 0
         }
-      ],
-      tableData1: [
-        {
-          date: "周一 17:00-18:00",
-          className: "领袖口才2017期1班",
-          progress: "5/16",
-          desc: "天府校区-E教室-小宇老师"
-        },
-        {
-          date: "周二 17:00-18:00",
-          className: "形象气质2017期2班",
-          progress: "7/16",
-          desc: "天府校区-D教室-小花老师"
-        },
-        {
-          date: "周六 17:00-18:00",
-          className: "领袖口才2018期1班",
-          progress: "14/16",
-          desc: "天府校区-A教室-小萌老师"
-        }
-      ],
-      changeClassVisible: false,
-      transClassVisible: false,
-      count: 100,
-      historyPage: 1
-    };
-  },
-  methods: {
-    close() {
-      console.log(11);
-      this.$emit("close");
     },
-    changeClass(value, direction, movedKeys) {
-      if (this.allClass - this.classChoose.length * 16 < 0) {
-        this.$message.error("您的剩余课时不够添加这些课程哦");
-        movedKeys.forEach(key => {
-          this.classChoose.splice(
-            this.classChoose.findIndex(value => {
-              return value == key;
+    data() {
+        const generateData = _ => {
+            const data = [];
+            for (let i = 1; i <= 15; i++) {
+                data.push({
+                    key: i,
+                    label: `课程 ${i}`
+                    // disabled: i % 4 === 0
+                });
+            }
+            return data;
+        };
+        return {
+            form: {
+                studentName: '',
+                parentName: '',
+                parentContact: '',
+                school: '天府校区',
+                allClass: 0, // 总充值课程数
+                singleClass: 0, // 单个课程的课时
+                restClass: 32, // 剩余（未使用）课时数
+                classChoose: [], //选择要参加的课时
+                type: [],
+                desc: ''
+            },
+            rules: {
+                studentName: [
+                    {
+                        required: true,
+                        message: '请输入学生姓名',
+                        trigger: 'blur'
+                    }
+                ],
+                parentName: [
+                    {
+                        required: true,
+                        message: '请输入家长称呼',
+                        trigger: 'blur'
+                    }
+                ],
+                parentContact: [
+                    {
+                        required: true,
+                        message: '请输入家长联系方式',
+                        trigger: 'blur'
+                    }
+                ]
+                // allClass: [],
+                // singleClass: [],
+                // restClass: []
+            },
+            changeClassform: {
+                className: '',
+                hadClass: 0,
+                totalClass: 0
+            },
+            transClassform: {
+                oldClassName: '',
+                progress: '6/16',
+                newClassName: ''
+            },
+            classData: generateData(),
+            tableData: [
+                {
+                    date: '2017-05-02',
+                    name: '领袖口才2017期',
+                    address: '无',
+                    tag: '到课'
+                },
+                {
+                    date: '2017-05-04',
+                    name: '形象气质2017期',
+                    address: '家人出门旅游',
+                    tag: '请假'
+                },
+                {
+                    date: '2017-05-01',
+                    name: '领袖口才2017期',
+                    address: '家长课后约谈',
+                    tag: '到课'
+                },
+                {
+                    date: '2017-05-03',
+                    name: '形象气质2017期',
+                    address: '参加学校考试',
+                    tag: '请假'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '无',
+                    tag: '待上'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '需要自带小板凳',
+                    tag: '待上'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '需要自带小板凳',
+                    tag: '待上'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '需要自带小板凳',
+                    tag: '待上'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '需要自带小板凳',
+                    tag: '待上'
+                },
+                {
+                    date: '2018-05-03',
+                    name: '形象气质2018期',
+                    address: '需要自带小板凳',
+                    tag: '待上'
+                }
+            ],
+            tableData1: [
+                {
+                    date: '周一 17:00-18:00',
+                    className: '领袖口才2017期1班',
+                    progress: '5/16',
+                    desc: '天府校区-E教室-小宇老师'
+                },
+                {
+                    date: '周二 17:00-18:00',
+                    className: '形象气质2017期2班',
+                    progress: '7/16',
+                    desc: '天府校区-D教室-小花老师'
+                },
+                {
+                    date: '周六 17:00-18:00',
+                    className: '领袖口才2018期1班',
+                    progress: '14/16',
+                    desc: '天府校区-A教室-小萌老师'
+                }
+            ],
+            changeClassVisible: false,
+            transClassVisible: false,
+            count: 100,
+            historyPage: 1
+        };
+    },
+    methods: {
+        close() {
+            console.log(11);
+            this.$emit('close');
+        },
+        changeClass(value, direction, movedKeys) {
+            if (this.allClass - this.classChoose.length * 16 < 0) {
+                this.$message.error('您的剩余课时不够添加这些课程哦');
+                movedKeys.forEach(key => {
+                    this.classChoose.splice(
+                        this.classChoose.findIndex(value => {
+                            return value == key;
+                        })
+                    );
+                }, this);
+                return;
+            }
+            this.restClass = this.allClass - this.classChoose.length * 16;
+        },
+        filterTag(value, row) {
+            return row.tag === value;
+        },
+        /* 打开课程课时修改 */
+        openClassChange(data) {
+            console.log(data);
+            this.changeClassform.className = data.className;
+            this.changeClassform.hadClass = Number(data.progress.split('/')[0]);
+            this.changeClassform.totalClass = Number(
+                data.progress.split('/')[1]
+            );
+            this.changeClassVisible = true;
+        },
+        submitChangeHadClass() {
+            console.log('确定修改课时');
+        },
+        /* 打开课程课时修改 */
+        openClassTrans(data) {
+            console.log(data);
+            this.transClassform.oldClassName = data.className;
+            this.transClassform.progress = data.progress;
+            this.transClassVisible = true;
+        },
+        submitTransClass() {
+            console.log('确定转班');
+            console.log(this.transClassform);
+        },
+        /* 确认框，暂时分为续课和停课 */
+        openConfirm(type, data) {
+            let text;
+            console.log(data);
+            if (type == 1) {
+                text = `本次操作将从学员剩余课时中扣除${Number(
+                    data.progress.split('/')[1]
+                )}课时，用以续开一期${data.className}课程，是否确认？`;
+            } else if (type == 2) {
+                text = `本次操作将停止该学员的${
+                    data.className
+                }课程，剩余${Number(data.progress.split('/')[1]) -
+                    Number(
+                        data.progress.split('/')[0]
+                    )}课时将自动转入该学员剩余课时，是否确认？`;
+            }
+            this.$confirm(text, '确认操作', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
             })
-          );
-        }, this);
-        return;
-      }
-      this.restClass = this.allClass - this.classChoose.length * 16;
-    },
-    filterTag(value, row) {
-      return row.tag === value;
-    },
-    /* 打开课程课时修改 */
-    openClassChange(data) {
-      console.log(data);
-      this.changeClassform.className = data.className;
-      this.changeClassform.hadClass = Number(data.progress.split("/")[0]);
-      this.changeClassform.totalClass = Number(data.progress.split("/")[1]);
-      this.changeClassVisible = true;
-    },
-    submitChangeHadClass() {
-      console.log("确定修改课时");
-    },
-    /* 打开课程课时修改 */
-    openClassTrans(data) {
-      console.log(data);
-      this.transClassform.oldClassName = data.className;
-      this.transClassform.progress = data.progress;
-      this.transClassVisible = true;
-    },
-    submitTransClass() {
-      console.log("确定转班");
-      console.log(this.transClassform);      
-    },
-    /* 确认框，暂时分为续课和停课 */
-    openConfirm(type, data) {
-      let text;
-      console.log(data);
-      if (type == 1) {
-        text = `本次操作将从学员剩余课时中扣除${Number(
-          data.progress.split("/")[1]
-        )}课时，用以续开一期${data.className}课程，是否确认？`;
-      } else if (type == 2) {
-        text = `本次操作将停止该学员的${data.className}课程，剩余${Number(
-          data.progress.split("/")[1]
-        ) - Number(data.progress.split("/")[0])}课时将自动转入该学员剩余课时，是否确认？`;
-      }
-      this.$confirm(text, "确认操作", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "info"
-      })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消修改"
-          });
-        });
-    },
-    calClassType(tag) {
-      switch (tag) {
-        case "请假":
-          return "danger";
-          break;
-        case "到课":
-          return "success";
-          break;
-        case "待上":
-          return "primary";
-          break;
+                .then(() => {
+                    this.$message({
+                        type: 'success',
+                        message: '操作成功!'
+                    });
+                })
+                .catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消修改'
+                    });
+                });
+        },
+        calClassType(tag) {
+            switch (tag) {
+                case '请假':
+                    return 'danger';
+                    break;
+                case '到课':
+                    return 'success';
+                    break;
+                case '待上':
+                    return 'primary';
+                    break;
 
-        default:
-          break;
-      }
-    },
-    /* 分页请求课程记录 */
-    handleClassHistoryPageChange(val) {
-      this.currentPage = val;
-      // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+                default:
+                    break;
+            }
+        },
+        /* 分页请求课程记录 */
+        handleClassHistoryPageChange(val) {
+            this.currentPage = val;
+            // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+        }
     }
-  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .detail-form {
-  width: 800px;
-  margin: 0 auto;
+    width: 800px;
+    margin: 0 auto;
 }
 .class-title {
-  font-size: 18px;
-  margin-top: 20px;
+    font-size: 18px;
+    margin-top: 20px;
 }
 /* .class-checkboxs{
   text-align: center;
 } */
 .el-transfer-panel__item .el-checkbox__input {
-  left: 40px;
+    left: 40px;
 }
 .el-transfer-panel .el-transfer-panel__header {
-  padding-left: 0;
+    padding-left: 0;
 }
 .el-form-item__content {
-  text-align: left;
+    text-align: left;
 }
 .el-transfer {
-  text-align: center;
+    text-align: center;
 }
 </style>
