@@ -61,6 +61,7 @@ export default {
     }
   },
   mounted() {
+    console.log(login());
   },
   methods: {
     logOut() {
