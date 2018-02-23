@@ -53,7 +53,6 @@
 </template>
 <script>
 import AccountManage from "./subpages/AccountManage.vue";
-import {login} from '../api/getData'
 export default {
   data(){
     return {
@@ -61,7 +60,7 @@ export default {
     }
   },
   mounted() {
-    console.log(login());
+
   },
   methods: {
     logOut() {

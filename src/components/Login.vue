@@ -23,6 +23,7 @@
     </div>
 </template>
 <script>
+import {login} from '../api/getData';
 export default {
   data() {
     return {
@@ -38,13 +39,16 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate(valid => {
+    async submitForm(formName) {
+      this.$refs[formName].validate( async (valid) => {
         if (valid) {
-          if (
-            this.loginForm.username == "admin" &&
-            this.loginForm.password == "123456"
-          ) {
+          const res = await login({
+            account: this.loginForm.username,
+            pass: this.loginForm.password
+          });
+          console.log(this.loginForm.username, this.loginForm.password);
+          console.log(res);
+          if (res.ok) {
             this.$message({
               type: "success",
               message: "登录成功"
@@ -73,8 +77,6 @@ export default {
 // @import "../style/common";
 // @import "../style/mixin";
 
-.login {
-}
 .manage-logo {
   width: 200px;
   display: block;

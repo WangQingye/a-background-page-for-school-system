@@ -1,6 +1,6 @@
-import {baseUrl} from './env'
+import {baseUrl} from './env';
 
-export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
+export default async (url = '', data = {}, type = 'GET', method = 'fetch') => {
     type = type.toUpperCase();
     url = baseUrl + url;
     
@@ -19,23 +19,26 @@ export default async(url = '', data = {}, type = 'GET', method = 'fetch') => {
         let requestConfig = {
             credentials: 'include', // 传Cookie给服务器用以维护登录状态
             method: type,
-            headers: {
-                'Accept' : 'application/json',
-                'Content-Type': 'application/json'
-            },
             mode: 'cors',
+            headers: {  
+                'Accept': 'application/json',   
+                'Content-Type': 'application/json'  
+            }, 
             cache: 'force-cache'
         }
 
         if (type == 'POST') {
             Object.defineProperty(requestConfig, 'body', {
+                // value: 'account=admin&pass=123456'
                 value: JSON.stringify(data)
+                // value: data
             })
         }
-        
+        console.log(requestConfig);
         try {
             const response = await fetch(url, requestConfig);
-            return await response.json();
+            const responseData = await response.json();
+            return responseData;
         } catch (err) {
             throw new Error(err)
         }
