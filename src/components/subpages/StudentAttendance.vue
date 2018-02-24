@@ -6,7 +6,8 @@
             </el-table-column>
             <el-table-column label="出勤情况" width="180">
                 <template slot-scope="scope">
-                    <span :class="{absent: (scope.row.status === '缺席')}">{{ scope.row.status }}</span>
+
+                    <el-tag :type="scope.row.status === '缺席'?'danger':'success'">{{ scope.row.status }}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column fixed="right" align="center" label="操作">
@@ -16,13 +17,27 @@
                     </el-button>
                 </template>
             </el-table-column>
+            <el-table-column fixed="right" align="center" label="操作">
+                <template slot-scope="scope">
+                    <el-button @click="openStudentDetail(scope.$index)" type="text" size="small">
+                        查看学生详情
+                    </el-button>
+                </template>
+            </el-table-column>
         </el-table>
+
+        <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentId="studentId"></student-detail>
     </div>
+
 </template>
 <script>
+import StudentDetail from './StudentDetail.vue';
+
 export default {
     data() {
         return {
+            dialogVisible: false,
+            studentId: null,
             students: [
                 {
                     studentId: 126,
@@ -52,7 +67,18 @@ export default {
             ]
         };
     },
+    components: {
+        StudentDetail
+    },
     methods: {
+        closeDetail() {
+            this.dialogVisible = false;
+        },
+        openStudentDetail(index) {
+            this.studentId = this.students[index].studentId;
+            console.log(this.studentId);
+            this.dialogVisible = true;
+        },
         changeStudentStatus(index) {
             this.$confirm('确定要修改此学生的出勤状态吗?', '提示', {
                 confirmButtonText: '确定',

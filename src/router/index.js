@@ -39,6 +39,13 @@ const studentAttendance = r =>
     () => r(require('@/components/subpages/StudentAttendance')),
     'studentAttendance'
   );
+const notification = r =>
+  require.ensure(
+    [],
+    () => r(require('@/components/Notification')),
+    'notification'
+  );
+
 export default new Router({
   routes: [
     {
@@ -89,6 +96,11 @@ export default new Router({
         {
           path: '/studentAttendance',
           component: studentAttendance,
+          meta: ['课程出勤']
+        },
+        {
+          path: '/notification',
+          component: notification,
           meta: ['课程出勤']
         }
       ]
