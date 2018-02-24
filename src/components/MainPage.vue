@@ -53,6 +53,8 @@
 </template>
 <script>
 import AccountManage from "./subpages/AccountManage.vue";
+import { logOut } from "../api/getData";
+
 export default {
   data(){
     return {
@@ -63,8 +65,14 @@ export default {
 
   },
   methods: {
-    logOut() {
-      this.$router.push("/");
+        // async logOut(){
+    //   const res = await logOut();
+    // }
+    async logOut() {
+      const res = await logOut();
+      if (res.ok) {
+        this.$router.push("/");
+      }
     },
     closeAccount(){
       this.dialogVisible = false;
