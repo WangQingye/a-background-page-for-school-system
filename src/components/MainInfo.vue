@@ -1,7 +1,8 @@
 <template>
   <div class="main-info">
     <p class="text">主页信息</p>
-    <el-table :data="formData" border show-summary style="width: 80%">
+    <p>人数人次统计</p>
+    <el-table :data="formData" border show-summary style="width: 80%" class="count-table">
       <el-table-column prop="date" label="日期" width="180">
       </el-table-column>
       <el-table-column prop="students" label="上课人数">
@@ -37,5 +38,8 @@ export default {
 .text {
   font-size: 20px;
   font-weight: 600;
+}
+.count-table{
+  margin-left: 10%;
 }
 </style>

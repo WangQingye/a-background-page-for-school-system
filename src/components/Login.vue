@@ -24,6 +24,7 @@
 </template>
 <script>
 import { login, isLogin } from "../api/getData";
+import {mapGetters, mapMutations, mapActions} from 'vuex';
 export default {
   data() {
     return {
@@ -51,6 +52,7 @@ export default {
           console.log(this.loginForm.username, this.loginForm.password);
           console.log(res);
           if (res.ok) {
+            this.saveAdminInfo(res);
             this.$message({
               type: "success",
               message: "登录成功"
@@ -80,7 +82,8 @@ export default {
         });
         this.$router.push("main");
       }
-    }
+    },
+    ...mapMutations(['saveAdminInfo'])
   }
 };
 </script>

@@ -9,6 +9,7 @@ const state = {
 
 const mutations = {
     saveAdminInfo(state, adminInfo){
+        console.log('save');
         state.adminInfo = adminInfo;
     }
 }
@@ -27,7 +28,6 @@ const actions = {
         }
     }
 }
-
 export default new Vuex.Store({
     state,
     actions,

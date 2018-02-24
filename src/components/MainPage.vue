@@ -52,20 +52,24 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
 import AccountManage from "./subpages/AccountManage.vue";
 import { logOut } from "../api/getData";
-
 export default {
-  data(){
+  data() {
     return {
       dialogVisible: false
-    }
+    };
+  },
+  computed: {
+    ...mapState(['adminInfo'])
   },
   mounted() {
-
+    console.log(this.$store.state.adminInfo);
+    console.log(this.adminInfo);
   },
   methods: {
-        // async logOut(){
+    // async logOut(){
     //   const res = await logOut();
     // }
     async logOut() {
@@ -74,7 +78,7 @@ export default {
         this.$router.push("/");
       }
     },
-    closeAccount(){
+    closeAccount() {
       this.dialogVisible = false;
     }
   },
