@@ -15,8 +15,10 @@ export const logOut = () => fetch('/login/logout');
  */
 // 获取用户列表
 export const getAdmins = () => fetch('/user/index');
-// 修改用户
+// 修改用户资料
 export const editAdmin = data => fetch('/user/edit', data, 'POST');
+// 修改密码
+export const changePass = data => fetch('/user/chgpass', data, 'POST')
 // export const editAdmin = (data) => {
 //   axios.post('http://class.wuxin.ren/api/user/edit', data)
 //     .then(function (response) {

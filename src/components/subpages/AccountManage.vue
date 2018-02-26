@@ -125,7 +125,10 @@ export default {
       rules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
         name: [{ required: true, message: "请输入昵称", trigger: "blur" }],
-        pass: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        pass: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 6, message: "密码不能少于6个字符", trigger: "blur" }
+        ],
         repassword: [
           { required: true, validator: this.validaterePass, trigger: "blur" }
         ]
@@ -191,7 +194,7 @@ export default {
       console.log(this.addAccountForm);
       //   let res = await editAdmin(this.changeAuthForm);
       //   console.log(res);
-      this.$refs.addAccountForm.validate( async (valid) => {
+      this.$refs.addAccountForm.validate(async valid => {
         if (valid) {
           let res1 = await isLogin();
           console.log(res1);
