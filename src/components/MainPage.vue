@@ -105,19 +105,29 @@ export default {
     }
   },
   methods: {
-    // async logOut(){
-    //   const res = await logOut();
-    // }
     async logOut() {
       const res = await logOut();
       if (res.ok) {
         this.$router.push("/");
       }
     },
-    async submitChangePass(){
+    async submitChangePass() {
       // console.log(this.changePassForm);
-      let res = await changePass(this.changePassForm)
-      console.log(res);
+      let res = await changePass(this.changePassForm);
+      if (res.ok) {
+        this.$message({
+          type: "success",
+          message: "修改成功"
+        });
+        this.changePassVisible = false;
+        this.changePassForm.oldPass = '';
+        this.changePassForm.newPass = '';
+      } else {
+        this.$message({
+          type: "error",
+          message: res.errorMsg
+        });
+      }
     },
     ...mapActions(["getAdminData"])
   },
