@@ -6,10 +6,10 @@
         <p class="logo-text">巧克力梦工厂后台管理系统</p>
       </el-col>
       <el-col :span="14" class="admin-text">
-        <p>管理员，你好</p>
+        <p>{{userName}}，你好</p>
       </el-col>
       <el-col :span="4" class="log-out">
-        <el-button type="primary" @click="dialogVisible = true">账号管理</el-button>
+        <el-button v-show="isAdmin" type="primary" @click="dialogVisible = true">账号管理</el-button>
         <el-button @click="logOut">退出</el-button>
       </el-col>
     </el-row>
@@ -52,21 +52,29 @@
   </div>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 import AccountManage from "./subpages/AccountManage.vue";
 import { logOut } from "../api/getData";
 export default {
   data() {
     return {
-      dialogVisible: false
+      dialogVisible: false,
+      isAdmin: this.$store.state.adminInfo.type == 1,
+      userName: ''
     };
   },
   computed: {
-    ...mapState(['adminInfo'])
   },
-  mounted() {
-    console.log(this.$store.state.adminInfo);
-    console.log(this.adminInfo);
+  // computed: mapState({
+  //   // 箭头函数可使代码更简练
+  //   adminInfo: state => state.adminInfo,
+  // }),
+  async mounted() {
+    if (!this.$store.state.adminInfo.id) {
+      await this.getAdminData();
+      this.isAdmin = this.$store.state.adminInfo.type == 1
+      this.userName = this.$store.state.adminInfo.name
+    };
   },
   methods: {
     // async logOut(){
@@ -80,7 +88,8 @@ export default {
     },
     closeAccount() {
       this.dialogVisible = false;
-    }
+    },
+    ...mapActions(["getAdminData"])
   },
   computed: {
     defaultActive() {

@@ -36,6 +36,7 @@
   </div>
 </template>
 <script>
+import { getFeedBack } from "../api/getData";
 export default {
   data() {
     return {
@@ -125,7 +126,14 @@ export default {
       count: 100
     };
   },
+  mounted(){
+    this.getFeedBack();
+  },
   methods: {
+    async getFeedBack(){
+      let res = await getFeedBack({page:this.currentPage})
+      console.log(res);
+    },
     handleSizeChange(val) {
       console.log(`每页${val}条`);
     },

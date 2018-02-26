@@ -75,7 +75,7 @@ export default {
     /* 检测是否登录 */
     async testLogin() {
       const res = await isLogin();
-      if (res.ok) {
+      if (res.isLogin) {
         this.$message({
           type: "success",
           message: "检测到您之前登录过，已自动登录"

@@ -4,12 +4,21 @@ import {isLogin} from '../api/getData'
 Vue.use(Vuex)
 
 const state = {
-    adminInfo: {}
+    adminInfo: {
+        account: 'admin',
+        auth: {
+            canCharge: false,
+            canNotify: false
+        },
+        // id: '1',
+        ok: true,
+        type: '2'
+    }
 }
 
 const mutations = {
     saveAdminInfo(state, adminInfo){
-        console.log('save');
+        console.log('saveAdminInfo');
         state.adminInfo = adminInfo;
     }
 }
