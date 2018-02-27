@@ -6,7 +6,7 @@
         <p class="logo-text">巧克力梦工厂后台管理系统</p>
       </el-col>
       <el-col :span="14" class="admin-text">
-        <p>管理员，你好</p>
+        <p>{{userName}}，你好</p>
       </el-col>
       <el-col :span="6" class="log-out">
         <el-button size="medium" v-show="isAdmin" type="primary" @click="dialogVisible = true">账号管理</el-button>
@@ -76,7 +76,7 @@ export default {
     return {
       dialogVisible: false,
       isAdmin: this.$store.state.adminInfo.type == 1,
-      userName: "",
+      userName: this.$store.state.adminInfo.name,
       changePassVisible: false,
       changePassForm: {
         oldPass: "",

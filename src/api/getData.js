@@ -18,26 +18,10 @@ export const getAdmins = () => fetch('/user/index');
 // 修改用户资料
 export const editAdmin = data => fetch('/user/edit', data, 'POST');
 // 修改密码
-export const changePass = data => fetch('/user/chgpass', data, 'POST')
-// export const editAdmin = (data) => {
-//   axios.post('http://class.wuxin.ren/api/user/edit', data)
-//     .then(function (response) {
-//       console.log(response);
-//       return Promise.resolve(response.data)
-//     })
-//     .catch(function (error) {
-//       console.log(error);
-//     });
-// }
+export const changePass = data => fetch('/user/chgpass', data, 'POST');
+// 删除账户
+export const delAdmin = data => fetch('/user/del', data, 'POST');
 /**
  * 用户反馈相关
  */
 export const getFeedBack = data => fetch('/feedback/index', data);
-// axios.defaults.withCredentials = true;
-// export const getFeedBack = (data) => {
-//   return axios.get('http://class.wuxin.ren/api/feedback/index', {
-//     params: data
-//   }).then((res) => {
-//     return Promise.resolve(res.data)
-//   })
-// }
