@@ -47,7 +47,7 @@
   </div>
 </template>
 <script>
-import Search from "./tools/Search.vue";
+import Search from "./com/Search.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
 export default {
   data() {

@@ -1,7 +1,7 @@
 <template>
     <div class="student-add-class">
-        <el-dialog :title="'添加课程'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1000px">
-            <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="80px" width="300px">
+        <el-dialog :title="'添加课程'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="500px">
+            <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="150px" width="300px">
                 <el-form-item label="学生姓名" prop="student">
                     <span>{{addClassForm.student}}</span>
                 </el-form-item>

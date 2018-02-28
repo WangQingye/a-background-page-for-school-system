@@ -45,6 +45,7 @@
         </el-tab-pane>
         <!-- 课程情况 -->
         <el-tab-pane label="课程情况">
+          <el-button type="primary">添加课程</el-button>
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>课程情况</span>
