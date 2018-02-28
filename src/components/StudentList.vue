@@ -15,8 +15,6 @@
       </el-table-column>
       <el-table-column prop="name" align="center" label="学员姓名" width="150">
       </el-table-column>
-      <el-table-column prop="parentName" align="center" label="家长姓名" width="120">
-      </el-table-column>
       <el-table-column prop="parentContact" align="center" label="联系方式" width="120">
       </el-table-column>
       <el-table-column prop="school" align="center" label="校区" width="120">

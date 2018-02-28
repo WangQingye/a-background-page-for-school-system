@@ -5,9 +5,6 @@
       <el-form-item label="学员姓名" prop="studentName">
         <el-input v-model="form.studentName"></el-input>
       </el-form-item>
-      <el-form-item label="学员家长" prop="parentName">
-        <el-input v-model="form.parentName"></el-input>
-      </el-form-item>
       <el-form-item label="家长联系方式" prop="parentContact">
         <el-input v-model="form.parentContact"></el-input>
       </el-form-item>
@@ -18,15 +15,16 @@
         </el-select>
       </el-form-item>
       <el-form-item label="可使用课时" prop="allClass">
-        <el-input-number v-model="form.allClass" :min="0" :max="1000" label="描述文字"></el-input-number>
+        <el-input-number v-model="form.allClass" :min="0" :max="1000" label="第一次充值课时"></el-input-number>
       </el-form-item>
       <el-form-item label="单个课程课时" prop="singleClass">
         <el-input-number v-model="form.singleClass" :min="0" :max="1000" label="描述文字"></el-input-number>
       </el-form-item>
       <el-form-item label="添加课程">
-        <el-checkbox-group v-model="form.type">
+        <!-- <el-checkbox-group v-model="form.type">
           <el-transfer @change="changeClass" v-model="form.classChoose" :titles="['校区课程', '参加课程']" :data="classData"></el-transfer>
-        </el-checkbox-group>
+        </el-checkbox-group> -->
+        <el-button type="primary" @click="addClassShow = true">添加课程界面</el-button>
       </el-form-item>
       <el-form-item label="剩余课时" prop="restClass">
         <p class="class-overplus">{{form.restClass}}</p>
@@ -39,12 +37,15 @@
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
+    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class>
   </div>
 </template>
 
 
 
 <script>
+import StudentAddClass from "./com/StudentAddClass.vue";
+import StudentDetail from "./subpages/StudentDetail.vue";
 export default {
   data() {
     /* 写这里是因为data里面无法使用methods里面的方法 */
@@ -62,7 +63,6 @@ export default {
     return {
       form: {
         studentName: "",
-        parentName: "",
         parentContact: "",
         school: "天府校区",
         allClass: 0, // 总充值课程数
@@ -74,10 +74,12 @@ export default {
       },
       rules: {
         studentName: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
-        parentName: [{ required: true, message: "请输入家长称呼", trigger: "blur" }],
-        parentContact: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }]
+        parentContact: [
+          { required: true, message: "请输入家长联系方式", trigger: "blur" }
+        ]
       },
-      classData: generateData()
+      classData: generateData(),
+      addClassShow: false
     };
   },
   methods: {
@@ -109,13 +111,18 @@ export default {
         }, this);
         return;
       }
-      this.form.restClass = this.form.allClass - this.form.classChoose.length * 16;
+      this.form.restClass =
+        this.form.allClass - this.form.classChoose.length * 16;
     }
   },
   watch: {
     allClass() {
       this.form.restClass = this.form.allClass;
     }
+  },
+  components: {
+    StudentAddClass,
+    StudentDetail
   }
 };
 </script>
