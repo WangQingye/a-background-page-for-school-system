@@ -99,7 +99,7 @@ export default {
   async mounted() {
     if (!this.$store.state.adminInfo.id) {
       await this.getAdminData();
-      console.log(this.$store.state.adminInfo);
+      // console.log(this.$store.state.adminInfo);
       this.isAdmin = this.$store.state.adminInfo.type == 1;
       this.userName = this.$store.state.adminInfo.name;
     }

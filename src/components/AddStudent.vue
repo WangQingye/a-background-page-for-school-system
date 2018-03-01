@@ -1,7 +1,7 @@
 <template>
   <div class="add-student">
     <p class="text">添加学员</p>
-    <el-steps :active="0" simple style="margin: 50px auto;width:600px">
+    <el-steps ref="steps" :active="stepNum" simple style="margin: 50px auto;width:600px">
       <el-step title="录入学生信息" icon="el-icon-edit"></el-step>
       <el-step title="添加课程" icon="el-icon-tickets"></el-step>
       <el-step title="完成添加" icon="el-icon-success"></el-step>
@@ -19,24 +19,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="充值课时" prop="lessonNum">
-        <!-- <el-input v-model="addInfoForm.lessonNum"></el-input> -->
         <el-input-number v-model="addInfoForm.lessonNum" :min="0" :max="1000" label="第一次充值课时"></el-input-number>
       </el-form-item>
-      <!-- <el-form-item label="单个课程课时" prop="singleClass">
-        <el-input-number v-model="form.singleClass" :min="0" :max="1000" label="描述文字"></el-input-number>
-      </el-form-item> -->
-      <!-- <el-form-item label="添加课程"> -->
-      <!-- <el-checkbox-group v-model="form.type">
-          <el-transfer @change="changeClass" v-model="form.classChoose" :titles="['校区课程', '参加课程']" :data="classData"></el-transfer>
-        </el-checkbox-group> -->
-      <!-- <el-button type="primary" @click="addClassShow = true">添加课程界面</el-button>
-      </el-form-item> -->
-      <!-- <el-form-item label="剩余课时" prop="restClass">
-        <p class="class-overplus">{{form.restClass}}</p>
-      </el-form-item> -->
-      <!-- <el-form-item label="其他备注">
-        <el-input type="textarea" v-model="form.desc"></el-input>
-      </el-form-item> -->
       <el-form-item>
         <el-button type="primary" @click="submitInfoAdd">完成，去录入课程</el-button>
         <el-button @click="resetInfoForm">重置</el-button>
@@ -55,8 +39,7 @@
       </el-form-item>
       <el-form-item label="选择课程" prop="repassword">
         <el-select ref="classSelect" v-model="addClassForm.className" placeholder="请选择课程">
-          <el-option label="课程1" value="课程1"></el-option>
-          <el-option label="课程2" value="课程2"></el-option>
+          <el-option v-for="(cls,index) in classList" :key="index" :label="cls.name" :value="cls.id"></el-option>
         </el-select>
         <el-button type="primary" style="margin-left:10px" @click="addOneClass">添加</el-button>
       </el-form-item>
@@ -64,11 +47,11 @@
         <span v-for="(classname, index) in addClasses" :key="index" class="class-name">{{classname}}</span>
       </el-form-item>
       <el-form-item label="添加后剩余课时" prop="leftClass">
-        <span>312</span>
+        <span>{{afterAddClassLeft}}</span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitClassAdd">确认添加</el-button>
-        <el-button>取消添加</el-button>
+        <el-button @click="cancelAdd">取消添加</el-button>
       </el-form-item>
     </el-form>
     <!-- <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class> -->
@@ -80,21 +63,9 @@
 <script>
 import StudentAddClass from "./com/StudentAddClass.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
-import { getSchools, addStudentInfo } from "../api/getData";
+import { getSchools, addStudentInfo, getClassList } from "../api/getData";
 export default {
   data() {
-    /* 写这里是因为data里面无法使用methods里面的方法 */
-    const generateData = _ => {
-      const data = [];
-      for (let i = 1; i <= 15; i++) {
-        data.push({
-          key: i,
-          label: `课程 ${i}`
-          // disabled: i % 4 === 0
-        });
-      }
-      return data;
-    };
     return {
       addInfoForm: {
         name: "",
@@ -113,10 +84,12 @@ export default {
         className: ""
       },
       addClasses: [],
-      classData: generateData(),
+      stepNum: 0,
       addInfoShow: true,
       addClassShow: false,
-      schoolList: []
+      schoolList: [],
+      classList: [],
+      afterAddClassLeft: 64
     };
   },
   mounted() {
@@ -125,21 +98,32 @@ export default {
   methods: {
     async getSchoolList() {
       let res = await getSchools();
-      console.log(res);
+      this.log("获取学校列表", res.ok);
       if (res.ok) this.schoolList = res.list;
+    },
+    async getSchoolClasses(schoolId) {
+      let res = await getClassList({ schoolId: schoolId });
+      this.log(`获取校区${schoolId}课程`, res.ok);
+      console.log(res);
+      if (res.ok) {
+        // 复制一次，因为添加了课程后会删除
+        this.classList = JSON.parse(JSON.stringify(res.list));
+      }
     },
     async submitInfoAdd() {
       this.$refs.addInfoForm.validate(async valid => {
         if (valid) {
           let res = await addStudentInfo(this.addInfoForm);
-          console.log(res);
+          this.log("添加学员信息", res.ok);
           if (res.ok) {
             this.$message({
               type: "success",
               message: "录入成功"
             });
+            this.getSchoolClasses(this.addInfoForm.schoolId);
             this.addInfoShow = false;
             this.addClassShow = true;
+            this.stepNum = 1;
           } else {
             this.$message({
               type: "error",
@@ -151,28 +135,37 @@ export default {
       });
     },
     addOneClass() {
+      if (this.afterAddClassLeft - this.addClassForm.singleClass < 0) {
+        this.$message.error("剩余课时不够添加这些课程哦");
+        return;
+      }
+      // 扣除课时
+      this.afterAddClassLeft -= this.addClassForm.singleClass;
+      // 放入已选择课程
       this.addClasses.push(
-        this.addClassForm.className +
+        this.switchIdorName(this.addClassForm.className, this.classList, "id") +
           " - " +
           this.addClassForm.singleClass +
           "课时"
       );
+      // 添加后将之从课程列表中删除
+      this.classList.splice(
+        this.classList.findIndex(item => {
+          return item.id == this.addClassForm.className;
+        }),
+        1
+      );
+      // 重置选择器
+      this.addClassForm.className = "";
     },
     submitClassAdd() {},
-    changeClass(value, direction, movedKeys) {
-      if (this.form.allClass - this.form.classChoose.length * 16 < 0) {
-        this.$message.error("您的剩余课时不够添加这些课程哦");
-        movedKeys.forEach(key => {
-          this.form.classChoose.splice(
-            this.form.classChoose.findIndex(value => {
-              return value == key;
-            })
-          );
-        }, this);
-        return;
-      }
-      this.form.restClass =
-        this.form.allClass - this.form.classChoose.length * 16;
+    cancelAdd() {
+      //删除学生
+
+      this.addInfoShow = true;
+      this.addClassShow = false;
+      this.resetInfoForm();
+      this.stepNum = 0;
     },
     resetInfoForm() {
       this.$refs.addInfoForm.resetFields();

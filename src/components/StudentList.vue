@@ -49,6 +49,7 @@
 <script>
 import Search from "./com/Search.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
+import { getStudentList } from "../api/getData";
 export default {
   data() {
     function mockData() {
@@ -87,8 +88,13 @@ export default {
   },
   mounted() {
     // this.nowData = this.allData.slice(0, 10);
+    this.getStudentsList();
   },
   methods: {
+    async getStudentsList(data){
+      let res = await getStudentList(data);
+      console.log(res);
+    },
     handleSizeChange(val) {
       console.log(`每页${val}条`);
     },

@@ -37,3 +37,10 @@ export const getSchools = () => fetch('/school/index');
  */
 // 添加学员
 export const addStudentInfo = data => fetch('/student/edit', data, 'POST');
+// 获取学员列表
+export const getStudentList = data => fetch('/student/index', data);
+
+/**
+ * 课程相关
+ */
+export const getClassList = data => fetch('/lesson/list', data);
