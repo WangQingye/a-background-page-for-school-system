@@ -4,8 +4,8 @@
         <el-form ref="form" :model="form" label-width="80px">
             <el-form-item label="校区选择">
                 <el-col :span="8">
-                    <el-select v-model="form.schoolName" placeholder="请选择校区">
-                        <el-option v-for="item in school" :key="item.value" :label="item.label" :value="item.value">
+                    <el-select v-model="form.schoolId" placeholder="请选择校区">
+                        <el-option v-for="item in school" :label="item.label" :key="item.id" :value="item.value">
                         </el-option>
                     </el-select>
                 </el-col>
@@ -21,19 +21,19 @@
                     <el-button type="primary" @click="addSchool">确认添加</el-button>
                 </el-col>
             </el-form-item>
-            <el-form-item label="课程名称" required prop="class">
-                <el-input v-model="form.className" placeholder="请输入课程名称"></el-input>
+            <el-form-item label="课程名称" prop="class">
+                <el-input v-model="form.name" placeholder="请输入课程名称"></el-input>
             </el-form-item>
-            <el-form-item :label="'时间地点' +(index+1)" v-for="(item,index) of  form.timeLoactions" :key="index">
+            <el-form-item :label="'时间地点' +(index+1)" v-for="(item,index) of  form.schedule" :key="index">
                 <el-col :span="3">
-                    <el-select v-model="item.week" placeholder="周几">
-                        <el-option label="周一" value="周一"></el-option>
-                        <el-option label="周二" value="周二"></el-option>
-                        <el-option label="周三" value="周三"></el-option>
-                        <el-option label="周四" value="周四"></el-option>
-                        <el-option label="周五" value="周五"></el-option>
-                        <el-option label="周六" value="周六"></el-option>
-                        <el-option label="周日" value="周日"></el-option>
+                    <el-select v-model="item.weekday" placeholder="周几">
+                        <el-option label="周一" value="1"></el-option>
+                        <el-option label="周二" value="2"></el-option>
+                        <el-option label="周三" value="3"></el-option>
+                        <el-option label="周四" value="4"></el-option>
+                        <el-option label="周五" value="5"></el-option>
+                        <el-option label="周六" value="6"></el-option>
+                        <el-option label="周日" value="7"></el-option>
                     </el-select>
                 </el-col>
 
@@ -64,7 +64,7 @@
                     <el-button type="danger" @click="removeTime(index)">删除</el-button>
                 </el-col>
             </el-form-item>
-            <el-form-item label="教师名字" prop="teacher" required>
+            <el-form-item label="教师名字" prop="teacher">
                 <el-input v-model="form.teacherName" placeholder="请输入教师名字"></el-input>
             </el-form-item>
 
@@ -81,39 +81,42 @@
     </div>
 </template>
 <script>
+import { addClass, getSchool, addSchool } from '../api/getData1';
 export default {
     data() {
         return {
             showSchool: false,
             schoolNeedAdd: null,
-            school: [
-                {
-                    value: '天府校区',
-                    label: '天府校区'
-                },
-                {
-                    value: '锦江校区',
-                    label: '锦江校区'
-                }
-            ],
+            school: [],
             form: {
-                schoolName: '天府校区',
-                timeLoactions: [
+                schoolId: null,
+                schedule: [
                     {
-                        week: '周一',
+                        weekday: '1',
                         startTime: null,
                         endTime: null,
                         location: null
                     }
                 ],
-                className: null,
+                name: null,
                 teacherName: null
             }
         };
     },
-    created() {
+    async created() {
         // console.log(this.$route.query);
         this.getQuery();
+        // 获取校区列表
+        const res = await getSchool();
+        res.list.forEach(element => {
+            var temp = {
+                value: element.id,
+                label: element.name,
+                id: element.id
+            };
+
+            this.school.push(temp);
+        });
     },
     watch: {
         $route: 'getQuery'
@@ -121,16 +124,20 @@ export default {
     methods: {
         getQuery() {
             let routerQuery = this.$route.query;
-            if (routerQuery && routerQuery.week) {
-                if (this.form.timeLoactions.length > 1) {
-                    this.form.timeLoactions.push(routerQuery);
+            console.log(routerQuery);
+            if (routerQuery && routerQuery.weekday) {
+                if (this.form.schedule.length > 1) {
+                    this.form.schedule.push(routerQuery);
                 } else {
-                    this.form.timeLoactions.splice(0, 1, routerQuery);
+                    this.form.schedule.splice(0, 1, routerQuery);
                 }
             }
         },
         // 提交课程
-        submitClass() {
+        async submitClass() {
+            console.log(this.form);
+            const res = await addClass(this.form);
+            console.log(res);
             this.$message({
                 message: '已成功添加课程',
                 type: 'success'
@@ -145,7 +152,7 @@ export default {
             this.showSchool = true;
         },
         // 添加校区
-        addSchool() {
+        async addSchool() {
             if (!this.schoolNeedAdd) {
                 this.$message({
                     message: '请输入校区名称',
@@ -153,18 +160,23 @@ export default {
                 });
                 return;
             }
-            this.school.push({
-                value: this.schoolNeedAdd,
-                label: this.schoolNeedAdd
+            const res = await addSchool({
+                name: this.schoolNeedAdd
             });
-            this.$message({
-                message: '已成功添加校区',
-                type: 'success'
-            });
-            this.showSchool = false;
+            if (res.ok) {
+                this.school.push({
+                    value: this.schoolNeedAdd,
+                    label: this.schoolNeedAdd
+                });
+                this.$message({
+                    message: '已成功添加校区',
+                    type: 'success'
+                });
+                this.showSchool = false;
+            }
         },
         addMoreTime() {
-            this.form.timeLoactions.push({
+            this.form.schedule.push({
                 week: '周一',
                 startTime: null,
                 endTime: null,
@@ -172,8 +184,8 @@ export default {
             });
         },
         removeTime(index) {
-            if (this.form.timeLoactions.length > 1) {
-                this.form.timeLoactions.splice(index, 1);
+            if (this.form.schedule.length > 1) {
+                this.form.schedule.splice(index, 1);
             }
         }
     }
