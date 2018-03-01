@@ -76,7 +76,7 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-button type="primary" style="margin-top: 30px">添加新课程</el-button>
+                    <el-button type="primary" style="margin-top: 30px" @click="addClassShow = true">添加新课程</el-button>
                 </el-tab-pane>
                 <el-tab-pane label="上课记录">
                     <div class="class-title">
@@ -163,12 +163,14 @@
                 </el-form>
             </el-dialog>
         </el-dialog>
+        <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class>
     </div>
 </template>
 
 
 
 <script>
+import StudentAddClass from "../com/StudentAddClass.vue";
 export default {
   props: {
     placeText: {
@@ -339,7 +341,9 @@ export default {
       // 展示编辑
       editInfoShow: false,
       // 展示信息
-      infoShow: true
+      infoShow: true,
+      // 添加课程面板
+      addClassShow: false
     };
   },
   methods: {
@@ -356,9 +360,7 @@ export default {
         this.infoShow = true;
       }
     },
-    submitEditInfo(){
-
-    },
+    submitEditInfo() {},
     changeClass(value, direction, movedKeys) {
       if (this.allClass - this.classChoose.length * 16 < 0) {
         this.$message.error("您的剩余课时不够添加这些课程哦");
@@ -450,6 +452,9 @@ export default {
       this.currentPage = val;
       // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
     }
+  },
+  components: {
+    StudentAddClass
   }
 };
 </script>

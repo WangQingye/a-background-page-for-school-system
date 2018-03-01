@@ -8,7 +8,7 @@
                 <el-form-item label="剩余课时" prop="leftClass">
                     <span>{{addClassForm.leftClass}}</span>
                 </el-form-item>
-                <el-form-item label="要添加的课程课时" prop="pass">
+                <el-form-item label="要添加的课程课时" prop="singleClass">
                     <el-input-number v-model="addClassForm.singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
                 </el-form-item>
                 <el-form-item label="选择课程" prop="repassword">
@@ -35,32 +35,27 @@ export default {
       type: Boolean,
       default: false
     },
-    // 是否在添加学生界面，如果在添加学生界面，那么会等一下跟添加学生一起发送添加课程
-    isInAddStudent: {
-      type: Boolean,
-      default: false
+    addClassForm: {
+      type: Object,
+      default: function() {
+        return {
+          student: "王小虎",
+          leftClass: 64,
+          singleClass: 16,
+          className: "课程1"
+        };
+      }
     }
   },
   data() {
-    return {
-      addClassForm: {
-          student: '王小虎',
-          leftClass: 64,
-          singleClass: 16,
-          className:'课程1'
-      }
-    };
+    return {};
   },
   methods: {
     close() {
       this.$emit("close");
     },
-    submitAddClass(){
-        if(isInAddStudent){
-            this.$emit('addClass', this.addClassForm)
-        } else {
-            console.log('请求添加课程数据');
-        }
+    submitAddClass() {
+      console.log("请求添加课程数据");
     }
   }
 };
