@@ -6,21 +6,21 @@
       <el-step title="添加课程" icon="el-icon-tickets"></el-step>
       <el-step title="完成添加" icon="el-icon-success"></el-step>
     </el-steps>
-    <el-form ref="addInfoForm" :rules="rules" :model="form" label-width="120px" label-position="left" class="add-form" v-show="addInfoShow">
-      <el-form-item label="学员姓名" prop="studentName">
-        <el-input v-model="form.studentName"></el-input>
+    <el-form ref="addInfoForm" :rules="rules" :model="addInfoForm" label-width="120px" label-position="left" class="add-form" v-show="addInfoShow">
+      <el-form-item label="学员姓名" prop="name">
+        <el-input v-model="addInfoForm.name"></el-input>
       </el-form-item>
-      <el-form-item label="家长联系方式" prop="parentContact">
-        <el-input v-model="form.parentContact"></el-input>
+      <el-form-item label="家长联系方式" prop="phone">
+        <el-input v-model="addInfoForm.phone"></el-input>
       </el-form-item>
       <el-form-item label="校区">
-        <el-select v-model="form.school" placeholder="请选择校区">
-          <el-option label="天府校区" value="shanghai"></el-option>
-          <el-option label="锦江校区" value="beijing"></el-option>
+        <el-select v-model="addInfoForm.schoolId" placeholder="请选择校区">
+          <el-option v-for="(school,index) in schoolList" :key="index" :label="school.name" :value="school.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="充值课时" prop="allClass">
-        <el-input-number v-model="form.allClass" :min="0" :max="1000" label="第一次充值课时"></el-input-number>
+      <el-form-item label="充值课时" prop="lessonNum">
+        <!-- <el-input v-model="addInfoForm.lessonNum"></el-input> -->
+        <el-input-number v-model="addInfoForm.lessonNum" :min="0" :max="1000" label="第一次充值课时"></el-input-number>
       </el-form-item>
       <!-- <el-form-item label="单个课程课时" prop="singleClass">
         <el-input-number v-model="form.singleClass" :min="0" :max="1000" label="描述文字"></el-input-number>
@@ -47,7 +47,7 @@
       <el-form-item label="学生姓名" prop="student">
         <span>{{addClassForm.student}}</span>
       </el-form-item>
-      <el-form-item label="剩余课时" prop="leftClass">
+      <el-form-item label="可用课时" prop="leftClass">
         <span>{{addClassForm.leftClass}}</span>
       </el-form-item>
       <el-form-item label="要添加的课程课时" prop="pass">
@@ -63,6 +63,9 @@
       <el-form-item label="已选择" prop="leftClass">
         <span v-for="(classname, index) in addClasses" :key="index" class="class-name">{{classname}}</span>
       </el-form-item>
+      <el-form-item label="添加后剩余课时" prop="leftClass">
+        <span>312</span>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitClassAdd">确认添加</el-button>
         <el-button>取消添加</el-button>
@@ -77,6 +80,7 @@
 <script>
 import StudentAddClass from "./com/StudentAddClass.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
+import { getSchools, addStudentInfo } from "../api/getData";
 export default {
   data() {
     /* 写这里是因为data里面无法使用methods里面的方法 */
@@ -92,56 +96,67 @@ export default {
       return data;
     };
     return {
-      form: {
-        studentName: "",
-        parentContact: "",
-        school: "天府校区",
-        allClass: 0, // 总充值课程数
-        singleClass: 0, // 单个课程的课时
-        restClass: 0, // 剩余（未使用）课时数
-        classChoose: [], //选择要参加的课时
-        type: [],
-        desc: ""
+      addInfoForm: {
+        name: "",
+        phone: "",
+        schoolId: "1",
+        lessonNum: ""
       },
       rules: {
-        studentName: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
-        parentContact: [
-          { required: true, message: "请输入家长联系方式", trigger: "blur" }
-        ]
+        name: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
+        phone: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }]
       },
       addClassForm: {
         student: "王小虎",
         leftClass: 64,
         singleClass: 16,
-        className: "",
+        className: ""
       },
-      addClasses:[],
+      addClasses: [],
       classData: generateData(),
       addInfoShow: true,
-      addClassShow: false
+      addClassShow: false,
+      schoolList: []
     };
   },
+  mounted() {
+    this.getSchoolList();
+  },
   methods: {
-    submitInfoAdd() {
-      this.$refs.addInfoForm.validate(valid => {
+    async getSchoolList() {
+      let res = await getSchools();
+      console.log(res);
+      if (res.ok) this.schoolList = res.list;
+    },
+    async submitInfoAdd() {
+      this.$refs.addInfoForm.validate(async valid => {
         if (valid) {
-          this.$message({
-            type: "success",
-            message: "添加成功"
-          });
-          this.addInfoShow = false;
-          this.addClassShow = true;
-        } else {
-          this.$message({
-            type: "error",
-            message: "学员信息错误"
-          });
-          return false;
+          let res = await addStudentInfo(this.addInfoForm);
+          console.log(res);
+          if (res.ok) {
+            this.$message({
+              type: "success",
+              message: "录入成功"
+            });
+            this.addInfoShow = false;
+            this.addClassShow = true;
+          } else {
+            this.$message({
+              type: "error",
+              message: res.errorMsg
+            });
+            return false;
+          }
         }
       });
     },
-    addOneClass(){
-      this.addClasses.push(this.addClassForm.className)
+    addOneClass() {
+      this.addClasses.push(
+        this.addClassForm.className +
+          " - " +
+          this.addClassForm.singleClass +
+          "课时"
+      );
     },
     submitClassAdd() {},
     changeClass(value, direction, movedKeys) {
@@ -202,7 +217,7 @@ export default {
 .el-transfer {
   text-align: center;
 }
-.class-name{
+.class-name {
   display: block;
 }
 </style>

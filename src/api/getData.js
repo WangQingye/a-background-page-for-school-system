@@ -25,3 +25,15 @@ export const delAdmin = data => fetch('/user/del', data, 'POST');
  * 用户反馈相关
  */
 export const getFeedBack = data => fetch('/feedback/index', data);
+
+/**
+ * 校区相关
+ */
+// 获取校区列表
+export const getSchools = () => fetch('/school/index');
+
+/**
+ * 学员相关
+ */
+// 添加学员
+export const addStudentInfo = data => fetch('/student/edit', data, 'POST');
