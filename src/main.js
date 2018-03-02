@@ -6,10 +6,13 @@ import router from './router'
 import store from './store'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import {globalMethods} from './utils/mixin.js'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.mixin(globalMethods)
 /* eslint-disable no-new */
+
 new Vue({
   el: '#app',
   router,
