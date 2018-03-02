@@ -28,17 +28,17 @@
     </el-form>
     <!-- 添加课程表格 -->
     <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="150px" width="800px" v-show="addClassShow">
-      <el-form-item label="学生姓名" prop="student">
-        <span>{{addClassForm.student}}</span>
+      <el-form-item label="学生姓名" prop="name">
+        <span>{{addClassForm.name}}</span>
       </el-form-item>
-      <el-form-item label="可用课时" prop="leftClass">
-        <span>{{addClassForm.leftClass}}</span>
+      <el-form-item label="可用课时" prop="balanceNum">
+        <span>{{addClassForm.balanceNum}}</span>
       </el-form-item>
       <el-form-item label="要添加的课程课时" prop="pass">
-        <el-input-number v-model="addClassForm.singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
+        <el-input-number v-model="singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
       </el-form-item>
       <el-form-item label="选择课程" prop="repassword">
-        <el-select ref="classSelect" v-model="addClassForm.className" placeholder="请选择课程">
+        <el-select ref="classSelect" v-model="className" placeholder="请选择课程">
           <el-option v-for="(cls,index) in classList" :key="index" :label="cls.name" :value="cls.id"></el-option>
         </el-select>
         <el-button type="primary" style="margin-left:10px" @click="addOneClass">添加</el-button>
@@ -50,7 +50,7 @@
         <span>{{afterAddClassLeft}}</span>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitClassAdd">确认添加</el-button>
+        <el-button type="primary" @click="finishAdd">完成</el-button>
         <el-button @click="cancelAdd">取消添加</el-button>
       </el-form-item>
     </el-form>
@@ -63,7 +63,12 @@
 <script>
 import StudentAddClass from "./com/StudentAddClass.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
-import { getSchools, addStudentInfo, getClassList } from "../api/getData";
+import {
+  getSchools,
+  addStudentInfo,
+  getClassList,
+  delStudent
+} from "../api/getData";
 export default {
   data() {
     return {
@@ -77,12 +82,10 @@ export default {
         name: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
         phone: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }]
       },
-      addClassForm: {
-        student: "王小虎",
-        leftClass: 64,
-        singleClass: 16,
-        className: ""
-      },
+      // 添加信息成功服务器后的学生信息
+      addClassForm: {},
+      singleClass: 16,
+      className: "",
       addClasses: [],
       stepNum: 0,
       addInfoShow: true,
@@ -115,11 +118,13 @@ export default {
         if (valid) {
           let res = await addStudentInfo(this.addInfoForm);
           this.log("添加学员信息", res.ok);
+          console.log(res);
           if (res.ok) {
             this.$message({
               type: "success",
               message: "录入成功"
             });
+            this.addClassForm = res;
             this.getSchoolClasses(this.addInfoForm.schoolId);
             this.addInfoShow = false;
             this.addClassShow = true;
@@ -134,34 +139,43 @@ export default {
         }
       });
     },
+    /* 现在课程只一门一门的添加 */
     addOneClass() {
-      if (this.afterAddClassLeft - this.addClassForm.singleClass < 0) {
+      if (this.afterAddClassLeft - this.singleClass < 0) {
         this.$message.error("剩余课时不够添加这些课程哦");
         return;
       }
       // 扣除课时
-      this.afterAddClassLeft -= this.addClassForm.singleClass;
+      this.afterAddClassLeft -= this.singleClass;
       // 放入已选择课程
       this.addClasses.push(
-        this.switchIdorName(this.addClassForm.className, this.classList, "id") +
+        this.switchIdorName(this.className, this.classList, "id") +
           " - " +
-          this.addClassForm.singleClass +
+          this.singleClass +
           "课时"
       );
       // 添加后将之从课程列表中删除
       this.classList.splice(
         this.classList.findIndex(item => {
-          return item.id == this.addClassForm.className;
+          return item.id == this.className;
         }),
         1
       );
       // 重置选择器
-      this.addClassForm.className = "";
+      this.className = "";
     },
-    submitClassAdd() {},
-    cancelAdd() {
-      //删除学生
-
+    /* 完成添加 */
+    finishAdd() {
+      this.$message({
+        type: "success",
+        message: "添加成功"
+      });
+    },
+    /* 取消添加 */
+    async cancelAdd() {
+      //因为在上一步其实已经实际添加了学生，所以如果在这里取消，需要删除学生
+      let res = await delStudent({ id: this.addClassForm.id });
+      this.log(`删除学生${this.addClassForm.id}`, res.ok);
       this.addInfoShow = true;
       this.addClassShow = false;
       this.resetInfoForm();
