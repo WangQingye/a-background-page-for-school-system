@@ -41,7 +41,12 @@ export const getStudentList = data => fetch('/student/index', data);
 export const addStudentInfo = data => fetch('/student/edit', data, 'POST');
 // 删除学员
 export const delStudent = data => fetch('/student/del', data, 'POST');
-
+// 获取单个学员信息
+export const getStudentInfo = data => fetch('/student/edit', data);
+// 修改单个学员信息
+export const changeStudentInfo = data => fetch('/student/edit', data, 'POST');
+// 为学员添加课程
+export const addClassToStudent = data => fetch('/order/edit', data, 'POST');
 /**
  * 课程相关
  */

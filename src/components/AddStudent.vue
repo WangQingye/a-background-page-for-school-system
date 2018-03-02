@@ -67,7 +67,8 @@ import {
   getSchools,
   addStudentInfo,
   getClassList,
-  delStudent
+  delStudent,
+  addClassToStudent
 } from "../api/getData";
 export default {
   data() {
@@ -92,7 +93,7 @@ export default {
       addClassShow: false,
       schoolList: [],
       classList: [],
-      afterAddClassLeft: 64
+      afterAddClassLeft: 0
     };
   },
   mounted() {
@@ -125,6 +126,7 @@ export default {
               message: "录入成功"
             });
             this.addClassForm = res;
+            this.afterAddClassLeft = res.balanceNum;
             this.getSchoolClasses(this.addInfoForm.schoolId);
             this.addInfoShow = false;
             this.addClassShow = true;
@@ -140,29 +142,40 @@ export default {
       });
     },
     /* 现在课程只一门一门的添加 */
-    addOneClass() {
+    async addOneClass() {
       if (this.afterAddClassLeft - this.singleClass < 0) {
         this.$message.error("剩余课时不够添加这些课程哦");
         return;
       }
-      // 扣除课时
-      this.afterAddClassLeft -= this.singleClass;
-      // 放入已选择课程
-      this.addClasses.push(
-        this.switchIdorName(this.className, this.classList, "id") +
-          " - " +
-          this.singleClass +
-          "课时"
-      );
-      // 添加后将之从课程列表中删除
-      this.classList.splice(
-        this.classList.findIndex(item => {
-          return item.id == this.className;
-        }),
-        1
-      );
-      // 重置选择器
-      this.className = "";
+      let res = await addClassToStudent({
+        studentId: this.addClassForm.id,
+        lessonId: this.className,
+        num: this.singleClass
+      });
+      this.log(`为${this.addClassForm.id}学员添加${this.className}课程`, res.ok);
+      console.log(res);
+      if (res.ok) {
+        // 扣除课时
+        this.afterAddClassLeft -= this.singleClass;
+        // 放入已选择课程
+        this.addClasses.push(
+          this.switchIdorName(this.className, this.classList, "id") +
+            " - " +
+            this.singleClass +
+            "课时"
+        );
+        // 添加后将之从课程列表中删除
+        this.classList.splice(
+          this.classList.findIndex(item => {
+            return item.id == this.className;
+          }),
+          1
+        );
+        // 重置选择器
+        this.className = "";
+      } else {
+        this.$message.error("添加失败");
+      }
     },
     /* 完成添加 */
     finishAdd() {
@@ -170,6 +183,9 @@ export default {
         type: "success",
         message: "添加成功"
       });
+      this.$refs.addInfoForm.resetFields();
+      this.addInfoShow = true;
+      this.addClassShow = false;
     },
     /* 取消添加 */
     async cancelAdd() {

@@ -1,176 +1,174 @@
 <template>
-    <div class="student-detail">
-        <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1200px">
-            <el-tabs>
-                <!-- 基本信息页 -->
-                <el-tab-pane label="基本信息">
-                    <div class="class-title" style="margin-bottom:20px">
-                        <i class="el-icon-date"></i>
-                        <span>基本信息</span>
-                    </div>
-                    <!-- 展示页 -->
-                    <el-form v-show="infoShow" class="detail-form" ref="form" :model="form" label-width="120px">
-                        <el-form-item label="学员姓名" prop="studentName">
-                            <span>{{form.studentName}}</span>
-                        </el-form-item>
-                        <el-form-item label="家长联系方式" prop="parentContact">
-                            <span>{{form.parentContact}}</span>
-                        </el-form-item>
-                        <el-form-item label="校区">
-                            <span>{{form.school}}</span>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" @click="showEditInfo(true)">编辑信息</el-button>
-                            <el-button @click="close">关闭</el-button>
-                        </el-form-item>
-                    </el-form>
-                    <!-- 编辑页 -->
-                    <el-form v-show="editInfoShow" class="detail-form" ref="form" :rules="rules" :model="form" label-width="120px">
-                        <el-form-item label="学员姓名" prop="studentName">
-                            <el-input v-model="form.studentName"></el-input>
-                        </el-form-item>
-                        <el-form-item label="家长联系方式" prop="parentContact">
-                            <el-input v-model="form.parentContact"></el-input>
-                        </el-form-item>
-                        <el-form-item label="校区">
-                            <el-select v-model="form.school" placeholder="请选择校区">
-                                <el-option label="天府校区" value="shanghai"></el-option>
-                                <el-option label="锦江校区" value="beijing"></el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" @click="submitEditInfo">确认修改</el-button>
-                            <el-button @click="showEditInfo(false)">取消</el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-tab-pane>
-                <!-- 课程情况 -->
-                <el-tab-pane label="课程情况">
-                    <div class="class-title">
-                        <i class="el-icon-date"></i>
-                        <span>课程情况</span>
-                    </div>
-                    <el-table :data="tableData1" style="width: 100%">
-                        <el-table-column prop="className" label="课程名称" width="180">
-                        </el-table-column>
-                        <el-table-column prop="date" label="上课时间" width="140">
-                            <template slot-scope="scope">
-                                <span style="margin-left: 10px">{{ scope.row.date }}</span>
-                                <span style="margin-left: 10px">{{ scope.row.date }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="progress" label="课程进度" width="180">
-                            <template slot-scope="scope">
-                                <el-progress type="circle" :percentage="25" :width="27" :show-text="false"></el-progress>
-                                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.progress }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="desc" label="备注">
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template slot-scope="scope">
-                                <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
-                                <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
-                                <el-button size="small" type="success" @click="openConfirm(1,scope.row)">续课</el-button>
-                                <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">停课</el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-button type="primary" style="margin-top: 30px" @click="addClassShow = true">添加新课程</el-button>
-                </el-tab-pane>
-                <el-tab-pane label="上课记录">
-                    <div class="class-title">
-                        <i class="el-icon-date"></i>
-                        <span>上课记录</span>
-                    </div>
-                    <el-table :data="tableData" style="width: 90%; margin:0 auto">
-                        <el-table-column prop="date" label="上课时间" sortable width="180">
-                            <template slot-scope="scope">
-                                <i class="el-icon-time"></i>
-                                <span style="margin-left: 10px">{{ scope.row.date }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="name" label="课程名称" width="280">
-                        </el-table-column>
-                        <el-table-column prop="address" label="备注">
-                        </el-table-column>
-                        <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
-                            <template slot-scope="scope">
-                                <el-tag :type="calClassType(scope.row.tag)" close-transition>{{scope.row.tag}}</el-tag>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <div class="feed-back-pagination" style="text-align: left;margin-top: 10px;">
-                        <el-pagination ref="paginat" background @current-change="handleClassHistoryPageChange" :current-page="historyPage" :page-size="10" layout="total, prev, pager, next" :total="count">
-                        </el-pagination>
-                    </div>
-                </el-tab-pane>
-                <el-tab-pane label="充值相关">
-                    <div class="class-title">
-                        <i class="el-icon-date"></i>
-                        <span>充值记录</span>
-                    </div>
-                </el-tab-pane>
-            </el-tabs>
-            <!-- 修改课时弹出框 -->
-            <el-dialog width="30%" title="修改课时" :visible.sync="changeClassVisible" append-to-body>
-                <el-form ref="changeClass" :model="changeClassform" label-width="80px">
-                    <el-form-item label="学员姓名">
-                        <span>王小虎</span>
-                    </el-form-item>
-                    <el-form-item label="课程名称">
-                        <span>{{changeClassform.className}}</span>
-                    </el-form-item>
-                    <el-form-item label="已上课时">
-                        <el-input-number v-model="changeClassform.hadClass" :min="1" :max="changeClassform.totalClass" label="已上课时"></el-input-number>
-                    </el-form-item>
-                    <el-form-item label="总课时">
-                        <span>{{changeClassform.totalClass}}</span>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" @click="submitChangeHadClass">修改</el-button>
-                        <el-button @click="changeClassVisible = false">取消</el-button>
-                    </el-form-item>
-                </el-form>
-            </el-dialog>
-            <!-- 转班弹出框 -->
-            <el-dialog width="30%" title="转班" :visible.sync="transClassVisible" append-to-body>
-                <el-form ref="changeClass" :model="transClassform" label-width="80px">
-                    <el-form-item label="学员姓名">
-                        <span>王小虎</span>
-                    </el-form-item>
-                    <el-form-item label="当前班级">
-                        <span>{{transClassform.oldClassName}}</span>
-                    </el-form-item>
-                    <el-form-item label="课时情况">
-                        <span>{{transClassform.progress}}</span>
-                    </el-form-item>
-                    <el-form-item label="转到">
-                        <el-select v-model="transClassform.newClassName" placeholder="选择班级">
-                            <el-option label="周一" value="周一"></el-option>
-                            <el-option label="周二" value="周二"></el-option>
-                            <el-option label="周三" value="周三"></el-option>
-                            <el-option label="周四" value="周四"></el-option>
-                            <el-option label="周五" value="周五"></el-option>
-                            <el-option label="周六" value="周六"></el-option>
-                            <el-option label="周日" value="周日"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" @click="submitTransClass">确定</el-button>
-                        <el-button @click="transClassVisible = false">取消</el-button>
-                    </el-form-item>
-                </el-form>
-            </el-dialog>
-        </el-dialog>
-        <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class>
-    </div>
+  <div class="student-detail">
+    <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1200px">
+      <el-tabs>
+        <!-- 基本信息页 -->
+        <el-tab-pane label="基本信息">
+          <div class="class-title" style="margin-bottom:20px">
+            <i class="el-icon-date"></i>
+            <span>基本信息</span>
+          </div>
+          <!-- 展示页 -->
+          <el-form v-show="infoShow" class="detail-form" ref="form" :model="infoForm" label-width="120px">
+            <el-form-item label="学员姓名" prop="name">
+              <span>{{infoForm.name}}</span>
+            </el-form-item>
+            <el-form-item label="家长联系方式" prop="phone">
+              <span>{{infoForm.phone}}</span>
+            </el-form-item>
+            <el-form-item label="校区">
+              <span>{{infoForm.school}}</span>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="showEditInfo(true)">编辑信息</el-button>
+              <el-button @click="close">关闭</el-button>
+            </el-form-item>
+          </el-form>
+          <!-- 编辑页 -->
+          <el-form v-show="editInfoShow" class="detail-form" ref="form" :rules="rules" :model="editForm" label-width="120px">
+            <el-form-item label="学员姓名" prop="name">
+              <el-input v-model="editForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="家长联系方式" prop="phone">
+              <el-input v-model="editForm.phone"></el-input>
+            </el-form-item>
+            <el-form-item label="校区">
+              <span>{{editForm.school}}</span>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submitEditInfo">确认修改</el-button>
+              <el-button @click="showEditInfo(false)">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <!-- 课程情况 -->
+        <el-tab-pane label="课程情况">
+          <div class="class-title">
+            <i class="el-icon-date"></i>
+            <span>课程情况</span>
+          </div>
+          <el-table :data="tableData1" style="width: 100%">
+            <el-table-column prop="className" label="课程名称" width="180">
+            </el-table-column>
+            <el-table-column prop="date" label="上课时间" width="140">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="progress" label="课程进度" width="180">
+              <template slot-scope="scope">
+                <el-progress type="circle" :percentage="25" :width="27" :show-text="false"></el-progress>
+                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.progress }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="desc" label="备注">
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
+                <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
+                <el-button size="small" type="success" @click="openConfirm(1,scope.row)">续课</el-button>
+                <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">停课</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-button type="primary" style="margin-top: 30px" @click="addClassShow = true">添加新课程</el-button>
+        </el-tab-pane>
+        <el-tab-pane label="上课记录">
+          <div class="class-title">
+            <i class="el-icon-date"></i>
+            <span>上课记录</span>
+          </div>
+          <el-table :data="tableData" style="width: 90%; margin:0 auto">
+            <el-table-column prop="date" label="上课时间" sortable width="180">
+              <template slot-scope="scope">
+                <i class="el-icon-time"></i>
+                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" label="课程名称" width="280">
+            </el-table-column>
+            <el-table-column prop="address" label="备注">
+            </el-table-column>
+            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
+              <template slot-scope="scope">
+                <el-tag :type="calClassType(scope.row.tag)" close-transition>{{scope.row.tag}}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div class="feed-back-pagination" style="text-align: left;margin-top: 10px;">
+            <el-pagination ref="paginat" background @current-change="handleClassHistoryPageChange" :current-page="historyPage" :page-size="10" layout="total, prev, pager, next" :total="count">
+            </el-pagination>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="充值相关">
+          <div class="class-title">
+            <i class="el-icon-date"></i>
+            <span>充值记录</span>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+      <!-- 修改课时弹出框 -->
+      <el-dialog width="30%" title="修改课时" :visible.sync="changeClassVisible" append-to-body>
+        <el-form ref="changeClass" :model="changeClassform" label-width="80px">
+          <el-form-item label="学员姓名">
+            <span>王小虎</span>
+          </el-form-item>
+          <el-form-item label="课程名称">
+            <span>{{changeClassform.className}}</span>
+          </el-form-item>
+          <el-form-item label="已上课时">
+            <el-input-number v-model="changeClassform.hadClass" :min="1" :max="changeClassform.totalClass" label="已上课时"></el-input-number>
+          </el-form-item>
+          <el-form-item label="总课时">
+            <span>{{changeClassform.totalClass}}</span>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitChangeHadClass">修改</el-button>
+            <el-button @click="changeClassVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <!-- 转班弹出框 -->
+      <el-dialog width="30%" title="转班" :visible.sync="transClassVisible" append-to-body>
+        <el-form ref="changeClass" :model="transClassform" label-width="80px">
+          <el-form-item label="学员姓名">
+            <span>王小虎</span>
+          </el-form-item>
+          <el-form-item label="当前班级">
+            <span>{{transClassform.oldClassName}}</span>
+          </el-form-item>
+          <el-form-item label="课时情况">
+            <span>{{transClassform.progress}}</span>
+          </el-form-item>
+          <el-form-item label="转到">
+            <el-select v-model="transClassform.newClassName" placeholder="选择班级">
+              <el-option label="周一" value="周一"></el-option>
+              <el-option label="周二" value="周二"></el-option>
+              <el-option label="周三" value="周三"></el-option>
+              <el-option label="周四" value="周四"></el-option>
+              <el-option label="周五" value="周五"></el-option>
+              <el-option label="周六" value="周六"></el-option>
+              <el-option label="周日" value="周日"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitTransClass">确定</el-button>
+            <el-button @click="transClassVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </el-dialog>
+    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class>
+  </div>
 </template>
 
 
 
 <script>
 import StudentAddClass from "../com/StudentAddClass.vue";
+import { getStudentInfo, changeStudentInfo } from "../../api/getData";
 export default {
   props: {
     placeText: {
@@ -181,14 +179,13 @@ export default {
       type: Boolean,
       default: false
     },
-    studentIndex: {
-      type: Number,
-      default: 0
-    },
     studentId: {
       type: Number,
-      default: 0
+      default: 12
     }
+  },
+  mounted() {
+    this.getStudentInfo();
   },
   data() {
     const generateData = _ => {
@@ -203,34 +200,25 @@ export default {
       return data;
     };
     return {
-      form: {
-        studentName: "王小虎",
-        parentName: "",
-        parentContact: "133333333",
-        school: "天府校区",
-        allClass: 0, // 总充值课程数
-        singleClass: 0, // 单个课程的课时
-        restClass: 32, // 剩余（未使用）课时数
-        classChoose: [], //选择要参加的课时
-        type: [],
-        desc: ""
+      infoForm: {
+        name: "王小虎",
+        phone: "133333333",
+        school: "天府校区"
+      },
+      editForm: {
+        name: "王小虎",
+        phone: "133333333",
+        school: "天府校区"
       },
       rules: {
-        studentName: [
+        name: [
           {
             required: true,
             message: "请输入学生姓名",
             trigger: "blur"
           }
         ],
-        parentName: [
-          {
-            required: true,
-            message: "请输入家长称呼",
-            trigger: "blur"
-          }
-        ],
-        parentContact: [
+        phone: [
           {
             required: true,
             message: "请输入家长联系方式",
@@ -351,6 +339,15 @@ export default {
       console.log(11);
       this.$emit("close");
     },
+    async getStudentInfo() {
+      let res = await getStudentInfo({ id: this.studentId });
+      console.log(res);
+      if (res.ok) {
+        this.infoForm = res.data;
+        // 这个等下会变，所以要先复制一下
+        this.editForm = JSON.parse(JSON.stringify(res.data))
+      }
+    },
     showEditInfo(flag) {
       if (flag) {
         this.editInfoShow = true;
@@ -360,7 +357,21 @@ export default {
         this.infoShow = true;
       }
     },
-    submitEditInfo() {},
+    async submitEditInfo() {
+      let res = await changeStudentInfo({
+        id: this.studentId,
+        name: this.editForm.name,
+        phone: this.editForm.phone
+      });
+      if (res.ok) {
+        this.$message({
+          type: "success",
+          message: "编辑成功!"
+        });
+        this.getStudentInfo();
+        this.showEditInfo(false);
+      }
+    },
     changeClass(value, direction, movedKeys) {
       if (this.allClass - this.classChoose.length * 16 < 0) {
         this.$message.error("您的剩余课时不够添加这些课程哦");
@@ -451,6 +462,11 @@ export default {
     handleClassHistoryPageChange(val) {
       this.currentPage = val;
       // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+    }
+  },
+  watch: {
+    dialogVisible(newVal) {
+      if (newVal) this.getStudentInfo();
     }
   },
   components: {
