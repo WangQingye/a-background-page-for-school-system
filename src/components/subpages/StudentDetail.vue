@@ -180,12 +180,11 @@ export default {
       default: false
     },
     studentId: {
-      type: Number,
-      default: 12
+      type: String,
+      default: '0'
     }
   },
   mounted() {
-    this.getStudentInfo();
   },
   data() {
     const generateData = _ => {
@@ -336,12 +335,11 @@ export default {
   },
   methods: {
     close() {
-      console.log(11);
       this.$emit("close");
     },
     async getStudentInfo() {
       let res = await getStudentInfo({ id: this.studentId });
-      console.log(res);
+      this.log(`${this.studentId}学生信息`, res.ok)
       if (res.ok) {
         this.infoForm = res.data;
         // 这个等下会变，所以要先复制一下
