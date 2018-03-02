@@ -83,7 +83,7 @@ export default {
       searchData: [],
       currentPage: 1,
       count: 100,
-      dialogVisible: true,
+      dialogVisible: false,
       detailId: 0 // 打开详情时传入的学生编号，用于向服务器请求
     };
   },
@@ -96,7 +96,7 @@ export default {
       let res = await getStudentList(data);
       console.log(res);
       if (res.ok) {
-        // this.allData = res.list
+        this.allData = res.list
       }
     },
     handleSizeChange(val) {
@@ -107,6 +107,7 @@ export default {
       // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
     },
     calClass(classArr) {
+      console.log(classArr);
       let text = "";
       classArr.forEach(item => {
         text += item.lessonName + "　\r";
