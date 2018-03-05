@@ -22,7 +22,7 @@
       </el-table-column>
       <el-table-column prop="hadClass" align="center" label="参加课程" width="auto">
         <template slot-scope="scope">
-          <span>{{calClass(scope.row.hadClass)}}</span>
+          <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span>
         </template>
       </el-table-column>
       <el-table-column sortable="custom" prop="haveClassEnd" align="center" label="有课程即将到期" width="160">
@@ -40,8 +40,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="feed-back-pagination" style="text-align: left;margin-top: 10px;">
-      <el-pagination ref="paginat" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
+    <div class="feed-back-pagination" style="margin-top: 20px;">
+      <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
       </el-pagination>
     </div>
     <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentId="detailId"></student-detail>
@@ -97,18 +97,16 @@ export default {
       let res = await getStudentList(data);
       console.log(res);
       if (res.ok) {
-        this.studentList = res.list
+        this.studentList = res.list;
+        this.count = res.count
       }
-    },
-    handleSizeChange(val) {
-      console.log(`每页${val}条`);
     },
     handleCurrentChange(val) {
       this.currentPage = val;
-      // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+      this.getStudentsList({page:val-1})
     },
     calClass(classArr) {
-      if (!classArr) return '暂无课程'
+      if (!classArr) return '暂无课程' + "　\r"
       let text = "";
       classArr.forEach(item => {
         text += item.lessonName + "　\r";
@@ -221,6 +219,9 @@ export default {
 }
 .el-table th > div {
   text-align: center;
+}
+.class-name-text{
+  display: block;
 }
 .feed-back-pagination {
   display: block;

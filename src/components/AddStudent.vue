@@ -38,7 +38,7 @@
         <el-input-number v-model="singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
       </el-form-item>
       <el-form-item label="选择课程" prop="repassword">
-        <el-select ref="classSelect" v-model="className" placeholder="请选择课程">
+        <el-select v-model="className" placeholder="请选择课程">
           <el-option v-for="(cls,index) in classList" :key="index" :label="cls.name" :value="cls.id"></el-option>
         </el-select>
         <el-button type="primary" style="margin-left:10px" @click="addOneClass">添加</el-button>

@@ -1,9 +1,9 @@
 <template>
   <div class="student-detail">
     <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1200px">
-      <el-tabs>
+      <el-tabs v-model="tabName">
         <!-- 基本信息页 -->
-        <el-tab-pane label="基本信息">
+        <el-tab-pane label="基本信息" name="基本信息">
           <div class="class-title" style="margin-bottom:20px">
             <i class="el-icon-date"></i>
             <span>基本信息</span>
@@ -42,7 +42,7 @@
           </el-form>
         </el-tab-pane>
         <!-- 课程情况 -->
-        <el-tab-pane label="课程情况">
+        <el-tab-pane label="课程情况"  name="课程情况">
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>课程情况</span>
@@ -73,9 +73,10 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-button type="primary" style="margin-top: 30px" @click="addClassShow = true">添加新课程</el-button>
+          <el-button type="primary" style="margin-top: 30px" @click="openAddClass">添加新课程</el-button>
         </el-tab-pane>
-        <el-tab-pane label="上课记录">
+        <!-- 上课记录 -->
+        <el-tab-pane label="上课记录" name="上课记录">
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>上课记录</span>
@@ -102,10 +103,19 @@
             </el-pagination>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="充值相关">
+        <!-- 充值相关 -->
+        <el-tab-pane label="充值相关" name="充值相关">
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>充值记录</span>
+            <el-form class="account-dialog" ref="addClassForm" :model="chargeForm" label-width="150px" width="300px">
+              <el-form-item label="为学员充值" prop="num">
+                <el-input-number v-model="chargeForm.num" :min="1" :max="1000" label="课程课时"></el-input-number>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="submitCharge">充值</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -160,7 +170,7 @@
         </el-form>
       </el-dialog>
     </el-dialog>
-    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class>
+    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm"></student-add-class>
   </div>
 </template>
 
@@ -181,33 +191,20 @@ export default {
     },
     studentId: {
       type: String,
-      default: '0'
+      default: "0"
     }
   },
-  mounted() {
-  },
+  mounted() {},
   data() {
-    const generateData = _ => {
-      const data = [];
-      for (let i = 1; i <= 15; i++) {
-        data.push({
-          key: i,
-          label: `课程 ${i}`
-          // disabled: i % 4 === 0
-        });
-      }
-      return data;
-    };
     return {
-      infoForm: {
-        name: "王小虎",
-        phone: "133333333",
-        school: "天府校区"
-      },
+      infoForm: {},
       editForm: {
         name: "王小虎",
         phone: "133333333",
         school: "天府校区"
+      },
+      chargeForm: {
+        num: 0
       },
       rules: {
         name: [
@@ -238,7 +235,7 @@ export default {
         progress: "6/16",
         newClassName: ""
       },
-      classData: generateData(),
+      addClassForm: {},
       tableData: [
         {
           date: "2017-05-02",
@@ -321,9 +318,10 @@ export default {
           desc: "天府校区-A教室-小萌老师"
         }
       ],
+      tabName:'课程情况',
       changeClassVisible: false,
       transClassVisible: false,
-      count: 100,
+      count: 10,
       historyPage: 1,
       // 展示编辑
       editInfoShow: false,
@@ -339,11 +337,12 @@ export default {
     },
     async getStudentInfo() {
       let res = await getStudentInfo({ id: this.studentId });
-      this.log(`${this.studentId}学生信息`, res.ok)
+      this.log(`${this.studentId}学生信息`, res.ok);
+      console.log(res);
       if (res.ok) {
         this.infoForm = res.data;
         // 这个等下会变，所以要先复制一下
-        this.editForm = JSON.parse(JSON.stringify(res.data))
+        this.editForm = JSON.parse(JSON.stringify(res.data));
       }
     },
     showEditInfo(flag) {
@@ -370,6 +369,7 @@ export default {
         this.showEditInfo(false);
       }
     },
+    async submitCharge() {},
     changeClass(value, direction, movedKeys) {
       if (this.allClass - this.classChoose.length * 16 < 0) {
         this.$message.error("您的剩余课时不够添加这些课程哦");
@@ -404,6 +404,15 @@ export default {
       this.transClassform.oldClassName = data.className;
       this.transClassform.progress = data.progress;
       this.transClassVisible = true;
+    },
+    /* 打开添加课程界面 */
+    openAddClass() {
+      this.addClassShow = true;
+      this.addClassForm.name = this.infoForm.name
+      this.addClassForm.balanceNum = this.infoForm.balanceNum;
+      this.addClassForm.singleClass = 16;
+      this.addClassForm.studentId = this.studentId;
+      this.addClassForm.schoolId = this.infoForm.schoolId;
     },
     submitTransClass() {
       console.log("确定转班");
@@ -464,7 +473,11 @@ export default {
   },
   watch: {
     dialogVisible(newVal) {
-      if (newVal) this.getStudentInfo();
+      if (newVal){
+        this.getStudentInfo();
+        this.tabName = '基本信息';
+        console.log(this.tabName);
+      }
     }
   },
   components: {
