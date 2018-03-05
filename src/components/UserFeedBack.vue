@@ -74,10 +74,13 @@ export default {
         .then( async ({ value }) => {
           let res = await replyFeedBack({id:row.id, replyContent: value})
           console.log(res);
-          this.$message({
-            type: "success",
-            message: "回复成功！"
-          });
+          if (res.ok) {
+            this.$message({
+              type: "success",
+              message: "回复成功！"
+            });
+            this.getFeedBack();
+          }
           // row.reply = 1;
         })
         .catch(() => {

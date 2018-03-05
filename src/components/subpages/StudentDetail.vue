@@ -111,7 +111,7 @@
         </el-tab-pane>
         <!-- 充值相关 -->
         <el-tab-pane label="充值相关" name="充值相关">
-          <div v-if="this.$store.state.adminInfo.auth.canCharge">
+          <div v-if="this.$store.state.adminInfo.auth.canCharge || this.$store.state.adminInfo.type==1">
             <div class="class-title">
               <i class="el-icon-date"></i>
               <span>充值</span>
