@@ -1,7 +1,7 @@
 <template>
   <div class="student-detail">
     <el-dialog class="detail-dialog" :title="'学员详情 - 王小虎'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="1200px">
-      <el-tabs v-model="tabName">
+      <el-tabs v-model="tabName" @tab-click="handleTabClick">
         <!-- 基本信息页 -->
         <el-tab-pane label="基本信息" name="基本信息">
           <div class="class-title" style="margin-bottom:20px">
@@ -42,27 +42,29 @@
           </el-form>
         </el-tab-pane>
         <!-- 课程情况 -->
-        <el-tab-pane label="课程情况"  name="课程情况">
+        <el-tab-pane label="课程情况" name="课程情况">
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>课程情况</span>
           </div>
-          <el-table :data="tableData1" style="width: 100%">
-            <el-table-column prop="className" label="课程名称" width="180">
+          <el-table :data="classData" v-if="classData" style="width: 100%">
+            <el-table-column prop="lessonName" label="课程名称" width="180">
             </el-table-column>
             <el-table-column prop="date" label="上课时间" width="140">
               <template slot-scope="scope">
-                <span style="margin-left: 10px">{{ scope.row.date }}</span>
-                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+                <span v-for="(date, index) in scope.row.schedules" :key="index" style="margin-left: 10px">{{ date.weekday + " " + date.startTime + '-' + date.endTime }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="progress" label="课程进度" width="180">
               <template slot-scope="scope">
-                <el-progress type="circle" :percentage="25" :width="27" :show-text="false"></el-progress>
-                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.progress }}</span>
+                <el-progress type="circle" :percentage="Math.ceil(scope.row.expendNum / scope.row.num)" :width="27" :show-text="false"></el-progress>
+                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.expendNum + '/' + scope.row.num}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="desc" label="备注">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.school + '-' + scope.row.schedules[0].location + '-' + scope.row.teacherName}}</span>
+              </template>
             </el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
@@ -170,7 +172,7 @@
         </el-form>
       </el-dialog>
     </el-dialog>
-    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm"></student-add-class>
+    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm" @refresh="getStudentClasses"></student-add-class>
   </div>
 </template>
 
@@ -178,7 +180,11 @@
 
 <script>
 import StudentAddClass from "../com/StudentAddClass.vue";
-import { getStudentInfo, changeStudentInfo } from "../../api/getData";
+import {
+  getStudentInfo,
+  changeStudentInfo,
+  getStudentClassInfo
+} from "../../api/getData";
 export default {
   props: {
     placeText: {
@@ -298,27 +304,9 @@ export default {
           tag: "待上"
         }
       ],
-      tableData1: [
-        {
-          date: "周一 17:00-18:00",
-          className: "领袖口才2017期1班",
-          progress: "5/16",
-          desc: "天府校区-E教室-小宇老师"
-        },
-        {
-          date: "周二 17:00-18:00",
-          className: "形象气质2017期2班",
-          progress: "7/16",
-          desc: "天府校区-D教室-小花老师"
-        },
-        {
-          date: "周六 17:00-18:00",
-          className: "领袖口才2018期1班",
-          progress: "14/16",
-          desc: "天府校区-A教室-小萌老师"
-        }
+      classData: [
       ],
-      tabName:'课程情况',
+      tabName: "课程情况",
       changeClassVisible: false,
       transClassVisible: false,
       count: 10,
@@ -335,6 +323,7 @@ export default {
     close() {
       this.$emit("close");
     },
+    /* 获取学生基本信息 */
     async getStudentInfo() {
       let res = await getStudentInfo({ id: this.studentId });
       this.log(`${this.studentId}学生信息`, res.ok);
@@ -344,6 +333,17 @@ export default {
         // 这个等下会变，所以要先复制一下
         this.editForm = JSON.parse(JSON.stringify(res.data));
       }
+    },
+    /* 获取学生课程信息 */
+    async getStudentClasses() {
+      let res = await getStudentClassInfo({ studentId: this.studentId });
+      console.log(res);
+      if (res.ok) {
+        this.classData = res.list
+      }
+    },
+    /* 获取学生课程记录 */
+    async getStudentClassHistory(){
     },
     showEditInfo(flag) {
       if (flag) {
@@ -387,6 +387,13 @@ export default {
     filterTag(value, row) {
       return row.tag === value;
     },
+    handleTabClick(tab) {
+      if (tab.name == "课程情况") {
+        this.getStudentClasses();
+      } else if (tab.name == "上课记录") {
+        this.getStudentClassHistory()
+      }
+    },
     /* 打开课程课时修改 */
     openClassChange(data) {
       console.log(data);
@@ -408,7 +415,7 @@ export default {
     /* 打开添加课程界面 */
     openAddClass() {
       this.addClassShow = true;
-      this.addClassForm.name = this.infoForm.name
+      this.addClassForm.name = this.infoForm.name;
       this.addClassForm.balanceNum = this.infoForm.balanceNum;
       this.addClassForm.singleClass = 16;
       this.addClassForm.studentId = this.studentId;
@@ -473,10 +480,9 @@ export default {
   },
   watch: {
     dialogVisible(newVal) {
-      if (newVal){
+      if (newVal) {
         this.getStudentInfo();
-        this.tabName = '基本信息';
-        console.log(this.tabName);
+        this.tabName = "基本信息";
       }
     }
   },
