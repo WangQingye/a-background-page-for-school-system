@@ -83,42 +83,68 @@
             <i class="el-icon-date"></i>
             <span>上课记录</span>
           </div>
-          <el-table :data="tableData" style="width: 90%; margin:0 auto">
+          <el-table :data="historyData" v-if="historyData.length" style="width: 90%; margin:0 auto">
             <el-table-column prop="date" label="上课时间" sortable width="180">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
                 <span style="margin-left: 10px">{{ scope.row.date }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="课程名称" width="280">
+            <el-table-column prop="lessonName" label="课程名称" width="auto">
             </el-table-column>
-            <el-table-column prop="address" label="备注">
+            <el-table-column prop="mark" label="备注" width="280">
+              <template slot-scope="scope">
+                <span v-if="scope.row.mark">{{scope.row.mark}}</span>
+                <span v-else>暂无</span>
+              </template>
             </el-table-column>
             <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
               <template slot-scope="scope">
-                <el-tag :type="calClassType(scope.row.tag)" close-transition>{{scope.row.tag}}</el-tag>
+                <el-tag :type="calClassType(scope.row.typeName)" close-transition>{{scope.row.typeName}}</el-tag>
               </template>
             </el-table-column>
           </el-table>
           <div class="feed-back-pagination" style="text-align: left;margin-top: 10px;">
-            <el-pagination ref="paginat" background @current-change="handleClassHistoryPageChange" :current-page="historyPage" :page-size="10" layout="total, prev, pager, next" :total="count">
+            <el-pagination ref="paginat" background @current-change="handleClassHistoryPageChange" :current-page="historyPage" :page-size="10" layout="total, prev, pager, next" :total="historyCount">
             </el-pagination>
           </div>
         </el-tab-pane>
         <!-- 充值相关 -->
         <el-tab-pane label="充值相关" name="充值相关">
+          <div v-if="this.$store.state.adminInfo.auth.canCharge">
+            <div class="class-title">
+              <i class="el-icon-date"></i>
+              <span>充值</span>
+            </div>
+            <span>为学员充值</span>
+            <el-input-number style="margin-left:20px;margin-top:20px" v-model="chargeForm.num" :min="1" :max="1000" label="课程课时"></el-input-number>
+            <el-button style="margin-left:20px" type="primary" @click="submitCharge">充值</el-button>
+          </div>
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>充值记录</span>
-            <el-form class="account-dialog" ref="addClassForm" :model="chargeForm" label-width="150px" width="300px">
-              <el-form-item label="为学员充值" prop="num">
-                <el-input-number v-model="chargeForm.num" :min="1" :max="1000" label="课程课时"></el-input-number>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="submitCharge">充值</el-button>
-              </el-form-item>
-            </el-form>
           </div>
+          <el-table :data="historyData" v-if="historyData.length" style="width: 90%; margin:0 auto">
+            <el-table-column prop="date" label="上课时间" sortable width="180">
+              <template slot-scope="scope">
+                <i class="el-icon-time"></i>
+                <span style="margin-left: 10px">{{ scope.row.date }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="lessonName" label="课程名称" width="auto">
+            </el-table-column>
+            <el-table-column prop="mark" label="备注" width="280">
+              <template slot-scope="scope">
+                <span v-if="scope.row.mark">{{scope.row.mark}}</span>
+                <span v-else>暂无</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
+              <template slot-scope="scope">
+                <el-tag :type="calClassType(scope.row.typeName)" close-transition>{{scope.row.typeName}}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-tab-pane>
       </el-tabs>
       <!-- 修改课时弹出框 -->
@@ -183,7 +209,8 @@ import StudentAddClass from "../com/StudentAddClass.vue";
 import {
   getStudentInfo,
   changeStudentInfo,
-  getStudentClassInfo
+  getStudentClassInfo,
+  getStudentClassHistory
 } from "../../api/getData";
 export default {
   props: {
@@ -227,9 +254,6 @@ export default {
             trigger: "blur"
           }
         ]
-        // allClass: [],
-        // singleClass: [],
-        // restClass: []
       },
       changeClassform: {
         className: "",
@@ -242,74 +266,12 @@ export default {
         newClassName: ""
       },
       addClassForm: {},
-      tableData: [
-        {
-          date: "2017-05-02",
-          name: "领袖口才2017期",
-          address: "无",
-          tag: "到课"
-        },
-        {
-          date: "2017-05-04",
-          name: "形象气质2017期",
-          address: "家人出门旅游",
-          tag: "请假"
-        },
-        {
-          date: "2017-05-01",
-          name: "领袖口才2017期",
-          address: "家长课后约谈",
-          tag: "到课"
-        },
-        {
-          date: "2017-05-03",
-          name: "形象气质2017期",
-          address: "参加学校考试",
-          tag: "请假"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "无",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        },
-        {
-          date: "2018-05-03",
-          name: "形象气质2018期",
-          address: "需要自带小板凳",
-          tag: "待上"
-        }
-      ],
-      classData: [
-      ],
+      historyData: [],
+      classData: [],
       tabName: "课程情况",
       changeClassVisible: false,
       transClassVisible: false,
-      count: 10,
+      historyCount: 10,
       historyPage: 1,
       // 展示编辑
       editInfoShow: false,
@@ -339,11 +301,20 @@ export default {
       let res = await getStudentClassInfo({ studentId: this.studentId });
       console.log(res);
       if (res.ok) {
-        this.classData = res.list
+        this.classData = res.list;
       }
     },
     /* 获取学生课程记录 */
-    async getStudentClassHistory(){
+    async getStuClsHistory(page) {
+      let res = await getStudentClassHistory({
+        studentId: this.studentId,
+        page: page
+      });
+      console.log(res);
+      if (res.ok) {
+        this.historyCount = res.count;
+        this.historyData = res.list;
+      }
     },
     showEditInfo(flag) {
       if (flag) {
@@ -391,7 +362,7 @@ export default {
       if (tab.name == "课程情况") {
         this.getStudentClasses();
       } else if (tab.name == "上课记录") {
-        this.getStudentClassHistory()
+        this.getStuClsHistory();
       }
     },
     /* 打开课程课时修改 */
@@ -474,8 +445,8 @@ export default {
     },
     /* 分页请求课程记录 */
     handleClassHistoryPageChange(val) {
-      this.currentPage = val;
-      // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
+      this.historyPage = val;
+      this.getStuClsHistory(val);
     }
   },
   watch: {
