@@ -25,10 +25,8 @@
         </el-dialog>
     </div>
 </template>
-
-
-
 <script>
+import { getClassList, addClassToStudent } from "../../api/getData";
 export default {
   props: {
     dialogVisible: {

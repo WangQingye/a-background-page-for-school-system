@@ -1,39 +1,40 @@
 <template>
   <div class="student-list">
     <p class="text">学员列表</p>
-    <search :place-text="'请输入学生姓名'" @search="search"></search>
-    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="nowData" style="width: 90%;margin:0 auto" max-height="2000">
+    <search :place-text="'请输入学生姓名'"></search>
+    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
-          <el-form inline class="demo-table-expand">
-            <el-form-item v-for="(cls, index) in scope.row.class" :key="index" :label="cls.className">
-              <el-progress :show-text="false" class="class-progress" :stroke-width="16" :percentage="calPercent(cls.finishPercnet)" :status="calProgressBarStatus(cls.finishPercnet)"></el-progress>
-              <span class="class-progress-text">{{cls.finishPercnet}}</span>
+          <el-form inline class="demo-table-expand" v-if="scope.row.hadClass">
+            <el-form-item v-for="(cls, index) in scope.row.hadClass" :key="index" :label="cls.lessonName">
+              <el-progress :show-text="false" class="class-progress" :stroke-width="16" :percentage="calPercent(cls.percent)" :status="calProgressBarStatus(cls.percent)"></el-progress>
+              <span class="class-progress-text">{{cls.percent}}</span>
             </el-form-item>
           </el-form>
+          <span v-else>暂无课程</span>
         </template>
       </el-table-column>
       <el-table-column prop="name" align="center" label="学员姓名" width="150">
       </el-table-column>
-      <el-table-column prop="parentContact" align="center" label="联系方式" width="120">
+      <el-table-column prop="phone" align="center" label="联系方式" width="120">
       </el-table-column>
       <el-table-column prop="school" align="center" label="校区" width="120">
       </el-table-column>
-      <el-table-column prop="class" align="center" label="参加课程" width="auto">
+      <el-table-column prop="hadClass" align="center" label="参加课程" width="auto">
         <template slot-scope="scope">
-          <span>{{calClass(scope.row.class)}}</span>
+          <span>{{calClass(scope.row.hadClass)}}</span>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" prop="haveDeadline" align="center" label="有课程即将到期" width="160">
+      <el-table-column sortable="custom" prop="haveClassEnd" align="center" label="有课程即将到期" width="160">
         <template slot-scope="scope">
-          <el-tag :type="calDeadLine(scope.row.class) === '是' ? 'danger' : 'success'" close-transition>{{calDeadLine(scope.row.class)}}</el-tag>
+          <el-tag :type="scope.row.haveClassEnd ? 'danger' : 'success'">{{scope.row.haveClassEnd ? '是' : '暂无'}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" prop="restClass" align="center" label="剩余/总充值课时" width="160">
+      <el-table-column sortable="custom" prop="lessonNum" align="center" label="剩余/总充值课时" width="160">
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
-          <el-button @click="showStudentDetail(scope.row)" type="text" size="small">
+          <el-button @click="showStudentDetail(scope.row.id)" type="text" size="small">
             查看详情
           </el-button>
         </template>
@@ -43,7 +44,7 @@
       <el-pagination ref="paginat" background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
       </el-pagination>
     </div>
-    <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentIndex="detailIndex"></student-detail>
+    <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentId="detailId"></student-detail>
   </div>
 </template>
 <script>
@@ -77,23 +78,27 @@ export default {
       return arr;
     }
     return {
-      allData: mockData(),
+      // studentList: mockData(),
+      studentList: [],
       // nowData: [],
       searchData: [],
       currentPage: 1,
       count: 100,
       dialogVisible: false,
-      detailIndex: 0 // 打开详情时传入的学生编号，用于向服务器请求
+      detailId: '0' // 打开详情时传入的学生编号，用于向服务器请求
     };
   },
   mounted() {
-    // this.nowData = this.allData.slice(0, 10);
+    // this.nowData = this.studentList.slice(0, 10);
     this.getStudentsList();
   },
   methods: {
-    async getStudentsList(data){
+    async getStudentsList(data) {
       let res = await getStudentList(data);
       console.log(res);
+      if (res.ok) {
+        this.studentList = res.list
+      }
     },
     handleSizeChange(val) {
       console.log(`每页${val}条`);
@@ -103,9 +108,10 @@ export default {
       // this.nowData = this.allData.slice(val * 10 - 10, val * 10);
     },
     calClass(classArr) {
+      if (!classArr) return '暂无课程'
       let text = "";
       classArr.forEach(item => {
-        text += item.className + "　\n";
+        text += item.lessonName + "　\r";
       });
       return text;
     },
@@ -118,24 +124,15 @@ export default {
       if (restClass == 0) return "success";
       if (restClass < 5) return "exception";
     },
-    calDeadLine(classes) {
-      let text = "暂无";
-      classes.forEach(item => {
-        if (this.calProgressBarStatus(item.finishPercnet) == "exception") {
-          text = "是";
-        }
-      });
-      return text;
-    },
-    search(text) {
-      this.searchData = this.allData.filter(item => {
-        return item.name.indexOf(text) !== -1;
-      });
-      this.count = this.searchData.length;
-      this.nowData = this.searchData.slice(
-        this.currentPage * 10 - 10,
-        this.currentPage * 10
-      );
+    calDeadLine(status) {
+      // let text = "暂无";
+      // classes.forEach(item => {
+      //   if (this.calProgressBarStatus(item.finishPercnet) == "exception") {
+      //     text = "是";
+      //   }
+      // });
+      // return text;
+      return status ? "是" : "暂无";
     },
     handleSortChange(data) {
       console.log(data);
@@ -171,7 +168,7 @@ export default {
           this.allData = this.allData.sort((itemA, itemB) => {
             let a = this.calDeadLine(itemA.class);
             let b = this.calDeadLine(itemB.class);
-            if (a == '是') {
+            if (a == "是") {
               return 1;
             } else if (a == b) {
               return 0;
@@ -183,7 +180,7 @@ export default {
           this.allData = this.allData.sort((itemA, itemB) => {
             let a = this.calDeadLine(itemA.class);
             let b = this.calDeadLine(itemB.class);
-            if (a == '暂无') {
+            if (a == "暂无") {
               return 1;
             } else if (a == b) {
               return 0;
@@ -194,9 +191,9 @@ export default {
         }
       }
     },
-    showStudentDetail(data) {
+    showStudentDetail(id) {
+      this.detailId = id;
       this.dialogVisible = true;
-      this.detailIndex = data.index;
     },
     closeDetail() {
       this.dialogVisible = false;
