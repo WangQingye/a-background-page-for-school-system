@@ -11,6 +11,7 @@
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
+        <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
     </div>
 </template>
 <style lang="css">
@@ -32,154 +33,27 @@
 
 <script>
 import { getSchool, getClassDetail } from '../api/getData1';
+import ClassDetail from './subpages/ClassDetail';
 export default {
+    components: {
+        ClassDetail
+    },
     async created() {
         this.getSchoolList();
     },
     data() {
         return {
+            dialogVisible: false,
+            lessonId: null,
+            ids: [],
             schoolList: [],
             school: '',
             // 课程表名称
             title: null,
             // 表头字段
-            heads: [
-                {
-                    // 表头键值
-                    prop: 'week',
-                    // 表头名称
-                    label: '日期'
-                },
-                {
-                    prop: 'noon',
-                    label: '时间段'
-                },
-                {
-                    prop: 'hour',
-                    label: '上课时间'
-                },
-                {
-                    prop: 'classA',
-                    label: 'A教室'
-                },
-                {
-                    prop: 'classB',
-                    label: 'B教室'
-                },
-                {
-                    prop: 'classC',
-                    label: 'C教室'
-                },
-                {
-                    prop: 'classD',
-                    label: 'D教室'
-                },
-                {
-                    prop: 'classE',
-                    label: 'E教室'
-                },
-                {
-                    prop: 'classF',
-                    label: 'F教室'
-                },
-                {
-                    prop: 'classG',
-                    label: 'G教室'
-                }
-            ],
+            heads: [],
             // 班级列表
-            classList: [
-                [
-                    {
-                        // 上课天
-                        weekday: '周一',
-                        // 时间段
-                        noon: '下午',
-                        // 具体时间
-                        hour: '17:00-18:30',
-                        // 班级名称
-                        classC: '领袖口才（四级)',
-                        classF: '创意想象（一班）',
-
-                        id: [
-                            {
-                                lessonName: '领袖口才（四级）',
-                                lessonId: 131
-                            },
-                            {
-                                lessonName: '创意想象（一班）',
-                                lessonId: 132
-                            }
-                        ]
-                    },
-                    {
-                        week: '周一',
-                        noon: '下午',
-                        hour: '17:45-18:45',
-                        classF: '创意想象（一班）'
-                    },
-                    {
-                        week: '周一',
-                        noon: '下午',
-                        hour: '18:30-20:00',
-                        classA: '炫舞拉丁(启蒙)',
-                        classB: '炫舞拉丁(启蒙)'
-                    }
-                ],
-                [
-                    {
-                        week: '周二',
-                        noon: '下午',
-                        hour: '18:30-20:00',
-                        classC: '炫舞拉丁(启蒙)',
-                        classF: '炫舞拉丁(启蒙)'
-                    }
-                ],
-                [
-                    {
-                        week: '周三',
-                        noon: '下午',
-                        hour: '17:30-19:00',
-                        classF: '创意想象'
-                    },
-                    {
-                        week: '周三',
-                        noon: '下午',
-                        hour: '18:15-19:45',
-                        classE: '领袖口才1级'
-                    },
-                    {
-                        week: '周三',
-                        noon: '晚上',
-                        hour: '19:00-20:00',
-                        classB: '领袖口才1级',
-                        classA: '流行街舞'
-                    }
-                ],
-                [
-                    {
-                        week: '周四',
-                        noon: '下午',
-                        hour: '17:00-18:30',
-                        classE: '创意想象',
-                        classA: '形体气质'
-                    }
-                ],
-                [
-                    {
-                        week: '周五',
-                        noon: '下午',
-                        hour: '17:30-19:00',
-                        classF: '炫舞拉丁'
-                    },
-                    {
-                        week: '周五',
-                        noon: '下午',
-                        hour: '19:00-20:00',
-                        classD: '领袖口才(艺术团)'
-                    }
-                ]
-            ]
+            classList: []
         };
     },
     watch: {
@@ -188,10 +62,12 @@ export default {
         }
     },
     methods: {
+        closeDetail() {
+            this.dialogVisible = false;
+        },
         async getSchoolList() {
             // 获取校区
             const res = await getSchool();
-
             res.list.forEach(element => {
                 var temp = {
                     value: element.name,
@@ -205,9 +81,16 @@ export default {
             const res = await getClassDetail({
                 school: this.school
             });
+
             this.title = res.title;
             this.heads = res.heads;
             this.classList = res.list;
+            this.classList.forEach(item => {
+                item.forEach(subItem => {
+                    console.log(subItem.id);
+                    this.ids = this.ids.concat(subItem.id);
+                });
+            });
         },
         clickCell(row, column, cell, event) {
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
@@ -219,10 +102,7 @@ export default {
                 location: column.label,
                 lessonName: row[column.property]
             };
-            console.log(row);
-            console.log(column);
-            console.log(cell);
-            // console.log(query);
+
             // 如果点击空课程表，跳转到课程添加页面
             if (!className) {
                 this.$router.push({
@@ -240,9 +120,12 @@ export default {
             ) {
                 console.log(123);
             } else {
-                this.$router.push({
-                    path: '/classDetail',
-                    query: query
+                this.ids.forEach(item => {
+                    if (item.lessonName === className) {
+                        this.lessonId = item.lessonId;
+                        console.log(this.lessonId);
+                        this.dialogVisible = true;
+                    }
                 });
             }
         },

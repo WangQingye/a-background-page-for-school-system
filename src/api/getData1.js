@@ -44,8 +44,12 @@ export const getFeedBack = data => fetch('/feedback/index', data);
 export const getSchool = data => fetch('/school/index', data);
 // 获取课程表
 export const getClassDetail = data => fetch('/lesson/index', data);
-
+// 获取课程详情
+export const getClassInfo = data => fetch('/lesson/edit', data);
 // 添加课程
 export const addClass = data => fetch('/lesson/edit', data, 'POST');
+// 删除课程
+export const delClass = data => fetch('/lesson/del', data);
+
 // 添加校区
 export const addSchool = data => fetch('/school/add', data, 'POST');

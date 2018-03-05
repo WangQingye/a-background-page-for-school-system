@@ -51,9 +51,9 @@ export default {
                 time: null,
                 // 是否全体发送通知
                 allStudent: false,
-                // 要通知的班级
+                // 要通知的班级Id
                 class: [],
-                // 要通知的学生
+                // 要通知的学生Id
                 student: []
             },
             classList: [
@@ -104,6 +104,7 @@ export default {
                 this.$message.error('请选择要发送的班级或者同学');
                 return;
             }
+            console.log(this.form);
             this.$message({
                 message: '已成功添加通知',
                 type: 'success'

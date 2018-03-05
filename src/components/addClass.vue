@@ -18,7 +18,7 @@
                     <el-input v-model="schoolNeedAdd" placeholder="请输入要添加的校区名称"></el-input>
                 </el-col>
                 <el-col :span="5">
-                    <el-button type="primary" @click="addSchool">确认添加</el-button>
+                    <el-button type="primary" @click="addSchoolItem">确认添加</el-button>
                 </el-col>
             </el-form-item>
             <el-form-item label="课程名称" prop="class">
@@ -135,13 +135,28 @@ export default {
         },
         // 提交课程
         async submitClass() {
-            console.log(this.form);
+            if (!this.form.schoolId) {
+                this.$message.error('请选择相应校区');
+                return;
+            }
+            if (!this.form.name) {
+                this.$message.error('请输入课程名称');
+                return;
+            }
+            if (!this.form.teacherName) {
+                this.$message.error('请输入教师姓名');
+                return;
+            }
             const res = await addClass(this.form);
-            console.log(res);
-            this.$message({
-                message: '已成功添加课程',
-                type: 'success'
-            });
+
+            if (res.ok) {
+                this.$message({
+                    message: '已成功添加课程',
+                    type: 'success'
+                });
+            } else {
+                this.$message.error(res.errorMsg);
+            }
         },
         // 重置表单
         resetForm(formName) {
@@ -152,7 +167,7 @@ export default {
             this.showSchool = true;
         },
         // 添加校区
-        async addSchool() {
+        async addSchoolItem() {
             if (!this.schoolNeedAdd) {
                 this.$message({
                     message: '请输入校区名称',
