@@ -1,7 +1,11 @@
 <template>
   <div class="student-list">
     <p class="text">学员列表</p>
-    <search :place-text="'请输入学生姓名'"></search>
+      <div class="search">
+    <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
+    </el-input>
+    <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
+  </div>
     <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
@@ -88,7 +92,8 @@ export default {
       currentPage: 1,
       count: 100,
       dialogVisible: false,
-      detailId: "0" // 打开详情时传入的学生编号，用于向服务器请求
+      detailId: "0", // 打开详情时传入的学生编号，用于向服务器请求,
+      searchStudentName:''
     };
   },
   mounted() {
@@ -198,6 +203,9 @@ export default {
     },
     closeDetail() {
       this.dialogVisible = false;
+    },
+    searchStudent(){
+
     }
   },
   computed: {
@@ -248,5 +256,13 @@ export default {
 }
 .detail-form {
   text-align: left;
+}
+.search {
+  width: 300px;
+  float: right;
+  margin-right: 5%;
+}
+.search-input {
+  width: 200px;
 }
 </style>
