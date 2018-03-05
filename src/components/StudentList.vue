@@ -30,7 +30,10 @@
           <el-tag :type="scope.row.haveClassEnd ? 'danger' : 'success'">{{scope.row.haveClassEnd ? '是' : '暂无'}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" prop="lessonNum" align="center" label="剩余/总充值课时" width="160">
+      <el-table-column sortable="custom" prop="restNum" align="center" label="剩余/总充值课时" width="160">
+        <template slot-scope="scope">
+          <span>{{scope.row.restNum + '/' + scope.row.lessonNum}}</span>
+        </template>
       </el-table-column>
       <el-table-column fixed="right" align="center" label="操作" width="120">
         <template slot-scope="scope">
@@ -85,7 +88,7 @@ export default {
       currentPage: 1,
       count: 100,
       dialogVisible: false,
-      detailId: '0' // 打开详情时传入的学生编号，用于向服务器请求
+      detailId: "0" // 打开详情时传入的学生编号，用于向服务器请求
     };
   },
   mounted() {
@@ -98,15 +101,15 @@ export default {
       console.log(res);
       if (res.ok) {
         this.studentList = res.list;
-        this.count = res.count
+        this.count = res.count;
       }
     },
     handleCurrentChange(val) {
       this.currentPage = val;
-      this.getStudentsList({page:val-1})
+      this.getStudentsList({ page: val - 1 });
     },
     calClass(classArr) {
-      if (!classArr) return '暂无课程' + "　\r"
+      if (!classArr) return "暂无课程" + "　\r";
       let text = "";
       classArr.forEach(item => {
         text += item.lessonName + "　\r";
@@ -220,7 +223,7 @@ export default {
 .el-table th > div {
   text-align: center;
 }
-.class-name-text{
+.class-name-text {
   display: block;
 }
 .feed-back-pagination {

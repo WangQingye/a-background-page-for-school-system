@@ -55,3 +55,4 @@ export const getStudentClassHistory = data => fetch('/record/index', data);
  * 课程相关
  */
 export const getClassList = data => fetch('/lesson/list', data);
+export const changeExpendNum = data => fetch('/order/edit', data, 'POST');

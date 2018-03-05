@@ -57,8 +57,8 @@
             </el-table-column>
             <el-table-column prop="progress" label="课程进度" width="180">
               <template slot-scope="scope">
-                <el-progress type="circle" :percentage="Math.ceil(scope.row.expendNum / scope.row.num)" :width="27" :show-text="false"></el-progress>
-                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.expendNum + '/' + scope.row.num}}</span>
+                <el-progress type="circle" :percentage="Math.floor((scope.row.expendNum / scope.row.num) * 100)" :width="25" :show-text="false"></el-progress>
+                <span style="margin-left: 10px;font-size:16px">{{ scope.row.expendNum + '/' + scope.row.num}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="desc" label="备注">
@@ -117,32 +117,24 @@
               <span>充值</span>
             </div>
             <span>为学员充值</span>
-            <el-input-number style="margin-left:20px;margin-top:20px" v-model="chargeForm.num" :min="1" :max="1000" label="课程课时"></el-input-number>
-            <el-button style="margin-left:20px" type="primary" @click="submitCharge">充值</el-button>
+            <el-input-number style="margin-left:20px;margin-top:20px" v-model="charegeNum" :min="1" :max="1000" label="课程课时"></el-input-number>
+            <span>课时</span>
+            <el-button style="margin-left:20px" type="primary" @click="openConfirm(3)">充值</el-button>
           </div>
           <div class="class-title">
             <i class="el-icon-date"></i>
             <span>充值记录</span>
           </div>
-          <el-table :data="historyData" v-if="historyData.length" style="width: 90%; margin:0 auto">
-            <el-table-column prop="date" label="上课时间" sortable width="180">
+          <el-table :data="chargeData" v-if="chargeData.length" style="width: 80%; margin:0 auto">
+            <el-table-column prop="date" label="充值时间" width="180">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
                 <span style="margin-left: 10px">{{ scope.row.date }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="lessonName" label="课程名称" width="auto">
+            <el-table-column prop="num" label="充值课时" width="auto">
             </el-table-column>
-            <el-table-column prop="mark" label="备注" width="280">
-              <template slot-scope="scope">
-                <span v-if="scope.row.mark">{{scope.row.mark}}</span>
-                <span v-else>暂无</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
-              <template slot-scope="scope">
-                <el-tag :type="calClassType(scope.row.typeName)" close-transition>{{scope.row.typeName}}</el-tag>
-              </template>
+            <el-table-column prop="user" label="操作人员" width="auto">
             </el-table-column>
           </el-table>
         </el-tab-pane>
@@ -150,14 +142,11 @@
       <!-- 修改课时弹出框 -->
       <el-dialog width="30%" title="修改课时" :visible.sync="changeClassVisible" append-to-body>
         <el-form ref="changeClass" :model="changeClassform" label-width="80px">
-          <el-form-item label="学员姓名">
-            <span>王小虎</span>
-          </el-form-item>
           <el-form-item label="课程名称">
             <span>{{changeClassform.className}}</span>
           </el-form-item>
           <el-form-item label="已上课时">
-            <el-input-number v-model="changeClassform.hadClass" :min="1" :max="changeClassform.totalClass" label="已上课时"></el-input-number>
+            <el-input-number v-model="changeClassform.hadClass" :min="0" :max="Number(changeClassform.totalClass)" label="已上课时"></el-input-number>
           </el-form-item>
           <el-form-item label="总课时">
             <span>{{changeClassform.totalClass}}</span>
@@ -171,9 +160,6 @@
       <!-- 转班弹出框 -->
       <el-dialog width="30%" title="转班" :visible.sync="transClassVisible" append-to-body>
         <el-form ref="changeClass" :model="transClassform" label-width="80px">
-          <el-form-item label="学员姓名">
-            <span>王小虎</span>
-          </el-form-item>
           <el-form-item label="当前班级">
             <span>{{transClassform.oldClassName}}</span>
           </el-form-item>
@@ -209,6 +195,7 @@ import StudentAddClass from "../com/StudentAddClass.vue";
 import {
   getStudentInfo,
   changeStudentInfo,
+  changeExpendNum,
   getStudentClassInfo,
   getStudentClassHistory
 } from "../../api/getData";
@@ -230,15 +217,9 @@ export default {
   mounted() {},
   data() {
     return {
+      tabName: "课程情况",
       infoForm: {},
-      editForm: {
-        name: "王小虎",
-        phone: "133333333",
-        school: "天府校区"
-      },
-      chargeForm: {
-        num: 0
-      },
+      editForm: {},
       rules: {
         name: [
           {
@@ -256,19 +237,34 @@ export default {
         ]
       },
       changeClassform: {
+        studentName: "",
         className: "",
         hadClass: 0,
-        totalClass: 0
+        totalClass: 0,
+        orderId: 0
       },
+      /* 转班时需要获取当前校区课程 */
+      schoolClasses:[],
+      /* 转班数据 */
       transClassform: {
         oldClassName: "",
         progress: "6/16",
         newClassName: ""
       },
       addClassForm: {},
+      /* 上课记录 */
       historyData: [],
+      /* 课程信息 */
       classData: [],
-      tabName: "课程情况",
+      /* 充值记录 */
+      chargeData: [
+        {
+          date: "2017-01-01",
+          num: 64,
+          user: "admin"
+        }
+      ],
+      charegeNum: 1,
       changeClassVisible: false,
       transClassVisible: false,
       historyCount: 10,
@@ -300,6 +296,7 @@ export default {
     async getStudentClasses() {
       let res = await getStudentClassInfo({ studentId: this.studentId });
       console.log(res);
+      console.log(12321);
       if (res.ok) {
         this.classData = res.list;
       }
@@ -368,19 +365,32 @@ export default {
     /* 打开课程课时修改 */
     openClassChange(data) {
       console.log(data);
-      this.changeClassform.className = data.className;
-      this.changeClassform.hadClass = Number(data.progress.split("/")[0]);
-      this.changeClassform.totalClass = Number(data.progress.split("/")[1]);
+      this.changeClassform.className = data.lessonName;
+      this.changeClassform.hadClass = data.expendNum;
+      this.changeClassform.totalClass = data.num;
+      this.changeClassform.orderId = data.id;
       this.changeClassVisible = true;
     },
-    submitChangeHadClass() {
-      console.log("确定修改课时");
+    async submitChangeHadClass() {
+      let res = await changeExpendNum({
+        id: this.changeClassform.orderId,
+        expendNum: this.changeClassform.hadClass
+      });
+      if (res.ok) {
+        this.$message({
+          type: "success",
+          message: "操作成功!"
+        });
+        this.getStudentClasses();
+        this.changeClassVisible = false;
+      }
     },
     /* 打开课程课时修改 */
     openClassTrans(data) {
       console.log(data);
-      this.transClassform.oldClassName = data.className;
-      this.transClassform.progress = data.progress;
+      this.transClassform.oldClassName = data.lessonName;
+      this.transClassform.progress = data.expendNum + '/' + data.num;
+      // this.getSchoolClasses()
       this.transClassVisible = true;
     },
     /* 打开添加课程界面 */
@@ -401,13 +411,12 @@ export default {
       let text;
       console.log(data);
       if (type == 1) {
-        text = `本次操作将从学员剩余课时中扣除${Number(
-          data.progress.split("/")[1]
-        )}课时，用以续开一期${data.className}课程，是否确认？`;
+        text = `本次操作将从学员剩余课时中扣除16课时，用以续开一期${data.lessonName}课程，是否确认？`;
       } else if (type == 2) {
-        text = `本次操作将停止该学员的${data.className}课程，剩余${Number(
-          data.progress.split("/")[1]
-        ) - Number(data.progress.split("/")[0])}课时将自动转入该学员剩余课时，是否确认？`;
+        text = `本次操作将停止该学员的${data.lessonName}课程，剩余${Number(data.num) -
+          Number(data.expendNum)}课时将自动转入该学员剩余课时，是否确认？`;
+      } else if (type == 3) {
+        text = `本次操作将从为学员充值${this.charegeNum}课时，是否确认？`;
       }
       this.$confirm(text, "确认操作", {
         confirmButtonText: "确定",
@@ -423,7 +432,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消修改"
+            message: "已取消操作"
           });
         });
     },
@@ -446,7 +455,7 @@ export default {
     /* 分页请求课程记录 */
     handleClassHistoryPageChange(val) {
       this.historyPage = val;
-      this.getStuClsHistory(val);
+      this.getStuClsHistory(val - 1);
     }
   },
   watch: {

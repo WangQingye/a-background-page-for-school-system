@@ -56,7 +56,7 @@ export default {
     },
     /* 添加课程后需要通知父组件刷新数据 */
     notiRefresh(){
-      this.$emit("refresh")
+      this.$emit("refresh");
     },
     async getClasses() {
       let res = await getClassList({ schoolId: this.addClassForm.schoolId });
@@ -89,6 +89,7 @@ export default {
           message: "添加课程成功"
         });
         this.close();
+        this.notiRefresh();
       }
     }
   },
