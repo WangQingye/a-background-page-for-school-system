@@ -86,6 +86,8 @@ export default {
     }
     return {
       // studentList: mockData(),
+      isFilter: "",
+      isSort: "",
       studentList: [],
       // nowData: [],
       searchData: [],
@@ -102,6 +104,14 @@ export default {
   },
   methods: {
     async getStudentsList(data) {
+      if (!data) data = {};
+      if (this.isFilter) {
+        data.haveClassEnd = this.isFilter;
+      }
+      if (this.isSort) {
+        data.sortField = 'restNum';
+        data.sortWay = this.isSort;
+      }
       let res = await getStudentList(data);
       console.log(res);
       if (res.ok) {
@@ -131,81 +141,26 @@ export default {
       if (restClass < 5) return "exception";
     },
     calDeadLine(status) {
-      // let text = "暂无";
-      // classes.forEach(item => {
-      //   if (this.calProgressBarStatus(item.finishPercnet) == "exception") {
-      //     text = "是";
-      //   }
-      // });
-      // return text;
       return status ? "是" : "暂无";
     },
     handleSortChange(data) {
       console.log(data);
-      if (data.prop == "restClass") {
-        if (data.order == "descending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = Number(itemA.restClass.split("/")[0]);
-            let b = Number(itemB.restClass.split("/")[0]);
-            if (a > b) {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        } else if (data.order == "ascending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = Number(itemA.restClass.split("/")[0]);
-            let b = Number(itemB.restClass.split("/")[0]);
-            if (a < b) {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        }
+      if (data.order == "descending") {
+        this.isSort = 'up'
+      } else if (data.order == "ascending") {
+        this.isSort = 'down'
+      } else {
+        this.isSort = ''
       }
-      if (data.prop == "haveDeadline") {
-        if (data.order == "descending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = this.calDeadLine(itemA.class);
-            let b = this.calDeadLine(itemB.class);
-            if (a == "是") {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        } else if (data.order == "ascending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = this.calDeadLine(itemA.class);
-            let b = this.calDeadLine(itemB.class);
-            if (a == "暂无") {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        }
-      }
+      this.getStudentsList();
     },
     filterHasClassEnd(data) {
-      // console.log(Object.keys(data)[0][0]);
-      console.log(data);
-      console.log({haveClassEnd: data[Object.keys(data)[0]][0]});
-      if (data[Object.keys(data)[0]][0]){
-        this.getStudentsList({haveClassEnd: data[Object.keys(data)[0]][0]})
-      }else{
-        this.getStudentsList();
+      if (data[Object.keys(data)[0]][0]) {
+        this.isFilter = data[Object.keys(data)[0]][0];
+      } else {
+        this.isFilter = "";
       }
+      this.getStudentsList();
     },
     showStudentDetail(id) {
       this.detailId = id;
@@ -213,7 +168,7 @@ export default {
     },
     closeDetail() {
       this.dialogVisible = false;
-    },
+    }
   },
   computed: {
     nowData() {
