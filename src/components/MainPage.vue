@@ -23,10 +23,11 @@
           </el-menu-item>
           <el-submenu index="2">
             <template slot="title">
-              <i class="el-icon-setting"></i>
+              <i class="el-icon-date"></i>
               <span>课程管理</span>
             </template>
             <el-menu-item index="classList">课程表</el-menu-item>
+            <el-menu-item index="lessonList">课程列表</el-menu-item>
             <el-menu-item index="addClass">课程添加</el-menu-item>
           </el-submenu>
           <el-submenu index="3">
@@ -40,6 +41,10 @@
           <el-menu-item index="userFeedBack">
             <i class="el-icon-message"></i>
             <span slot="title">家长反馈</span>
+          </el-menu-item>
+          <el-menu-item index="notification">
+            <i class="el-icon-bell"></i>
+            <span slot="title">通知</span>
           </el-menu-item>
         </el-menu>`
       </el-col>
@@ -68,98 +73,108 @@
   </div>
 </template>
 <script>
-import { mapState, mapActions } from "vuex";
-import AccountManage from "./subpages/AccountManage.vue";
-import { logOut, changePass } from "../api/getData";
+import { mapState, mapActions } from 'vuex';
+import AccountManage from './subpages/AccountManage.vue';
+import { logOut, changePass } from '../api/getData';
 export default {
-  data() {
-    return {
-      dialogVisible: false,
-      isAdmin: this.$store.state.adminInfo.type == 1,
-      userName: this.$store.state.adminInfo.name,
-      changePassVisible: false,
-      changePassForm: {
-        oldPass: "",
-        newPass: ""
-      },
-      rules: {
-        oldPass: [{ required: true, message: "请输入当前密码", trigger: "blur" }],
-        newPass: [
-          { required: true, message: "请输入新密码", trigger: "blur" },
-          { min: 6, message: "密码不能少于6个字符", trigger: "blur" }
-        ]
-      }
-    };
-  },
-  computed: {},
-  // computed: mapState({
-  //   // 箭头函数可使代码更简练
-  //   adminInfo: state => state.adminInfo,
-  // }),
-  async mounted() {
-    if (!this.$store.state.adminInfo.id) {
-      await this.getAdminData();
-      // console.log(this.$store.state.adminInfo);
-      this.isAdmin = this.$store.state.adminInfo.type == 1;
-      this.userName = this.$store.state.adminInfo.name;
-    }
-  },
-  methods: {
-    async logOut() {
-      const res = await logOut();
-      if (res.ok) {
-        this.$router.push("/");
-      }
+    data() {
+        return {
+            dialogVisible: false,
+            isAdmin: this.$store.state.adminInfo.type == 1,
+            userName: this.$store.state.adminInfo.name,
+            changePassVisible: false,
+            changePassForm: {
+                oldPass: '',
+                newPass: ''
+            },
+            rules: {
+                oldPass: [
+                    {
+                        required: true,
+                        message: '请输入当前密码',
+                        trigger: 'blur'
+                    }
+                ],
+                newPass: [
+                    {
+                        required: true,
+                        message: '请输入新密码',
+                        trigger: 'blur'
+                    },
+                    { min: 6, message: '密码不能少于6个字符', trigger: 'blur' }
+                ]
+            }
+        };
     },
-    async submitChangePass() {
-      // console.log(this.changePassForm);
-      let res = await changePass(this.changePassForm);
-      if (res.ok) {
-        this.$message({
-          type: "success",
-          message: "修改成功"
-        });
-        this.changePassVisible = false;
-        this.changePassForm.oldPass = '';
-        this.changePassForm.newPass = '';
-      } else {
-        this.$message({
-          type: "error",
-          message: res.errorMsg
-        });
-      }
+    computed: {},
+    // computed: mapState({
+    //   // 箭头函数可使代码更简练
+    //   adminInfo: state => state.adminInfo,
+    // }),
+    async mounted() {
+        if (!this.$store.state.adminInfo.id) {
+            await this.getAdminData();
+            // console.log(this.$store.state.adminInfo);
+            this.isAdmin = this.$store.state.adminInfo.type == 1;
+            this.userName = this.$store.state.adminInfo.name;
+        }
     },
-    ...mapActions(["getAdminData"])
-  },
-  computed: {
-    defaultActive() {
-      return this.$route.path.replace("/", "");
+    methods: {
+        async logOut() {
+            const res = await logOut();
+            if (res.ok) {
+                this.$router.push('/');
+            }
+        },
+        async submitChangePass() {
+            // console.log(this.changePassForm);
+            let res = await changePass(this.changePassForm);
+            if (res.ok) {
+                this.$message({
+                    type: 'success',
+                    message: '修改成功'
+                });
+                this.changePassVisible = false;
+                this.changePassForm.oldPass = '';
+                this.changePassForm.newPass = '';
+            } else {
+                this.$message({
+                    type: 'error',
+                    message: res.errorMsg
+                });
+            }
+        },
+        ...mapActions(['getAdminData'])
+    },
+    computed: {
+        defaultActive() {
+            return this.$route.path.replace('/', '');
+        }
+    },
+    components: {
+        AccountManage
     }
-  },
-  components: {
-    AccountManage
-  }
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style  lang="less" scoped>
 .header {
-  border-bottom: 1px solid #dddddd;
-  height: 55px;
-  .admin-text {
-    text-align: right;
-  }
-  .log-out {
-    margin-top: 7.5px;
-  }
+    border-bottom: 1px solid #dddddd;
+    height: 55px;
+    .admin-text {
+        text-align: right;
+    }
+    .log-out {
+        margin-top: 7.5px;
+    }
 }
 .logo {
-  width: 50px;
-  height: 50px;
-  margin: 0;
-  padding: 0;
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    padding: 0;
 }
 .logo-text {
-  float: right;
+    float: right;
 }
 </style>

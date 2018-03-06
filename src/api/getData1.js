@@ -50,6 +50,8 @@ export const getClassInfo = data => fetch('/lesson/edit', data);
 export const addClass = data => fetch('/lesson/edit', data, 'POST');
 // 删除课程
 export const delClass = data => fetch('/lesson/del', data);
+// 获取课程上课记录
+export const getHistory = data => fetch('/lesson/record', data);
 
 // 添加校区
 export const addSchool = data => fetch('/school/add', data, 'POST');
