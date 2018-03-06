@@ -1,12 +1,12 @@
 <template>
   <div class="student-list">
     <p class="text">学员列表</p>
-      <div class="search">
-    <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
-    </el-input>
-    <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
-  </div>
-    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000">
+    <div class="search">
+      <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
+      </el-input>
+      <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
+    </div>
+    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000" @filter-change="filterHasClassEnd">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
           <el-form inline class="demo-table-expand" v-if="scope.row.hadClass">
@@ -29,7 +29,7 @@
           <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" prop="haveClassEnd" align="center" label="有课程即将到期" width="160">
+      <el-table-column prop="haveClassEnd" align="center" label="有课程即将到期" width="160" :filters="[{ text: '是', value: '1' }, { text: '暂无', value: '0' }]" filter-placement="bottom-end">
         <template slot-scope="scope">
           <el-tag :type="scope.row.haveClassEnd ? 'danger' : 'success'">{{scope.row.haveClassEnd ? '是' : '暂无'}}</el-tag>
         </template>
@@ -86,6 +86,8 @@ export default {
     }
     return {
       // studentList: mockData(),
+      isFilter: "",
+      isSort: "",
       studentList: [],
       // nowData: [],
       searchData: [],
@@ -93,7 +95,7 @@ export default {
       count: 100,
       dialogVisible: false,
       detailId: "0", // 打开详情时传入的学生编号，用于向服务器请求,
-      searchStudentName:''
+      searchStudentName: ""
     };
   },
   mounted() {
@@ -102,6 +104,14 @@ export default {
   },
   methods: {
     async getStudentsList(data) {
+      if (!data) data = {};
+      if (this.isFilter) {
+        data.haveClassEnd = this.isFilter;
+      }
+      if (this.isSort) {
+        data.sortField = 'restNum';
+        data.sortWay = this.isSort;
+      }
       let res = await getStudentList(data);
       console.log(res);
       if (res.ok) {
@@ -131,71 +141,26 @@ export default {
       if (restClass < 5) return "exception";
     },
     calDeadLine(status) {
-      // let text = "暂无";
-      // classes.forEach(item => {
-      //   if (this.calProgressBarStatus(item.finishPercnet) == "exception") {
-      //     text = "是";
-      //   }
-      // });
-      // return text;
       return status ? "是" : "暂无";
     },
     handleSortChange(data) {
       console.log(data);
-      if (data.prop == "restClass") {
-        if (data.order == "descending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = Number(itemA.restClass.split("/")[0]);
-            let b = Number(itemB.restClass.split("/")[0]);
-            if (a > b) {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        } else if (data.order == "ascending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = Number(itemA.restClass.split("/")[0]);
-            let b = Number(itemB.restClass.split("/")[0]);
-            if (a < b) {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        }
+      if (data.order == "descending") {
+        this.isSort = 'up'
+      } else if (data.order == "ascending") {
+        this.isSort = 'down'
+      } else {
+        this.isSort = ''
       }
-      if (data.prop == "haveDeadline") {
-        if (data.order == "descending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = this.calDeadLine(itemA.class);
-            let b = this.calDeadLine(itemB.class);
-            if (a == "是") {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        } else if (data.order == "ascending") {
-          this.allData = this.allData.sort((itemA, itemB) => {
-            let a = this.calDeadLine(itemA.class);
-            let b = this.calDeadLine(itemB.class);
-            if (a == "暂无") {
-              return 1;
-            } else if (a == b) {
-              return 0;
-            } else {
-              return -1;
-            }
-          });
-        }
+      this.getStudentsList();
+    },
+    filterHasClassEnd(data) {
+      if (data[Object.keys(data)[0]][0]) {
+        this.isFilter = data[Object.keys(data)[0]][0];
+      } else {
+        this.isFilter = "";
       }
+      this.getStudentsList();
     },
     showStudentDetail(id) {
       this.detailId = id;
@@ -203,9 +168,6 @@ export default {
     },
     closeDetail() {
       this.dialogVisible = false;
-    },
-    searchStudent(){
-
     }
   },
   computed: {

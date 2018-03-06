@@ -51,8 +51,20 @@ export const addClassToStudent = data => fetch('/order/edit', data, 'POST');
 export const getStudentClassInfo = data => fetch('/order/index', data);
 // 获取学员课程记录
 export const getStudentClassHistory = data => fetch('/record/index', data);
+// 为学员充值
+export const chargeStudent = data => fetch('/charge/add', data, 'POST');
+// 获取学员充值记录
+export const getStudentChargeHistory = data => fetch('/charge/index', data);
 /**
  * 课程相关
  */
-export const getClassList = data => fetch('/lesson/list', data);
+// 按校区获取课程
+export const getClassList = schoolId => fetch('/lesson/list', schoolId);
+// 修改已上课时数
 export const changeExpendNum = data => fetch('/order/edit', data, 'POST');
+// 续课
+export const renewClass = id => fetch('/order/renew', id, 'POST');
+// 停课
+export const stopClass = id => fetch('/order/stop', id, 'POST');
+// 转班
+export const transClass = data => fetch('/order/transfer', data, 'POST');
