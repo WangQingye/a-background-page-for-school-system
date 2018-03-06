@@ -45,7 +45,8 @@ const notification = r =>
     () => r(require('@/components/Notification')),
     'notification'
   );
-
+const lessonList = r =>
+  require.ensure([], () => r(require('@/components/LessonList')), 'lessonList');
 export default new Router({
   routes: [
     {
@@ -102,6 +103,11 @@ export default new Router({
           path: '/notification',
           component: notification,
           meta: ['课程出勤']
+        },
+        {
+          path: '/lessonList',
+          component: lessonList,
+          meta: ['课程列表']
         }
       ]
     }
