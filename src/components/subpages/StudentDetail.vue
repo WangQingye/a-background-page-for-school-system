@@ -244,7 +244,7 @@ export default {
         orderId: 0
       },
       /* 转班时需要获取当前校区课程 */
-      schoolClasses:[],
+      schoolClasses: [],
       /* 转班数据 */
       transClassform: {
         oldClassName: "",
@@ -389,7 +389,7 @@ export default {
     openClassTrans(data) {
       console.log(data);
       this.transClassform.oldClassName = data.lessonName;
-      this.transClassform.progress = data.expendNum + '/' + data.num;
+      this.transClassform.progress = data.expendNum + "/" + data.num;
       // this.getSchoolClasses()
       this.transClassVisible = true;
     },

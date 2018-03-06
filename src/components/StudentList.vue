@@ -1,12 +1,12 @@
 <template>
   <div class="student-list">
     <p class="text">学员列表</p>
-      <div class="search">
-    <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
-    </el-input>
-    <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
-  </div>
-    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000">
+    <div class="search">
+      <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
+      </el-input>
+      <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
+    </div>
+    <el-table stripe @sort-change="handleSortChange" class="feedback-table" :data="studentList" style="width: 90%;margin:0 auto" max-height="2000" @filter-change="filterHasClassEnd">
       <el-table-column fixed="left" type="expand">
         <template slot-scope="scope">
           <el-form inline class="demo-table-expand" v-if="scope.row.hadClass">
@@ -29,7 +29,7 @@
           <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" prop="haveClassEnd" align="center" label="有课程即将到期" width="160">
+      <el-table-column prop="haveClassEnd" align="center" label="有课程即将到期" width="160" :filters="[{ text: '是', value: '1' }, { text: '暂无', value: '0' }]" filter-placement="bottom-end">
         <template slot-scope="scope">
           <el-tag :type="scope.row.haveClassEnd ? 'danger' : 'success'">{{scope.row.haveClassEnd ? '是' : '暂无'}}</el-tag>
         </template>
@@ -93,7 +93,7 @@ export default {
       count: 100,
       dialogVisible: false,
       detailId: "0", // 打开详情时传入的学生编号，用于向服务器请求,
-      searchStudentName:''
+      searchStudentName: ""
     };
   },
   mounted() {
@@ -197,6 +197,12 @@ export default {
         }
       }
     },
+    filterHasClassEnd(data) {
+      // console.log(Object.keys(data)[0][0]);
+      console.log(data);
+      console.log({haveClassEnd: data[Object.keys(data)[0]][0]});
+      this.getStudentsList({haveClassEnd: data[Object.keys(data)[0]][0]})
+    },
     showStudentDetail(id) {
       this.detailId = id;
       this.dialogVisible = true;
@@ -204,9 +210,6 @@ export default {
     closeDetail() {
       this.dialogVisible = false;
     },
-    searchStudent(){
-
-    }
   },
   computed: {
     nowData() {
