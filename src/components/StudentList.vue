@@ -201,7 +201,11 @@ export default {
       // console.log(Object.keys(data)[0][0]);
       console.log(data);
       console.log({haveClassEnd: data[Object.keys(data)[0]][0]});
-      this.getStudentsList({haveClassEnd: data[Object.keys(data)[0]][0]})
+      if (data[Object.keys(data)[0]][0]){
+        this.getStudentsList({haveClassEnd: data[Object.keys(data)[0]][0]})
+      }else{
+        this.getStudentsList();
+      }
     },
     showStudentDetail(id) {
       this.detailId = id;
