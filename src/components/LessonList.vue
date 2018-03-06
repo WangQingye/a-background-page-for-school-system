@@ -33,10 +33,17 @@ export default {
             lesson: [
                 {
                     lessonId: 123,
-                    lessonName: '形体课',
+                    lessonName: '形体课1班',
                     teacherName: '余老师',
+                    time: ['周二/10:00-12:00'],
+                    location: ['C教室']
+                },
+                {
+                    lessonId: 123,
+                    lessonName: '形体课2班',
+                    teacherName: '刘老师',
                     time: ['周一/17:30-19:00', '周二/10:00-12:00'],
-                    location: ['A教室', 'C教室']
+                    location: ['F教室', 'D教室']
                 }
             ]
         };

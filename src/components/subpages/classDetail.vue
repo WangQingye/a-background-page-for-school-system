@@ -3,19 +3,26 @@
         <el-dialog class="detail-dialog" title="课程详情" :visible.sync="dialogVisible" width="1200px" :before-close="close" @open="openDetail">
             <el-tabs v-model="activeName">
                 <el-tab-pane label="课程记录" name="first">
-                    <el-table :data="classHistory" style="width: 100%">
+                    <el-table :data="history" style="width: 100%">
                         <el-table-column prop="date" label="上课日期" width="180">
                         </el-table-column>
-                        <el-table-column prop="hour" label="上课时间" width="180">
+                        <el-table-column prop="timeRange" label="上课时间" width="180">
                         </el-table-column>
-                        <el-table-column prop="className" label="课程名称" width="300">
+                        <el-table-column prop="lessonName" label="课程名称" width="300">
                         </el-table-column>
-                        <el-table-column prop="status" label="上课状态" width="120">
+                        <el-table-column prop="type" label="上课状态" width="120">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.type === '待上'" :type="'success'">{{ scope.row.type }}</el-tag>
+                                <el-tag v-if="scope.row.type === '已上'" :type="'info'">{{ scope.row.status }}</el-tag>
+                            </template>
                         </el-table-column>
                         <el-table-column fixed="right" align="center" label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="showClassDetail(scope.$index)" type="text" size="small">
+                                <el-button v-if="scope.row.type === '已上'" @click="showClassDetail(scope.$index)" type="text" size="small">
                                     查看详情
+                                </el-button>
+                                <el-button v-if="scope.row.type === '待上'" @click="suspendLesson(scope.$index)" type="text" size="small">
+                                    停课
                                 </el-button>
                             </template>
                         </el-table-column>
@@ -76,14 +83,14 @@
                                     <el-input v-model="form.teacherName" placeholder="请输入教师名字"></el-input>
                                 </el-form-item>
 
-                                <el-form-item>
-                                    <el-col :span="5">
+                                <el-form-item label="操作">
+                                    <el-col :span="4">
                                         <el-button type="primary" @click="changeClass">修改课程</el-button>
                                     </el-col>
                                     <el-col :span="6">
                                         <el-button type="primary" @click="addMoreTime">添加更多时间地点</el-button>
                                     </el-col>
-                                    <el-col :span="8">
+                                    <el-col :span="4">
                                         <el-button type="danger" @click="delClassItem">删除课程</el-button>
                                     </el-col>
                                 </el-form-item>
@@ -102,7 +109,8 @@ import {
     getClassInfo,
     addClass,
     addSchool,
-    delClass
+    delClass,
+    getHistory
 } from '../../api/getData1';
 import StudentAttendance from '../subpages/StudentAttendance';
 export default {
@@ -122,58 +130,14 @@ export default {
     data() {
         return {
             count: 100,
-            currentPage: 0,
+            currentPage: 1,
             showAttendance: false,
             activeName: 'first',
-            classHistory: [
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                },
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                },
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                },
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                },
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                },
-                {
-                    classId: 44152,
-                    date: '2018-02-25',
-                    hour: '17:00-18:30',
-                    className: '口才课',
-                    status: '已上'
-                }
-            ],
+            history: [],
             school: null,
             lesson: {
                 lessonId: null,
-                time: null,
-                day: null
+                startTime: null
             },
             form: {
                 schedule: [
@@ -189,11 +153,24 @@ export default {
             }
         };
     },
-
     methods: {
+        suspendLesson(index) {
+            console.log(this.history[index]);
+        },
+        async getClassHistory() {
+            const res = await getHistory({
+                lessonId: this.lessonId,
+                page: this.currentPage - 1
+            });
+            if (res.ok) {
+                console.log('成功请求课程记录');
+                this.count = res.count;
+                this.history = res.list;
+                console.log(this.history);
+            }
+        },
         handleCurrentChange(val) {
             this.currentPage = val;
-            console.log(this.currentPage);
         },
         closeAttendance() {
             this.showAttendance = false;
@@ -230,13 +207,14 @@ export default {
             const info = await getClassInfo({
                 id: this.lessonId
             });
-            console.log(info.data);
             this.form = info.data;
             this.school = info.data.school;
+            console.log('成功获取课程信息');
         },
 
         openDetail() {
             this.getInfo();
+            this.getClassHistory();
         },
         close() {
             this.$emit('close');
@@ -244,6 +222,10 @@ export default {
         showClassDetail(index) {
             console.log(index);
             this.showAttendance = true;
+            this.lesson = {
+                lessonId: this.history[index].lessonId,
+                startTime: this.history[index].startTime
+            };
         },
         async changeClass() {
             this.form.lessonId = this.lessonId;
