@@ -68,3 +68,9 @@ export const renewClass = id => fetch('/order/renew', id, 'POST');
 export const stopClass = id => fetch('/order/stop', id, 'POST');
 // 转班
 export const transClass = data => fetch('/order/transfer', data, 'POST');
+
+
+/**
+ * 图片上传（用于小程序端首页展示）
+ */
+export const upImage = data => fetch('/setting/wxhomepic', data, 'POST');

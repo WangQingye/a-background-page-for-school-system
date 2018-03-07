@@ -15,6 +15,12 @@ const userFeedBack = r =>
     () => r(require('@/components/UserFeedBack')),
     'userFeedBack'
   );
+const upImage = r =>
+  require.ensure(
+    [],
+    () => r(require('@/components/UpImage')),
+    'upImage'
+  );
 const addStudent = r =>
   require.ensure([], () => r(require('@/components/addStudent')), 'addStudent');
 const studentList = r =>
@@ -48,8 +54,7 @@ const notification = r =>
 const lessonList = r =>
   require.ensure([], () => r(require('@/components/LessonList')), 'lessonList');
 export default new Router({
-  routes: [
-    {
+  routes: [{
       path: '/',
       name: 'Login',
       component: login
@@ -58,8 +63,7 @@ export default new Router({
       path: '/main',
       name: 'Main',
       component: main,
-      children: [
-        {
+      children: [{
           path: '',
           component: mainInfo,
           meta: ['主页信息']
@@ -108,6 +112,11 @@ export default new Router({
           path: '/lessonList',
           component: lessonList,
           meta: ['课程列表']
+        },
+        {
+          path: '/upImage',
+          component: upImage,
+          meta: ['上传图片']
         }
       ]
     }
