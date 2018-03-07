@@ -70,7 +70,7 @@
               <template slot-scope="scope">
                 <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
                 <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
-                <el-button size="small" type="success" @click="openConfirm(1,scope.row)">续课</el-button>
+                <el-button size="small" type="success" @click="openRenewClass(scope.row)">续课</el-button>
                 <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">停课</el-button>
               </template>
             </el-table-column>
@@ -177,8 +177,29 @@
           </el-form-item>
         </el-form>
       </el-dialog>
+      <!-- 续课弹出框 -->
+      <el-dialog width="30%" title="续课" :visible.sync="renewClassVisible" append-to-body>
+        <el-form ref="changeClass" :model="renewClassform" label-width="80px">
+          <el-form-item label="续课班级">
+            <span>{{renewClassform.className}}</span>
+          </el-form-item>
+          <el-form-item label="课时情况">
+            <span>{{renewClassform.progress}}</span>
+          </el-form-item>
+          <el-form-item label="可用课时">
+            <span>{{renewClassform.balanceNum}}</span>
+          </el-form-item>
+          <el-form-item label="续课课时">
+            <el-input-number v-model="renewClassform.renewNum" :min="0" :max="Number(renewClassform.balanceNum)" label="续课课时"></el-input-number>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitRenewClass">确定</el-button>
+            <el-button @click="renewClassVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
     </el-dialog>
-    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm" @refresh="getStudentClasses"></student-add-class>
+    <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm" @refresh="refreshStudentInfo"></student-add-class>
   </div>
 </template>
 
@@ -252,6 +273,13 @@ export default {
         progress: "6/16",
         newClassId: ""
       },
+      /* 续课数据 */
+      renewClassform: {
+        className: "",
+        balanceNum: "",
+        progress: "",
+        renewNum: 16
+      },
       addClassForm: {},
       /* 上课记录 */
       historyData: [],
@@ -268,6 +296,7 @@ export default {
       charegeNum: 1,
       changeClassVisible: false,
       transClassVisible: false,
+      renewClassVisible: false,
       // 课程列表（用于转班）
       classList: [],
       historyCount: 10,
@@ -288,7 +317,6 @@ export default {
     async getStudentInfo() {
       let res = await getStudentInfo({ id: this.studentId });
       this.log(`${this.studentId}学生信息`, res.ok);
-      console.log(res);
       if (res.ok) {
         this.infoForm = res.data;
         // 这个等下会变，所以要先复制一下
@@ -343,10 +371,10 @@ export default {
           message: "编辑成功!"
         });
         this.getStudentInfo();
+        this.$emit("renewStudentList");
         this.showEditInfo(false);
       }
     },
-    async submitCharge() {},
     changeClass(value, direction, movedKeys) {
       if (this.allClass - this.classChoose.length * 16 < 0) {
         this.$message.error("您的剩余课时不够添加这些课程哦");
@@ -373,7 +401,7 @@ export default {
         this.getStudentChargeHis();
       }
     },
-    /* 打开课程课时修改 */
+    /* 课程课时修改 */
     openClassChange(data) {
       console.log(data);
       this.changeClassform.className = data.lessonName;
@@ -392,11 +420,11 @@ export default {
           type: "success",
           message: "操作成功!"
         });
-        this.getStudentClasses();
+        this.refreshStudentInfo();
         this.changeClassVisible = false;
       }
     },
-    /* 打开课程课时修改 */
+    /* 转班修改 */
     openClassTrans(data) {
       console.log(data);
       this.transClassform.oldClassName = data.lessonName;
@@ -433,8 +461,28 @@ export default {
           type: "success",
           message: "操作成功!"
         });
-        this.getStudentClasses();
+        this.refreshStudentInfo();
         this.transClassVisible = false;
+      }
+    },
+    /* 续课修改 */
+    openRenewClass(data) {
+      this.renewClassform.balanceNum = this.infoForm.balanceNum;
+      this.renewClassform.progress = data.expendNum + "/" + data.num;
+      this.renewClassform.className = data.lessonName;
+      this.renewClassVisible = true;
+    },
+    async submitRenewClass() {
+      let res = await renewClass({
+        id: this.studentId,
+        num: this.renewClassform.renewNum
+      });
+      if (res.ok) {
+        this.$message({
+          type: "success",
+          message: "操作成功!"
+        });
+        this.refreshStudentInfo();
       }
     },
     /* 打开添加课程界面 */
@@ -451,7 +499,6 @@ export default {
       let text;
       console.log(data);
       if (type == 1) {
-        text = `本次操作将从学员剩余课时中扣除16课时，用以续开一期${data.lessonName}课程，是否确认？`;
       } else if (type == 2) {
         text = `本次操作将停止该学员的${data.lessonName}课程，剩余${Number(data.num) -
           Number(data.expendNum)}课时将自动转入该学员剩余课时，是否确认？`;
@@ -465,14 +512,6 @@ export default {
       })
         .then(async () => {
           if (type == 1) {
-            let res = await renewClass({ id: data.id });
-            console.log(res);
-            if (res.ok) {
-              this.$message({
-                type: "success",
-                message: "操作成功!"
-              });
-            }
           } else if (type == 2) {
             let res = await stopClass({ id: data.id });
             console.log(res);
@@ -493,9 +532,10 @@ export default {
                 type: "success",
                 message: "操作成功!"
               });
+              this.getStudentChargeHis();
             }
           }
-          this.getStudentClasses();
+          this.refreshStudentInfo();
         })
         .catch(() => {
           this.$message({
@@ -524,6 +564,12 @@ export default {
     handleClassHistoryPageChange(val) {
       this.historyPage = val;
       this.getStuClsHistory(val - 1);
+    },
+    /* 在修改后刷新学生数据 */
+    refreshStudentInfo(){
+      this.getStudentInfo();
+      this.getStudentClasses();
+      this.$emit('renewStudentList');
     }
   },
   watch: {

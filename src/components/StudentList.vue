@@ -51,7 +51,7 @@
       <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
       </el-pagination>
     </div>
-    <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentId="detailId"></student-detail>
+    <student-detail @close="closeDetail" :dialogVisible="dialogVisible" :studentId="detailId" @renewStudentList="getStudentsList"></student-detail>
   </div>
 </template>
 <script>
@@ -104,6 +104,7 @@ export default {
   },
   methods: {
     async getStudentsList(data) {
+      console.log(1111);
       if (!data) data = {};
       if (this.isFilter) {
         data.haveClassEnd = this.isFilter;
