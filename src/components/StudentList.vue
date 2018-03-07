@@ -26,7 +26,9 @@
       </el-table-column>
       <el-table-column prop="hadClass" align="center" label="参加课程" width="auto">
         <template slot-scope="scope">
-          <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span>
+          <!-- <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span> -->
+          <div v-html="calClass(scope.row.hadClass)"></div>
+          <!-- <span class="class-name-text">{{calClass(scope.row.hadClass)}}</span> -->
         </template>
       </el-table-column>
       <el-table-column prop="haveClassEnd" align="center" label="有课程即将到期" width="160" :filters="[{ text: '是', value: '1' }, { text: '暂无', value: '0' }]" filter-placement="bottom-end">
@@ -125,10 +127,11 @@ export default {
       this.getStudentsList({ page: val - 1 });
     },
     calClass(classArr) {
-      if (!classArr) return "暂无课程" + "　\r";
+      if (!classArr) return "暂无课程";
       let text = "";
       classArr.forEach(item => {
-        text += item.lessonName + "　\r";
+        // text += item.lessonName + "　\r";
+        text += "<p style='margin:0 0'>"+ item.lessonName +"</p>";
       });
       return text;
     },

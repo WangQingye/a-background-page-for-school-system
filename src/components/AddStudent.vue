@@ -6,6 +6,7 @@
       <el-step title="添加课程" icon="el-icon-tickets"></el-step>
       <el-step title="完成添加" icon="el-icon-success"></el-step>
     </el-steps>
+    <!-- 添加基础信息表格 -->
     <el-form ref="addInfoForm" :rules="rules" :model="addInfoForm" label-width="120px" label-position="left" class="add-form" v-show="addInfoShow">
       <el-form-item label="学员姓名" prop="name">
         <el-input v-model="addInfoForm.name"></el-input>
@@ -54,6 +55,14 @@
         <el-button @click="cancelAdd">取消添加</el-button>
       </el-form-item>
     </el-form>
+    <!-- 添加完成继续添加 -->
+    <div v-show="addSuccessShow">
+      <div style="font-size:20px;margin:150px 0 100px 0">
+        <i class="el-icon-success"> 添加成功！</i>
+      </div>
+      <el-button type="primary" @click="goOnAdd">继续添加</el-button>
+      <el-button @click="goToStudentList">返回列表</el-button>
+    </div>
     <!-- <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow"></student-add-class> -->
   </div>
 </template>
@@ -89,8 +98,9 @@ export default {
       className: "",
       addClasses: [],
       stepNum: 0,
-      addInfoShow: true,
+      addInfoShow: false,
       addClassShow: false,
+      addSuccessShow: true,
       schoolList: [],
       classList: [],
       afterAddClassLeft: 0
@@ -183,9 +193,9 @@ export default {
         type: "success",
         message: "添加成功"
       });
-      this.$refs.addInfoForm.resetFields();
-      this.addInfoShow = true;
+      this.addSuccessShow = true;
       this.addClassShow = false;
+      this.stepNum = 2;
     },
     /* 取消添加 */
     async cancelAdd() {
@@ -199,6 +209,16 @@ export default {
     },
     resetInfoForm() {
       this.$refs.addInfoForm.resetFields();
+    },
+    goToStudentList() {
+      this.$router.push("/studentList");
+    },
+    goOnAdd() {
+      this.$refs.addInfoForm.resetFields();
+      this.addInfoShow = true;
+      this.addClassShow = false;
+      this.addSuccessShow = false;
+      this.stepNum = 0;   
     }
   },
   watch: {

@@ -275,6 +275,7 @@ export default {
       },
       /* 续课数据 */
       renewClassform: {
+        orderId: "",
         className: "",
         balanceNum: "",
         progress: "",
@@ -467,6 +468,7 @@ export default {
     },
     /* 续课修改 */
     openRenewClass(data) {
+      this.renewClassform.orderId = data.id;
       this.renewClassform.balanceNum = this.infoForm.balanceNum;
       this.renewClassform.progress = data.expendNum + "/" + data.num;
       this.renewClassform.className = data.lessonName;
@@ -474,7 +476,7 @@ export default {
     },
     async submitRenewClass() {
       let res = await renewClass({
-        id: this.studentId,
+        id: this.renewClassform.orderId,
         num: this.renewClassform.renewNum
       });
       if (res.ok) {
@@ -483,6 +485,7 @@ export default {
           message: "操作成功!"
         });
         this.refreshStudentInfo();
+      this.renewClassVisible = false;        
       }
     },
     /* 打开添加课程界面 */
