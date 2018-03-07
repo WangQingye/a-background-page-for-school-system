@@ -605,9 +605,9 @@ export default {
 .el-transfer-panel .el-transfer-panel__header {
   padding-left: 0;
 }
-.el-form-item__content {
-  text-align: left;
-}
+/* .el-form-item__content {
+  text-align: left; 
+} */
 .el-transfer {
   text-align: center;
 }

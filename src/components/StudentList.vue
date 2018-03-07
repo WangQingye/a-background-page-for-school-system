@@ -2,7 +2,7 @@
   <div class="student-list">
     <p class="text">学员列表</p>
     <div class="search">
-      <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;">
+      <el-input class="search-input" placeholder="请输入学生姓名" @change="getStudentsList({search:searchStudentName})" v-model="searchStudentName" style="padding-bottom:10px;width:200px">
       </el-input>
       <el-button type="primary" icon="el-icon-search" v-on:click="getStudentsList({search:searchStudentName})">搜索</el-button>
     </div>

@@ -15,7 +15,7 @@
             <el-input label="密码" type="password" placeholder="密码" v-model="loginForm.password"></el-input>
           </el-form-item>
           <el-form-item class="button-wrapper">
-            <el-button type="primary" @click="submitForm('loginForm')" class="submit_btn">登陆</el-button>
+            <el-button type="primary"  style="text-align:center" @click="submitForm('loginForm')" class="submit_btn">登陆</el-button>
           </el-form-item>
         </el-form>
       </el-col>
