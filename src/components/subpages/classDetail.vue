@@ -2,8 +2,33 @@
     <div class="class-detail">
         <el-dialog class="detail-dialog" title="课程详情" :visible.sync="dialogVisible" width="1200px" :before-close="close" @open="openDetail">
             <el-tabs v-model="activeName">
-                <el-tab-pane label="课程记录" name="first">
+                <el-tab-pane label="历史记录" name="first">
                     <el-table :data="history" style="width: 100%">
+                        <el-table-column prop="date" label="上课日期" width="180">
+                        </el-table-column>
+                        <el-table-column prop="timeRange" label="上课时间" width="180">
+                        </el-table-column>
+                        <el-table-column prop="lessonName" label="课程名称" width="300">
+                        </el-table-column>
+                        <el-table-column prop="type" label="上课状态" width="120">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.type === '待上'" :type="'success'">{{ scope.row.type }}</el-tag>
+                                <el-tag v-if="scope.row.type === '已上'" :type="'info'">{{ scope.row.type}}</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column fixed="right" align="center" label="操作">
+                            <template slot-scope="scope">
+                                <el-button @click="showStudent(scope.$index)" type="text" size="small">
+                                    查看详情
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
+                    </el-pagination>
+                </el-tab-pane>
+                <el-tab-pane label="待上记录" name="second">
+                    <el-table :data="future" style="width: 100%">
                         <el-table-column prop="date" label="上课日期" width="180">
                         </el-table-column>
                         <el-table-column prop="timeRange" label="上课时间" width="180">
@@ -18,19 +43,14 @@
                         </el-table-column>
                         <el-table-column fixed="right" align="center" label="操作">
                             <template slot-scope="scope">
-                                <el-button v-if="scope.row.type === '已上'" @click="showClassDetail(scope.$index)" type="text" size="small">
-                                    查看详情
-                                </el-button>
-                                <el-button v-if="scope.row.type === '待上'" @click="suspendLesson(scope.$index)" type="text" size="small">
+                                <el-button @click="suspendLesson(scope.$index)" type="text" size="small">
                                     停课
                                 </el-button>
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
-                    </el-pagination>
                 </el-tab-pane>
-                <el-tab-pane label="修改课程" name="second">
+                <el-tab-pane label="修改课程" name="third">
                     <div class="change-class">
                         <div class="add-class">
                             <el-form ref="form" :model="form" label-width="80px">
@@ -54,43 +74,34 @@
                                     </el-col>
 
                                     <el-col>
-                                        <el-time-select placeholder="起始时间" v-model="item.startTime" :picker-options="{
-      start: '08:30',
-      step: '00:15',
-      end: '24:00'
-    }">
+                                        <el-time-select placeholder="起始时间" v-model="item.startTime" :picker-options="{start: '08:30',step: '00:15',end: '24:00'}">
                                         </el-time-select>
                                     </el-col>
 
                                     <el-col>
-                                        <el-time-select placeholder="结束时间" v-model="item.endTime" :picker-options="{
-      start: '08:30',
-      step: '00:15',
-      end: '24:00',
-      minTime: form.startTime
-    }">
+                                        <el-time-select placeholder="结束时间" v-model="item.endTime" :picker-options="{start: '08:30',step: '00:15',end: '24:00',minTime: form.startTime}">
                                         </el-time-select>
                                     </el-col>
 
                                     <el-col>
                                         <el-input class="location" v-model="item.location" placeholder="如:A教室"></el-input>
                                     </el-col>
-                                    <el-col>
+                                    <!-- <el-col>
                                         <el-button type="danger" @click="removeTime(index)">删除</el-button>
-                                    </el-col>
+                                    </el-col> -->
                                 </el-form-item>
                                 <el-form-item label="教师名字" prop="teacher">
                                     <el-input v-model="form.teacherName" placeholder="请输入教师名字"></el-input>
                                 </el-form-item>
 
                                 <el-form-item label="操作">
-                                    <el-col :span="4">
+                                    <el-col :span="6">
                                         <el-button type="primary" @click="changeClass">修改课程</el-button>
                                     </el-col>
-                                    <el-col :span="6">
+                                    <!-- <el-col :span="6">
                                         <el-button type="primary" @click="addMoreTime">添加更多时间地点</el-button>
-                                    </el-col>
-                                    <el-col :span="4">
+                                    </el-col> -->
+                                    <el-col :span="6">
                                         <el-button type="danger" @click="delClassItem">删除课程</el-button>
                                     </el-col>
                                 </el-form-item>
@@ -110,7 +121,8 @@ import {
     addClass,
     addSchool,
     delClass,
-    getHistory
+    getHistory,
+    getFuture
 } from '../../api/getData1';
 import StudentAttendance from '../subpages/StudentAttendance';
 export default {
@@ -134,6 +146,7 @@ export default {
             showAttendance: false,
             activeName: 'first',
             history: [],
+            future: [],
             school: null,
             lesson: {
                 lessonId: null,
@@ -154,24 +167,39 @@ export default {
         };
     },
     methods: {
+        // 停课
         suspendLesson(index) {
-            console.log(this.history[index]);
+            console.log(this.future[index]);
         },
+        // 获取课程历史记录
         async getClassHistory() {
             const res = await getHistory({
                 lessonId: this.lessonId,
                 page: this.currentPage - 1
             });
             if (res.ok) {
-                console.log('成功请求课程记录');
+                console.log('成功请求课程历史记录');
                 this.count = res.count;
                 this.history = res.list;
                 console.log(this.history);
             }
         },
+        // 获取课程未来安排
+        async getClassFuture() {
+            const res = await getFuture({
+                lessonId: this.lessonId
+            });
+            if (res.ok) {
+                console.log('成功请求未来课程安排');
+                this.future = res.list;
+            }
+        },
+        // 更改页码
         handleCurrentChange(val) {
             this.currentPage = val;
+            this.getClassHistory();
         },
+        // 关闭学生出勤二级页面
         closeAttendance() {
             this.showAttendance = false;
         },
@@ -179,7 +207,6 @@ export default {
             const res = await delClass({
                 id: this.lessonId
             });
-            console.log(res);
             if (res.ok) {
                 this.$message({
                     message: '已成功删除课程',
@@ -187,6 +214,7 @@ export default {
                 });
             }
         },
+        // 删除课程
         delClassItem() {
             this.$confirm('此操作将永久删除该课程, 是否继续?', '提示', {
                 confirmButtonText: '确定',
@@ -203,6 +231,7 @@ export default {
                     });
                 });
         },
+        // 获取课程信息
         async getInfo() {
             const info = await getClassInfo({
                 id: this.lessonId
@@ -211,21 +240,25 @@ export default {
             this.school = info.data.school;
             console.log('成功获取课程信息');
         },
-
+        // 打开页面的回调
         openDetail() {
             this.getInfo();
             this.getClassHistory();
+            this.getClassFuture();
         },
+        // 关闭此页面
         close() {
             this.$emit('close');
         },
-        showClassDetail(index) {
+        // 打开学生出勤页面
+        showStudent(index) {
             console.log(index);
             this.showAttendance = true;
             this.lesson = {
                 lessonId: this.history[index].lessonId,
                 startTime: this.history[index].startTime
             };
+            console.log(this.lesson);
         },
         async changeClass() {
             this.form.lessonId = this.lessonId;
@@ -285,25 +318,6 @@ export default {
             if (this.form.schedule.length > 1) {
                 this.form.schedule.splice(index, 1);
             }
-        },
-        removeClass() {
-            this.$confirm('此操作将永久删除该课程, 是否继续?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            })
-                .then(() => {
-                    this.$message({
-                        type: 'success',
-                        message: '删除成功!'
-                    });
-                })
-                .catch(() => {
-                    this.$message({
-                        type: 'info',
-                        message: '已取消删除'
-                    });
-                });
         }
     }
 };
@@ -328,7 +342,7 @@ export default {
     }
 }
 .change-class {
-    width: 790px;
+    width: 700px;
     margin: 20px auto 0;
 }
 </style>
