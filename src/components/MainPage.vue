@@ -42,7 +42,7 @@
                         <i class="el-icon-message"></i>
                         <span slot="title">家长反馈</span>
                     </el-menu-item>
-                    <el-menu-item index="notification">
+                    <el-menu-item index="notification" v-if="this.$store.state.adminInfo.auth.canNotify || this.$store.state.adminInfo.type==1">
                         <i class="el-icon-bell"></i>
                         <span slot="title">发送通知</span>
                     </el-menu-item>
