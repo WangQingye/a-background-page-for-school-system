@@ -39,11 +39,11 @@
     <div class="info-block">
       <p>未来7天请假申请
         <span>{{infos.newLeaveNum}}</span>条</p>
-      <el-button type="primary" @click="leaveTableVisible = true">查看</el-button>
+      <el-button type="primary" @click="showLeaveList">查看</el-button>
     </div>
     <!-- 请假表 -->
     <el-dialog width="1200px" title="请假情况" :visible.sync="leaveTableVisible" append-to-body>
-      <el-table stripe class="feedback-table" :data="leaveList" style="width: 90%;margin:0 auto" max-height="2000">
+      <el-table stripe class="feedback-table" :data="leaveList" style="width: 90%;margin:0 auto;text-align:center" max-height="2000">
         <el-table-column prop="studentName" align="center" label="学员姓名" width="150">
         </el-table-column>
         <el-table-column prop="phone" align="center" label="联系方式" width="120">
@@ -55,11 +55,15 @@
         <el-table-column prop="timeRange" align="center" label="请假时间" width="auto">
         </el-table-column>
       </el-table>
+          <div class="feed-back-pagination" style="margin-top: 20px;">
+      <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="leavePage" :page-size="10" layout="total, prev, pager, next" :total="leaveCount">
+      </el-pagination>
+    </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { getMainInfo } from "../api/getData";
+import { getMainInfo, getLeaveList } from "../api/getData";
 export default {
   data() {
     return {
@@ -96,14 +100,16 @@ export default {
           date: "2018-03-01", //日期
           timeRange: "08:00-09:00", //时间
           phone: "13800138000" //家长手机号
-        },        {
+        },
+        {
           id: 1, //记录id
           lessonName: "xxx", //课程名字
           studentName: "xxx", //学生名字
           date: "2018-03-01", //日期
           timeRange: "08:00-09:00", //时间
           phone: "13800138000" //家长手机号
-        },        {
+        },
+        {
           id: 1, //记录id
           lessonName: "xxx", //课程名字
           studentName: "xxx", //学生名字
@@ -111,7 +117,9 @@ export default {
           timeRange: "08:00-09:00", //时间
           phone: "13800138000" //家长手机号
         }
-      ]
+      ],
+      leavePage: 1,
+      leaveCount: 0
     };
   },
   mounted() {
@@ -129,8 +137,26 @@ export default {
         console.log(this.timesData);
       }
     },
+    async getLeaveInfo(page) {
+      let res = await getLeaveList({ page: this.leavePage - 1 });
+      console.log(res);
+      if (res.ok){
+        this.leaveList = res.list;
+        this.leaveCount = res.count;
+      }
+    },
     goToFeedBack() {
       this.$router.push("/userFeedBack");
+    },
+    showLeaveList() {
+      this.leaveTableVisible = true;
+      this.getLeaveInfo();
+      if (!this.leaveList.length) {
+      }
+    },
+    handleCurrentChange(val) {
+      this.leavePage = val;
+      this.getLeaveList();
     }
   }
 };
@@ -169,5 +195,10 @@ export default {
   background: #f56c6c;
   border-radius: 50%;
   margin: 0 10px;
+}
+.feed-back-pagination {
+  display: block;
+  width: 460px;
+  margin: 0 auto;
 }
 </style>
