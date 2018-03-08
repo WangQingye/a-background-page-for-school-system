@@ -2,29 +2,64 @@
   <div class="main-info">
     <p class="text">工作台</p>
     <p class="small-title">
-      <i class="el-icon-service"></i> 人数人次统计</p>
-    <el-table :data="formData" border show-summary style="width: 80%" class="count-table">
-      <el-table-column prop="date" label="日期" width="180">
+      <i class="el-icon-service"></i> 当前学校学生统计</p>
+    <div class="info-block">
+      <p>当前学校总人数：
+        <span style="background:transparent;color:black">{{infos.studentNum}}</span>人</p>
+    </div>
+    <div class="info-block">
+      <p>当前课程总人次：
+        <span style="background:transparent;color:black">{{infos.studentTime}}</span>次</p>
+    </div>
+    <p class="small-title">
+      <i class="el-icon-service"></i> 每日上课人次统计</p>
+    <el-table :data="timesData" border style="width: 80%" class="count-table">
+      <el-table-column prop="d1" label="周一" width="180">
       </el-table-column>
-      <el-table-column prop="students" label="上课人数">
+      <el-table-column prop="d2" label="周二">
       </el-table-column>
-      <el-table-column prop="classes" label="上课人次">
+      <el-table-column prop="d3" label="周三">
+      </el-table-column>
+      <el-table-column prop="d4" label="周四" width="180">
+      </el-table-column>
+      <el-table-column prop="d5" label="周五">
+      </el-table-column>
+      <el-table-column prop="d6" label="周六">
+      </el-table-column>
+      <el-table-column prop="d7" label="周日">
       </el-table-column>
     </el-table>
     <p class="small-title">
       <i class="el-icon-message"></i> 近期通知</p>
     <div class="info-block">
       <p>近一周新增家长反馈
-        <span>7</span>条</p>
+        <span>{{infos.newFeedback}}</span>条</p>
       <el-button type="primary" @click="goToFeedBack">查看</el-button>
     </div>
     <div class="info-block">
-      <p>未来请假情况</p>
-      <el-button type="primary" @click="goToFeedBack">查看</el-button>
+      <p>未来7天请假申请
+        <span>{{infos.newLeaveNum}}</span>条</p>
+      <el-button type="primary" @click="leaveTableVisible = true">查看</el-button>
     </div>
+    <!-- 请假表 -->
+    <el-dialog width="1200px" title="请假情况" :visible.sync="leaveTableVisible" append-to-body>
+      <el-table stripe class="feedback-table" :data="leaveList" style="width: 90%;margin:0 auto" max-height="2000">
+        <el-table-column prop="studentName" align="center" label="学员姓名" width="150">
+        </el-table-column>
+        <el-table-column prop="phone" align="center" label="联系方式" width="120">
+        </el-table-column>
+        <el-table-column prop="lessonName" align="center" label="请假课程" width="220">
+        </el-table-column>
+        <el-table-column prop="date" align="center" label="请假日期" width="220">
+        </el-table-column>
+        <el-table-column prop="timeRange" align="center" label="请假时间" width="auto">
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 <script>
+import { getMainInfo } from "../api/getData";
 export default {
   data() {
     return {
@@ -39,10 +74,61 @@ export default {
           students: "23",
           classes: "12"
         }
+      ],
+      timesData: [
+        {
+          d1: 0,
+          d2: 0,
+          d3: 0,
+          d4: 0,
+          d5: 0,
+          d6: 0,
+          d7: 0
+        }
+      ],
+      infos: {},
+      leaveTableVisible: false,
+      leaveList: [
+        {
+          id: 1, //记录id
+          lessonName: "xxx", //课程名字
+          studentName: "xxx", //学生名字
+          date: "2018-03-01", //日期
+          timeRange: "08:00-09:00", //时间
+          phone: "13800138000" //家长手机号
+        },        {
+          id: 1, //记录id
+          lessonName: "xxx", //课程名字
+          studentName: "xxx", //学生名字
+          date: "2018-03-01", //日期
+          timeRange: "08:00-09:00", //时间
+          phone: "13800138000" //家长手机号
+        },        {
+          id: 1, //记录id
+          lessonName: "xxx", //课程名字
+          studentName: "xxx", //学生名字
+          date: "2018-03-01", //日期
+          timeRange: "08:00-09:00", //时间
+          phone: "13800138000" //家长手机号
+        }
       ]
     };
   },
+  mounted() {
+    this.getInfos();
+  },
   methods: {
+    async getInfos() {
+      let res = await getMainInfo();
+      console.log(res);
+      if (res.ok) {
+        this.infos = res;
+        for (let i = 0; i < 7; i++) {
+          this.timesData[0]["d" + (i + 1)] = res.everydayTime[i];
+        }
+        console.log(this.timesData);
+      }
+    },
     goToFeedBack() {
       this.$router.push("/userFeedBack");
     }

@@ -9,7 +9,10 @@ export const isLogin = () => fetch('/login/islogin');
 export const login = data => fetch('/login/index', data, 'POST');
 // 退出登录
 export const logOut = () => fetch('/login/logout');
-
+/**
+ * 首页数据
+ */
+export const getMainInfo = () => fetch('/index/index'); 
 /**
  * 用户相关
  */
