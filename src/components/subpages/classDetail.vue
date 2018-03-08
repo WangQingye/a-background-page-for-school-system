@@ -44,8 +44,11 @@
                         </el-table-column>
                         <el-table-column fixed="right" align="center" label="操作">
                             <template slot-scope="scope">
-                                <el-button @click="suspendLesson(scope.$index)" type="text" size="small">
+                                <el-button @click="suspendLesson(scope.$index)" type="text" size="small" v-if="scope.row.type !== '停课'">
                                     停课
+                                </el-button>
+                                <el-button @click="cancleSuspendLesson(scope.$index)" type="text" size="small" v-if="scope.row.type === '停课'">
+                                    已停课
                                 </el-button>
                             </template>
                         </el-table-column>
@@ -169,6 +172,10 @@ export default {
         };
     },
     methods: {
+        // 点击已停课按钮
+        cancleSuspendLesson() {
+            this.$message.error('您已经停过课了！');
+        },
         // 停课
         async suspendLesson(index) {
             const res = await suspendClass({

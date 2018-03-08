@@ -61,7 +61,7 @@
             </el-form-item>
 
             <el-form-item label="操作">
-                <el-button class="add-lesson" type="success" @click="submitClass">立即添加</el-button>
+                <el-button class="add-lesson" type="primary" @click="submitClass">立即添加</el-button>
                 <!-- <el-col :span="6">
                     <el-button type="primary" @click="addMoreTime">添加更多时间地点</el-button>
                 </el-col> -->
@@ -216,11 +216,13 @@ export default {
     margin-right: 20px;
 }
 .lesson,
-.teacher,
-.add-lesson {
+.teacher {
     width: 574px;
 }
-
+.add-lesson {
+    width: 200px;
+    margin-left: 180px;
+}
 .add-class {
     width: 700px;
     margin: 0 auto;
