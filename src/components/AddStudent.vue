@@ -72,6 +72,7 @@
 <script>
 import StudentAddClass from "./com/StudentAddClass.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
+import Bus from '../utils/bus'; 
 import {
   getSchools,
   addStudentInfo,
@@ -98,9 +99,9 @@ export default {
       className: "",
       addClasses: [],
       stepNum: 0,
-      addInfoShow: false,
+      addInfoShow: true,
       addClassShow: false,
-      addSuccessShow: true,
+      addSuccessShow: false,
       schoolList: [],
       classList: [],
       afterAddClassLeft: 0
@@ -210,7 +211,8 @@ export default {
     resetInfoForm() {
       this.$refs.addInfoForm.resetFields();
     },
-    goToStudentList() {
+    goToStudentList() {      
+      Bus.$emit('refreshStudentList');
       this.$router.push("/studentList");
     },
     goOnAdd() {

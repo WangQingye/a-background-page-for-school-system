@@ -1,14 +1,14 @@
 <template>
     <div class="main">
-        <el-row class="header" type="flex">
-            <el-col :span="6">
+        <el-row class="header" type="flex" justify="space-between">
+            <el-col style="width:300px">
                 <img class="logo" src="../assets/logo.jpg" alt="">
                 <p class="logo-text">巧克力梦工厂后台管理系统</p>
             </el-col>
-            <el-col :span="14" class="admin-text">
-                <p>{{userName}}，你好</p>
+            <el-col style="flex:1;margin-right:20px" class="admin-text">
+                <p style="text-align:right">{{userName}}，你好 </p>
             </el-col>
-            <el-col :span="6" class="log-out">
+            <el-col style="width:300px;margin-right:20px" class="log-out">
                 <el-button size="medium" v-show="isAdmin" type="primary" @click="dialogVisible = true">账号管理</el-button>
                 <el-button size="medium" type="primary" @click="changePassVisible = true">修改密码</el-button>
                 <el-button size="medium" @click="logOut">退出</el-button>

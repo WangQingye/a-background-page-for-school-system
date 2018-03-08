@@ -60,6 +60,7 @@
 import Search from "./com/Search.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
 import { getStudentList } from "../api/getData";
+import Bus from '../utils/bus'; 
 export default {
   data() {
     function mockData() {
@@ -99,6 +100,9 @@ export default {
       detailId: "0", // 打开详情时传入的学生编号，用于向服务器请求,
       searchStudentName: ""
     };
+  },
+  created(){
+    Bus.$on('refreshStudentList',this.getStudentsList);
   },
   mounted() {
     // this.nowData = this.studentList.slice(0, 10);

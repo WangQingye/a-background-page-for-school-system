@@ -475,6 +475,9 @@ export default {
       this.renewClassVisible = true;
     },
     async submitRenewClass() {
+      if (this.renewClassform.renewNum > this.renewClassform.balanceNum){
+        this.$message.error('可用课时不足哦')
+      }
       let res = await renewClass({
         id: this.renewClassform.orderId,
         num: this.renewClassform.renewNum
@@ -485,7 +488,8 @@ export default {
           message: "操作成功!"
         });
         this.refreshStudentInfo();
-      this.renewClassVisible = false;        
+        this.renewClassVisible = false;
+        this.renewClassform.renewNum = 0;
       }
     },
     /* 打开添加课程界面 */
@@ -569,10 +573,10 @@ export default {
       this.getStuClsHistory(val - 1);
     },
     /* 在修改后刷新学生数据 */
-    refreshStudentInfo(){
+    refreshStudentInfo() {
       this.getStudentInfo();
       this.getStudentClasses();
-      this.$emit('renewStudentList');
+      this.$emit("renewStudentList");
     }
   },
   watch: {
