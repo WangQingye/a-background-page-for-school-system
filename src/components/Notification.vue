@@ -35,7 +35,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="按班级" v-show="form.type == '2'">
-                <el-transfer :props="{key: 'classId',label: 'className'}" v-model="form.class" :data="classList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
+                <el-transfer :props="{key: 'id',label: 'name'}" v-model="form.lesson" :data="lessonList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
             </el-form-item>
             <el-form-item label="按学生" v-show="form.type =='3'">
                 <el-transfer :props="{key: 'studentId',label: 'studentName'}" v-model="form.student" :data="studentList" :titles="['学生列表','通知的学生']" class="select-item" filterable :filter-method="filterMethod" filter-placeholder="请输入学生名字"></el-transfer>
@@ -48,7 +48,12 @@
     </div>
 </template>
 <script>
-import { getSchool, addTemplate, getTemplate } from '../api/getData1';
+import {
+    getSchool,
+    addTemplate,
+    getTemplate,
+    getLesson
+} from '../api/getData1';
 
 export default {
     data() {
@@ -92,7 +97,7 @@ export default {
                 // 是否全体发送通知
                 type: 1,
                 // 要通知的班级Id
-                class: [],
+                lesson: [],
                 // 要通知的学生Id
                 student: [],
                 // 添加的模板内容
@@ -100,20 +105,7 @@ export default {
                 // 添加的模板代码
                 code: null
             },
-            classList: [
-                {
-                    classId: 15546,
-                    className: '舞蹈一班'
-                },
-                {
-                    classId: 15549,
-                    className: '口才启蒙班'
-                },
-                {
-                    classId: 15547,
-                    className: '艺术团'
-                }
-            ],
+            lessonList: [],
             studentList: [
                 {
                     studentId: 452,
@@ -140,13 +132,32 @@ export default {
     created() {
         this.getSchoolList();
     },
+    watch: {
+        school() {
+            this.getLessonList();
+        }
+    },
     methods: {
+        // 获取课程列表
+        async getLessonList() {
+            const res = await getLesson({
+                schoolId: this.school
+            });
+            if (res.ok) {
+                console.log('成功请求课程列表');
+                this.lessonList = res.list;
+            }
+            console.log(res);
+        },
+        // 搜索框过滤
         filterMethod(query, item) {
             return item.studentName.indexOf(query) > -1;
         },
+        // 显示添加模板
         showAdd() {
             this.showAddTemplate = true;
         },
+        // 获取模板列表
         async getTemplateList() {
             const res = await getTemplate({
                 schoolId: this.school

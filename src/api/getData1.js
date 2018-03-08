@@ -64,3 +64,7 @@ export const addSchool = data => fetch('/school/add', data, 'POST');
 export const addTemplate = data => fetch('/sms/addtemplate', data, 'POST');
 // 获取模板列表
 export const getTemplate = data => fetch('/sms/templatelist', data);
+// 停一节课
+export const suspendClass = data => fetch('/lesson/cancel', data);
+// 根据校区获取课程列表
+export const getLesson = data => fetch('/lesson/list', data);
