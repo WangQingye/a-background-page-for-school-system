@@ -38,7 +38,8 @@
                         <el-table-column prop="type" label="上课状态" width="120">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.type === '待上'" :type="'success'">{{ scope.row.type }}</el-tag>
-                                <el-tag v-if="scope.row.type === '已上'" :type="'info'">{{ scope.row.status }}</el-tag>
+                                <el-tag v-if="scope.row.type === '已上'" :type="'info'">{{ scope.row.type }}</el-tag>
+                                <el-tag v-if="scope.row.type === '停课'" :type="'danger'">{{ scope.row.type }}</el-tag>
                             </template>
                         </el-table-column>
                         <el-table-column fixed="right" align="center" label="操作">
@@ -174,6 +175,14 @@ export default {
                 lessonId: this.future[index].lessonId,
                 startTime: this.future[index].startTime
             });
+            if (res.ok) {
+                console.log('成功停课');
+                this.$message({
+                    message: '成功停课',
+                    type: 'success'
+                });
+                this.getClassFuture();
+            }
             console.log(res);
         },
         // 获取课程历史记录
@@ -196,6 +205,7 @@ export default {
             });
             if (res.ok) {
                 console.log('成功请求未来课程安排');
+                console.log(res);
                 this.future = res.list;
             }
         },
@@ -311,6 +321,7 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields();
         },
+        // 添加更多上课时间与地点
         addMoreTime() {
             this.form.schedule.push({
                 weekday: '1',
@@ -319,6 +330,7 @@ export default {
                 location: null
             });
         },
+        // 删除更多上课时间与地点
         removeTime(index) {
             if (this.form.schedule.length > 1) {
                 this.form.schedule.splice(index, 1);

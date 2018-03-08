@@ -66,5 +66,7 @@ export const addTemplate = data => fetch('/sms/addtemplate', data, 'POST');
 export const getTemplate = data => fetch('/sms/templatelist', data);
 // 停一节课
 export const suspendClass = data => fetch('/lesson/cancel', data);
-// 根据校区获取课程列表
+// 根据校区获取课程名称及id的列表
 export const getLesson = data => fetch('/lesson/list', data);
+// 获取课程列表页面的课程列表
+export const getList = data => fetch('/lesson/table', data);

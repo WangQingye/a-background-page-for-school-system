@@ -194,15 +194,18 @@ export default {
         async getSchoolList() {
             // 获取校区
             const res = await getSchool();
-            res.list.forEach(element => {
-                var temp = {
-                    value: element.name,
-                    label: element.name
-                };
-                this.schoolList.push(temp);
-            });
-            this.school = this.schoolList[0].value;
-            this.getTemplateList();
+            if (res.ok) {
+                console.log('成功请求校区信息');
+                res.list.forEach(element => {
+                    var temp = {
+                        value: element.id,
+                        label: element.name
+                    };
+                    this.schoolList.push(temp);
+                });
+                this.school = this.schoolList[0].value;
+                this.getTemplateList();
+            }
         },
         // 添加通知
         addNotification() {

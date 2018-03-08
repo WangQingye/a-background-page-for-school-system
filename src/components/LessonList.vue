@@ -8,14 +8,9 @@
         <el-table :data="lesson" style="width: 100%">
             <el-table-column prop="lessonName" label="课程名称" width="180">
             </el-table-column>
-            <el-table-column prop="time" label="上课时间" width="180">
+            <el-table-column prop="schedules" label="上课时间与地点" width="380">
                 <template slot-scope="scope">
-                    <p v-for="(item,index) of scope.row.time" :key="index">{{item}}</p>
-                </template>
-            </el-table-column>
-            <el-table-column prop="location" label="上课地点">
-                <template slot-scope="scope">
-                    <p v-for="(item,index) of scope.row.location" :key="index">{{item}}</p>
+                    <p v-for="(item,index) of scope.row.schedules" :key="index">{{item}}</p>
                 </template>
             </el-table-column>
             <el-table-column prop="teacherName" label="教师名字">
@@ -33,7 +28,7 @@
 </template>
 <script>
 import ClassDetail from './subpages/ClassDetail';
-import { getSchool } from '../api/getData1';
+import { getSchool, getList } from '../api/getData1';
 
 export default {
     components: {
@@ -50,8 +45,7 @@ export default {
                     lessonId: '123',
                     lessonName: '形体课1班',
                     teacherName: '余老师',
-                    time: ['周二/10:00-12:00'],
-                    location: ['C教室']
+                    schedules: ['周一 / 08:00-09:00 / A教室']
                 }
             ]
         };
@@ -62,10 +56,20 @@ export default {
     watch: {
         school(val) {
             // this.getClass();
-            console.log(val);
+            this.getLessonList();
         }
     },
     methods: {
+        async getLessonList() {
+            const res = await getList({
+                schoolId: this.school
+            });
+            if (res.ok) {
+                console.log('成功请求课程列表');
+                this.lesson = res.list;
+            }
+            console.log(res);
+        },
         showClassDetail(index) {
             this.lessonId = this.lesson[index].lessonId;
             this.dialogVisible = true;
@@ -78,7 +82,7 @@ export default {
             const res = await getSchool();
             res.list.forEach(element => {
                 var temp = {
-                    value: element.name,
+                    value: element.id,
                     label: element.name
                 };
                 this.schoolList.push(temp);
