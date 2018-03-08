@@ -60,3 +60,11 @@ export const getStudent = data => fetch('/record/lessondetail', data);
 export const changeStudent = data => fetch('/record/chgtype', data, 'POST');
 // 添加校区
 export const addSchool = data => fetch('/school/add', data, 'POST');
+// 添加短信模板
+export const addTemplate = data => fetch('/sms/addtemplate', data, 'POST');
+// 获取模板列表
+export const getTemplate = data => fetch('/sms/templatelist', data);
+// 停一节课
+export const suspendClass = data => fetch('/lesson/cancel', data);
+// 根据校区获取课程列表
+export const getLesson = data => fetch('/lesson/list', data);

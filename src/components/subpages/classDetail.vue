@@ -122,7 +122,8 @@ import {
     addSchool,
     delClass,
     getHistory,
-    getFuture
+    getFuture,
+    suspendClass
 } from '../../api/getData1';
 import StudentAttendance from '../subpages/StudentAttendance';
 export default {
@@ -168,8 +169,12 @@ export default {
     },
     methods: {
         // 停课
-        suspendLesson(index) {
-            console.log(this.future[index]);
+        async suspendLesson(index) {
+            const res = await suspendClass({
+                lessonId: this.future[index].lessonId,
+                startTime: this.future[index].startTime
+            });
+            console.log(res);
         },
         // 获取课程历史记录
         async getClassHistory() {
