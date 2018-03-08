@@ -10,7 +10,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="通知内容">
-                <el-select v-model="form.content" placeholder="请选择要发送的通知" class="content">
+                <el-select v-model="form.code" placeholder="请选择要发送的通知" class="content">
                     <el-option v-for="(item,index) in templateList" :key="index" :label="item.content" :value="item.code">
                     </el-option>
                 </el-select>
@@ -34,11 +34,12 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="按班级" v-show="form.type == '2'">
-                <el-transfer :props="{key: 'id',label: 'name'}" v-model="form.lesson" :data="lessonList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
+            <el-form-item label="按班级" v-show="form.type == '1'">
+                <el-transfer :props="{key: 'id',label: 'name'}" v-model="form.data" :data="lessonList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
             </el-form-item>
-            <el-form-item label="按学生" v-show="form.type =='3'">
-                <el-transfer :props="{key: 'studentId',label: 'studentName'}" v-model="form.student" :data="studentList" :titles="['学生列表','通知的学生']" class="select-item" filterable :filter-method="filterMethod" filter-placeholder="请输入学生名字"></el-transfer>
+            <el-form-item label="按学生" v-show="form.type =='2'">
+                <!-- <el-transfer :props="{key: 'studentId',label: 'studentName'}" v-model="form.student" :data="studentList" :titles="['学生列表','通知的学生']" class="select-item" filterable :filter-method="filterMethod" filter-placeholder="请输入学生名字"></el-transfer> -->
+                <el-transfer :props="{key: 'studentId',label: 'studentName'}" v-model="form.data" :data="studentList" :titles="['学生列表','通知的学生']" filterable :filter-method="filterMethod" filter-placeholder="请输入学生名字" class="select-item"></el-transfer>
             </el-form-item>
             <el-form-item label="操作">
                 <el-button class="add-btn" type="primary" @click="addNotification">添加通知</el-button>
@@ -52,7 +53,9 @@ import {
     getSchool,
     addTemplate,
     getTemplate,
-    getLesson
+    getLesson,
+    getStudentInfo,
+    addTask
 } from '../api/getData1';
 
 export default {
@@ -75,21 +78,21 @@ export default {
             typeList: [
                 {
                     label: '全体发送',
-                    value: 1
+                    value: 0
                 },
                 {
                     label: '按班级发送',
-                    value: 2
+                    value: 1
                 },
                 {
                     label: '按学生发送',
-                    value: 3
+                    value: 2
                 }
             ],
             showAddTemplate: false,
             form: {
                 // 通知内容
-                content: null,
+                code: null,
                 // 发送日期
                 day: null,
                 // 具体时间
@@ -97,13 +100,7 @@ export default {
                 // 是否全体发送通知
                 type: 1,
                 // 要通知的班级Id
-                lesson: [],
-                // 要通知的学生Id
-                student: [],
-                // 添加的模板内容
-                template: null,
-                // 添加的模板代码
-                code: null
+                data: []
             },
             lessonList: [],
             studentList: [
@@ -135,6 +132,7 @@ export default {
     watch: {
         school() {
             this.getLessonList();
+            this.getStudentList();
         }
     },
     methods: {
@@ -188,45 +186,66 @@ export default {
                 this.template.content = null;
                 this.template.code = null;
                 this.showAddTemplate = false;
+                this.getTemplateList();
             }
         },
         // 获取校区信息
         async getSchoolList() {
             // 获取校区
             const res = await getSchool();
-            res.list.forEach(element => {
-                var temp = {
-                    value: element.name,
-                    label: element.name
-                };
-                this.schoolList.push(temp);
+            if (res.ok) {
+                console.log('成功请求校区信息');
+                res.list.forEach(element => {
+                    var temp = {
+                        value: element.id,
+                        label: element.name
+                    };
+                    this.schoolList.push(temp);
+                });
+                this.school = this.schoolList[0].value;
+                this.getTemplateList();
+            }
+        },
+        // 根据校区获取学生列表
+        async getStudentList() {
+            const res = await getStudentInfo({
+                schoolId: this.school
             });
-            this.school = this.schoolList[0].value;
-            this.getTemplateList();
+            if (res.ok) {
+                this.studentList = [];
+                console.log('成功获取学生列表');
+                res.list.forEach(item => {
+                    const temp = {
+                        studentId: item.id,
+                        studentName: item.name
+                    };
+                    this.studentList.push(temp);
+                });
+            }
         },
         // 添加通知
-        addNotification() {
-            if (!this.form.desc) {
-                this.$message.error('请输入通知内容');
+        async addNotification() {
+            if (!this.form.code) {
+                this.$message.error('请选择通知内容');
                 return;
             }
             if (!this.form.day || !this.form.time) {
                 this.$message.error('请选择通知发送时间');
                 return;
             }
-            if (
-                !this.form.allStudent &&
-                this.form.class.length == 0 &&
-                this.form.student.length == 0
-            ) {
+            if (this.form.type != 0 && this.form.data.length == 0) {
                 this.$message.error('请选择要发送的班级或者同学');
                 return;
             }
-            console.log(this.form);
-            this.$message({
-                message: '已成功添加通知',
-                type: 'success'
-            });
+            const res = await addTask(this.form);
+            console.log(res);
+            if (res.ok) {
+                console.log('成功添加了通知');
+                this.$message({
+                    message: '已成功添加通知',
+                    type: 'success'
+                });
+            }
         }
     }
 };
