@@ -1,14 +1,28 @@
 <template>
     <div class="notification">
         <h1>发送通知</h1>
+
         <el-form ref="form" :model="form" label-width="80px">
-            <el-form-item label="通知内容">
-                <el-select v-model="form.content" placeholder="请选择要发送的通知" class="content">
-                    <el-option v-for="(item,index) in contentList" :key="index" :label="item.label" :value="item.value">
+            <el-form-item label="选择校区">
+                <el-select v-model="school" placeholder="请选择要查看的校区" class="school-select">
+                    <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
             </el-form-item>
-
+            <el-form-item label="通知内容">
+                <el-select v-model="form.content" placeholder="请选择要发送的通知" class="content">
+                    <el-option v-for="(item,index) in templateList" :key="index" :label="item.content" :value="item.code">
+                    </el-option>
+                </el-select>
+                <el-button type="primary" class="add-content" @click="showAdd">添加模板</el-button>
+            </el-form-item>
+            <el-form-item label="添加模板" v-show="showAddTemplate" class="add-template">
+                <el-input type="textarea" :rows="2" placeholder="请输入要添加的模板" v-model="template.content">
+                </el-input>
+                <el-input type="input" placeholder="请输入模板id" v-model="template.code">
+                </el-input>
+                <el-button type="primary" class="add-btn" @click="addSmsTemplate">立即添加模板</el-button>
+            </el-form-item>
             <el-form-item label="发送时间">
                 <el-date-picker value-format="yyyy-MM-dd" type="date" placeholder="选择日期" v-model="form.day" class="day"></el-date-picker>
                 <el-time-select v-model="form.time" :picker-options="{start: '08:30',step: '00:15',end: '24:00'}" placeholder="选择时间" class="time">
@@ -21,12 +35,12 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="按班级" v-show="form.type == '2'">
-                <el-transfer  :props="{key: 'classId',label: 'className'}" v-model="form.class" :data="classList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
+                <el-transfer :props="{key: 'classId',label: 'className'}" v-model="form.class" :data="classList" :titles="['班级列表','通知的班级']" class="select-item"></el-transfer>
             </el-form-item>
             <el-form-item label="按学生" v-show="form.type =='3'">
-                <el-transfer  :props="{key: 'studentId',label: 'studentName'}" v-model="form.student" :data="studentList" :titles="['学生列表','通知的学生']" class="select-item"></el-transfer>
+                <el-transfer :props="{key: 'studentId',label: 'studentName'}" v-model="form.student" :data="studentList" :titles="['学生列表','通知的学生']" class="select-item" filterable :filter-method="filterMethod" filter-placeholder="请输入学生名字"></el-transfer>
             </el-form-item>
-            <el-form-item>
+            <el-form-item label="操作">
                 <el-button class="add-btn" type="primary" @click="addNotification">添加通知</el-button>
                 <el-button class="add-btn" type="info">取消</el-button>
             </el-form-item>
@@ -34,6 +48,8 @@
     </div>
 </template>
 <script>
+import { getSchool, addTemplate, getTemplate } from '../api/getData1';
+
 export default {
     data() {
         return {
@@ -65,6 +81,7 @@ export default {
                     value: 3
                 }
             ],
+            showAddTemplate: false,
             form: {
                 // 通知内容
                 content: null,
@@ -77,7 +94,11 @@ export default {
                 // 要通知的班级Id
                 class: [],
                 // 要通知的学生Id
-                student: []
+                student: [],
+                // 添加的模板内容
+                template: null,
+                // 添加的模板代码
+                code: null
             },
             classList: [
                 {
@@ -106,10 +127,73 @@ export default {
                     studentId: 454,
                     studentName: '小王'
                 }
-            ]
+            ],
+            template: {
+                content: null,
+                code: null
+            },
+            templateList: [],
+            schoolList: [],
+            school: null
         };
     },
+    created() {
+        this.getSchoolList();
+    },
     methods: {
+        filterMethod(query, item) {
+            return item.studentName.indexOf(query) > -1;
+        },
+        showAdd() {
+            this.showAddTemplate = true;
+        },
+        async getTemplateList() {
+            const res = await getTemplate({
+                schoolId: this.school
+            });
+            if (res.ok) {
+                console.log('成功请求模板列表');
+                this.templateList = res.list;
+            }
+        },
+        // 添加模板
+        async addSmsTemplate() {
+            if (!this.template.content) {
+                this.$message.error('请输入模板内容');
+                return;
+            }
+            if (!this.template.code) {
+                this.$message.error('请输入模板ID');
+                return;
+            }
+            const res = await addTemplate(this.template);
+            console.log(res);
+            if (res.ok) {
+                console.log('成功添加模板');
+                this.$message({
+                    message: '成功添加模板',
+                    type: 'success'
+                });
+                this.template.content = null;
+                this.template.code = null;
+                this.showAddTemplate = false;
+            }
+        },
+        // 获取校区信息
+        async getSchoolList() {
+            // 获取校区
+            const res = await getSchool();
+            res.list.forEach(element => {
+                var temp = {
+                    value: element.name,
+                    label: element.name
+                };
+                this.schoolList.push(temp);
+            });
+            this.school = this.schoolList[0].value;
+            this.getTemplateList();
+        },
+        // 添加通知
         addNotification() {
             if (!this.form.desc) {
                 this.$message.error('请输入通知内容');
@@ -144,7 +228,11 @@ export default {
         left: 20px;
     }
     .content {
-        width: 615px;
+        width: 500px;
+        margin-right: 18px;
+    }
+    .add-content {
+        width: 95px;
     }
     .day {
         width: 392px;
@@ -156,13 +244,22 @@ export default {
     .type {
         width: 615px;
     }
-    .select-item{
-        margin-bottom:20px;
-        margin-left:20xp;
+    .select-item {
+        margin-bottom: 20px;
+        margin-left: 20xp;
     }
-    .add-btn{
-        width:200px;
-        margin-right:20px;
+    .add-btn {
+        width: 200px;
+        margin-right: 20px;
+    }
+    .school-select {
+        width: 615px;
+    }
+    .add-template {
+        .el-input,
+        .el-textarea {
+            margin-bottom: 20px;
+        }
     }
 }
 </style>
