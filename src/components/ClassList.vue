@@ -7,7 +7,7 @@
             </el-table-column>
         </el-table>
         <h2 v-if="classList.length===0">暂无课程</h2>
-        <el-select v-model="school" placeholder="请选择要查看的校区" class="school-select">
+        <el-select v-model="schoolId" placeholder="请选择要查看的校区" class="school-select">
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
@@ -47,7 +47,7 @@ export default {
             lessonId: null,
             ids: [],
             schoolList: [],
-            school: '',
+            schoolId: '',
             // 课程表名称
             title: null,
             // 表头字段
@@ -57,7 +57,7 @@ export default {
         };
     },
     watch: {
-        school() {
+        schoolId() {
             this.getClass();
         },
         $route() {
@@ -71,29 +71,34 @@ export default {
         async getSchoolList() {
             // 获取校区
             const res = await getSchool();
-            res.list.forEach(element => {
-                var temp = {
-                    value: element.name,
-                    label: element.name
-                };
-                this.schoolList.push(temp);
-            });
-            this.school = this.schoolList[0].value;
+            if (res.ok) {
+                console.log('成功请求校区列表');
+                res.list.forEach(item => {
+                    var temp = {
+                        value: item.id,
+                        label: item.name
+                    };
+                    this.schoolList.push(temp);
+                });
+                this.schoolId = this.schoolList[0].value;
+            }
         },
         async getClass() {
             const res = await getClassDetail({
-                school: this.school
+                schoolId: this.schoolId
             });
-
-            this.title = res.title;
-            this.heads = res.heads;
-            this.classList = res.list;
-            this.classList.forEach(item => {
-                item.forEach(subItem => {
-                    console.log(subItem.id);
-                    this.ids = this.ids.concat(subItem.id);
+            if (res.ok) {
+                console.log('成功请求课程表');
+                this.title = res.title;
+                this.heads = res.heads;
+                this.classList = res.list;
+                this.classList.forEach(item => {
+                    item.forEach(subItem => {
+                        console.log(subItem.id);
+                        this.ids = this.ids.concat(subItem.id);
+                    });
                 });
-            });
+            }
         },
         clickCell(row, column, cell, event) {
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
@@ -134,15 +139,6 @@ export default {
         },
         selectClass(classId) {
             console.log(classId);
-        },
-        arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-            if (rowIndex % 2 === 0) {
-                if (columnIndex === 0) {
-                    return [1, 2];
-                } else if (columnIndex === 1) {
-                    return [0, 0];
-                }
-            }
         },
 
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
