@@ -67,18 +67,6 @@ import { getMainInfo, getLeaveList } from "../api/getData";
 export default {
   data() {
     return {
-      formData: [
-        {
-          date: "周一",
-          students: "23",
-          classes: "12"
-        },
-        {
-          date: "周一",
-          students: "23",
-          classes: "12"
-        }
-      ],
       timesData: [
         {
           d1: 0,

@@ -214,6 +214,7 @@ export default {
     goToStudentList() {      
       Bus.$emit('refreshStudentList');
       this.$router.push("/studentList");
+      this.goOnAdd();
     },
     goOnAdd() {
       this.$refs.addInfoForm.resetFields();
