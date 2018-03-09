@@ -336,7 +336,7 @@ export default {
     async getStuClsHistory(page) {
       let res = await getStudentClassHistory({
         studentId: this.studentId,
-        page: page
+        page: page || 0
       });
       console.log(res);
       if (res.ok) {
