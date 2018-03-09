@@ -1,16 +1,16 @@
 <template>
     <div class="class-list">
-
-        <h1 class="class-list-title">{{title}}</h1>
-        <el-table v-if="classList.length>0" @cell-dblclick="clickCell" :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index">
-            <el-table-column :prop="item.prop" :label="item.label" v-for="(item,index) of heads" :key="index">
-            </el-table-column>
-        </el-table>
-        <h2 v-if="classList.length===0">暂无课程</h2>
         <el-select v-model="schoolId" placeholder="请选择要查看的校区" class="school-select">
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
+        <h1 class="class-list-title">{{title}}</h1>
+        <el-table v-if="classList.length>0" @cell-dblclick="clickCell" :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index" :class="index === currentIndex?'first':''">
+            <el-table-column :prop="item.prop" :label="item.label" v-for="(item,index) of heads" :key="index">
+            </el-table-column>
+        </el-table>
+        <h2 v-if="classList.length===0">暂无课程</h2>
+
         <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
     </div>
 </template>
@@ -19,7 +19,7 @@
     display: none !important;
     text-align: center;
 }
-.class-list div:nth-of-type(1) thead {
+.class-list .first thead {
     display: table-header-group !important;
 }
 .class-list .el-table__body-wrapper {
@@ -43,6 +43,7 @@ export default {
     },
     data() {
         return {
+            currentIndex: 0,
             dialogVisible: false,
             lessonId: null,
             ids: [],
