@@ -59,6 +59,9 @@ export default {
     watch: {
         school() {
             this.getClass();
+        },
+        $route() {
+            this.getClass();
         }
     },
     methods: {

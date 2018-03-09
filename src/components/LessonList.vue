@@ -57,6 +57,9 @@ export default {
         school(val) {
             // this.getClass();
             this.getLessonList();
+        },
+        $route() {
+            this.getLessonList();
         }
     },
     methods: {
