@@ -55,10 +55,10 @@
         <el-table-column prop="timeRange" align="center" label="请假时间" width="auto">
         </el-table-column>
       </el-table>
-          <div class="feed-back-pagination" style="margin-top: 20px;">
-      <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="leavePage" :page-size="10" layout="total, prev, pager, next" :total="leaveCount">
-      </el-pagination>
-    </div>
+      <div class="feed-back-pagination" style="margin-top: 20px;text-align:center">
+        <el-pagination ref="paginat" background @current-change="handleCurrentChange" :current-page="leavePage" :page-size="10" layout="total, prev, pager, next" :total="leaveCount">
+        </el-pagination>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -81,30 +81,30 @@ export default {
       infos: {},
       leaveTableVisible: false,
       leaveList: [
-        {
-          id: 1, //记录id
-          lessonName: "xxx", //课程名字
-          studentName: "xxx", //学生名字
-          date: "2018-03-01", //日期
-          timeRange: "08:00-09:00", //时间
-          phone: "13800138000" //家长手机号
-        },
-        {
-          id: 1, //记录id
-          lessonName: "xxx", //课程名字
-          studentName: "xxx", //学生名字
-          date: "2018-03-01", //日期
-          timeRange: "08:00-09:00", //时间
-          phone: "13800138000" //家长手机号
-        },
-        {
-          id: 1, //记录id
-          lessonName: "xxx", //课程名字
-          studentName: "xxx", //学生名字
-          date: "2018-03-01", //日期
-          timeRange: "08:00-09:00", //时间
-          phone: "13800138000" //家长手机号
-        }
+        // {
+        //   id: 1, //记录id
+        //   lessonName: "xxx", //课程名字
+        //   studentName: "xxx", //学生名字
+        //   date: "2018-03-01", //日期
+        //   timeRange: "08:00-09:00", //时间
+        //   phone: "13800138000" //家长手机号
+        // },
+        // {
+        //   id: 1, //记录id
+        //   lessonName: "xxx", //课程名字
+        //   studentName: "xxx", //学生名字
+        //   date: "2018-03-01", //日期
+        //   timeRange: "08:00-09:00", //时间
+        //   phone: "13800138000" //家长手机号
+        // },
+        // {
+        //   id: 1, //记录id
+        //   lessonName: "xxx", //课程名字
+        //   studentName: "xxx", //学生名字
+        //   date: "2018-03-01", //日期
+        //   timeRange: "08:00-09:00", //时间
+        //   phone: "13800138000" //家长手机号
+        // }
       ],
       leavePage: 1,
       leaveCount: 0
@@ -128,7 +128,7 @@ export default {
     async getLeaveInfo(page) {
       let res = await getLeaveList({ page: this.leavePage - 1 });
       console.log(res);
-      if (res.ok){
+      if (res.ok) {
         this.leaveList = res.list;
         this.leaveCount = res.count;
       }

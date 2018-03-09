@@ -202,9 +202,6 @@
     <student-add-class @close="addClassShow = false" :dialogVisible="addClassShow" :add-class-form="addClassForm" @refresh="refreshStudentInfo"></student-add-class>
   </div>
 </template>
-
-
-
 <script>
 import StudentAddClass from "../com/StudentAddClass.vue";
 import {
