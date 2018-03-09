@@ -5,7 +5,7 @@
             <el-form-item label="校区选择">
 
                 <el-select class="select" v-model="form.schoolId" placeholder="请选择校区">
-                    <el-option v-for="item in school" :label="item.label" :key="item.id" :value="item.value">
+                    <el-option v-for="item in schoolList" :label="item.label" :key="item.id" :value="item.value">
                     </el-option>
                 </el-select>
 
@@ -34,19 +34,10 @@
                     <el-option label="周日" value="7"></el-option>
                 </el-select>
 
-                <el-time-select class="time" placeholder="起始时间" v-model="item.startTime" :picker-options="{
-      start: '08:30',
-      step: '00:15',
-      end: '24:00'
-    }">
+                <el-time-select class="time" placeholder="起始时间" v-model="item.startTime" :picker-options="{start: '08:30',step: '00:15',end: '24:00'}">
                 </el-time-select>
 
-                <el-time-select class="time" placeholder="结束时间" v-model="item.endTime" :picker-options="{
-      start: '08:30',
-      step: '00:15',
-      end: '24:00',
-      minTime: form.startTime
-    }">
+                <el-time-select class="time" placeholder="结束时间" v-model="item.endTime" :picker-options="{start: '08:30',step: '00:15',end: '24:00',minTime: form.startTime}">
                 </el-time-select>
 
                 <el-input class="location" v-model="item.location" placeholder="如:A教室"></el-input>
@@ -77,7 +68,8 @@ export default {
         return {
             showSchool: false,
             schoolNeedAdd: null,
-            school: [],
+            schoolList: [],
+            school: null,
             form: {
                 schoolId: null,
                 schedule: [
@@ -94,24 +86,28 @@ export default {
         };
     },
     async created() {
-        // console.log(this.$route.query);
         this.getQuery();
-        // 获取校区列表
-        const res = await getSchool();
-        res.list.forEach(element => {
-            var temp = {
-                value: element.id,
-                label: element.name,
-                id: element.id
-            };
-
-            this.school.push(temp);
-        });
+        this.getSchoolList();
     },
     watch: {
         $route: 'getQuery'
     },
     methods: {
+        // 获取校区列表
+        async getSchoolList() {
+            const res = await getSchool();
+            if (res.ok) {
+                console.log('成功请求校区接口');
+                res.list.forEach(item => {
+                    var temp = {
+                        value: item.id,
+                        label: item.name
+                    };
+                    this.schoolList.push(temp);
+                });
+                this.form.schoolId = this.schoolList[0].value;
+            }
+        },
         getQuery() {
             let routerQuery = this.$route.query;
             console.log(routerQuery);
@@ -140,6 +136,17 @@ export default {
             const res = await addClass(this.form);
 
             if (res.ok) {
+                console.log('成功添加课程');
+                this.form.name = null;
+                this.form.teacherName = null;
+                this.form.schedule = [
+                    {
+                        weekday: '1',
+                        startTime: null,
+                        endTime: null,
+                        location: null
+                    }
+                ];
                 this.$message({
                     message: '已成功添加课程',
                     type: 'success'
@@ -169,10 +176,9 @@ export default {
                 name: this.schoolNeedAdd
             });
             if (res.ok) {
-                this.school.push({
-                    value: this.schoolNeedAdd,
-                    label: this.schoolNeedAdd
-                });
+                console.log('成功添加校区');
+                this.getSchoolList();
+                this.schoolNeedAdd = null;
                 this.$message({
                     message: '已成功添加校区',
                     type: 'success'
@@ -221,7 +227,6 @@ export default {
 }
 .add-lesson {
     width: 200px;
-    margin-left: 180px;
 }
 .add-class {
     width: 700px;
