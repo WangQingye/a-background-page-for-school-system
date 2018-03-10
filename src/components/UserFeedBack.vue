@@ -29,7 +29,7 @@
       </el-table-column>
     </el-table>
     <div class="feed-back-pagination" style="margin: 0 auto;margin-top: 20px;">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage + 1" :page-size="10" layout="total, prev, pager, next" :total="count">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next" :total="count">
       </el-pagination>
     </div>
   </div>
@@ -41,7 +41,7 @@ export default {
     return {
       feedBackList: [
       ],
-      currentPage: 0,
+      currentPage: 1,
       count: 100
     };
   },
@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     async getFeedBack() {
-      let res = await getFeedBack({ page: this.currentPage });
+      let res = await getFeedBack({ page: this.currentPage - 1 });
       this.log("获取反馈列表", res.ok);
       console.log(res);
       if (res.ok) {
