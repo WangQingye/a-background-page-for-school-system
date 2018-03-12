@@ -23,7 +23,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
+        <classDetail @delClass="delClass" @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
     </div>
 </template>
 <script>
@@ -63,6 +63,9 @@ export default {
         }
     },
     methods: {
+        delClass() {
+            this.getLessonList();
+        },
         async getLessonList() {
             const res = await getList({
                 schoolId: this.school

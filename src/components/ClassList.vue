@@ -1,14 +1,14 @@
 <template>
     <div class="class-list">
         <h1 class="class-list-title">{{title}}</h1>
-        <el-table v-if="classList.length>0" @cell-dblclick="clickCell" :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index" >
+        <el-table v-if="classList.length>0" @cell-dblclick="clickCell" :data="classList[index]" border :span-method="objectSpanMethod" v-for="(classDetail,index) of classList" :key="index">
             <el-table-column :prop="item.prop" :label="item.label" v-for="(item,index) of heads" :key="index">
                 <!-- :class="index === currentIndex?'first':''" -->
             </el-table-column>
         </el-table>
         <h2 v-if="classList.length===0">暂无课程</h2>
 
-        <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
+        <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId" @delClass="delClass"></classDetail>
         <el-select v-model="schoolId" placeholder="请选择要查看的校区" class="school-select">
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
@@ -67,6 +67,9 @@ export default {
         }
     },
     methods: {
+        delClass() {
+            this.getClass();
+        },
         closeDetail() {
             this.dialogVisible = false;
         },
