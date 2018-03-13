@@ -4,7 +4,9 @@
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
-        <h1>课程列表</h1>
+        <h1 class="title">课程列表</h1>
+        <el-input class="search" @blur="searchLesson" placeholder="请输入要搜索的内容" v-model="search" clearable>
+        </el-input>
         <el-table :data="lesson" style="width: 100%">
             <el-table-column prop="lessonName" label="课程名称" width="180">
             </el-table-column>
@@ -47,7 +49,8 @@ export default {
                     teacherName: '余老师',
                     schedules: ['周一 / 08:00-09:00 / A教室']
                 }
-            ]
+            ],
+            search: null
         };
     },
     created() {
@@ -63,6 +66,17 @@ export default {
         }
     },
     methods: {
+        async searchLesson() {
+            const res = await getList({
+                schoolId: this.school,
+                search: this.search
+            });
+            if (res.ok) {
+                console.log('成功请求搜索列表');
+                this.lesson = res.list;
+            }
+            console.log(res);
+        },
         delClass() {
             this.getLessonList();
         },
@@ -99,6 +113,18 @@ export default {
 };
 </script>
 <style lang="less">
+.search {
+    width: 400px;
+    margin: 0 auto;
+    vertical-align: middle;
+}
+.title {
+    display: inline-block;
+    width: 400px;
+    text-align: right;
+    margin-right: 100px;
+    vertical-align: middle;
+}
 .school-select {
     width: 900px;
     margin: 20px auto;
