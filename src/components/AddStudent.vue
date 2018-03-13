@@ -7,7 +7,7 @@
       <el-step title="完成添加" icon="el-icon-success"></el-step>
     </el-steps>
     <!-- 添加基础信息表格 -->
-    <el-form ref="addInfoForm" :rules="rules" :model="addInfoForm" label-width="120px" label-position="left" class="add-form" v-show="addInfoShow">
+    <el-form ref="addInfoForm" style="text-align:left" :rules="rules" :model="addInfoForm" label-width="120px" label-position="left" class="add-form" v-show="addInfoShow">
       <el-form-item label="学员姓名" prop="name">
         <el-input v-model="addInfoForm.name"></el-input>
       </el-form-item>
@@ -28,7 +28,7 @@
       </el-form-item>
     </el-form>
     <!-- 添加课程表格 -->
-    <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="150px" width="800px" v-show="addClassShow">
+    <el-form class="account-dialog" style="text-align:left" ref="addClassForm" :model="addClassForm" label-width="150px" width="800px" v-show="addClassShow">
       <el-form-item label="学生姓名" prop="name">
         <span>{{addClassForm.name}}</span>
       </el-form-item>
@@ -256,9 +256,6 @@ export default {
 .class-overplus {
   margin: 0;
   font-size: 18px;
-}
-.el-form-item__content {
-  text-align: left;
 }
 .el-transfer {
   text-align: center;
