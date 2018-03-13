@@ -70,7 +70,11 @@ export const getClassList = schoolId => fetch('/lesson/list', schoolId);
 export const changeExpendNum = data => fetch('/order/edit', data, 'POST');
 // 续课
 export const renewClass = id => fetch('/order/renew', id, 'POST');
-// 停课
+// 暂停课
+export const pauseClass = id => fetch('/order/pause', id, 'POST');
+// 复课
+export const continueClass = id => fetch('/order/continue', id, 'POST');
+// 退课
 export const stopClass = id => fetch('/order/stop', id, 'POST');
 // 转班
 export const transClass = data => fetch('/order/transfer', data, 'POST');

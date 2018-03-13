@@ -66,12 +66,22 @@
                 <span style="margin-left: 10px;font-size:16px;">{{ scope.row.school + '-' + scope.row.schedules[0].location + '-' + scope.row.teacherName}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="480">
               <template slot-scope="scope">
-                <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
-                <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
-                <el-button size="small" type="success" @click="openRenewClass(scope.row)">续课</el-button>
-                <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">停课</el-button>
+                <div v-if="scope.row.status == 0">
+                  <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
+                  <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
+                  <el-button size="small" type="success" @click="openRenewClass(scope.row)">续课</el-button>
+                  <el-button size="small" type="info" @click="openConfirm(1,scope.row)">暂停课</el-button>
+                  <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">退课</el-button>
+                </div>
+                <div v-if="scope.row.status == 1">
+                  <span>该课程已暂停，我要：</span>
+                  <el-button size="small" type="success" @click="openConfirm(4,scope.row)">复课</el-button>
+                </div>
+                <div v-if="scope.row.status == 2">
+                  <span>该课程已结束，无可选操作</span>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -98,7 +108,7 @@
                 <span v-else>暂无</span>
               </template>
             </el-table-column>
-            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '到课', value: '到课' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
+            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '已上', value: '已上' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
               <template slot-scope="scope">
                 <el-tag :type="calClassType(scope.row.typeName)" close-transition>{{scope.row.typeName}}</el-tag>
               </template>
@@ -209,6 +219,8 @@ import {
   changeStudentInfo,
   changeExpendNum,
   stopClass,
+  pauseClass,
+  continueClass,
   renewClass,
   transClass,
   getClassList,
@@ -472,8 +484,8 @@ export default {
       this.renewClassVisible = true;
     },
     async submitRenewClass() {
-      if (this.renewClassform.renewNum > this.renewClassform.balanceNum){
-        this.$message.error('可用课时不足哦')
+      if (this.renewClassform.renewNum > this.renewClassform.balanceNum) {
+        this.$message.error("可用课时不足哦");
       }
       let res = await renewClass({
         id: this.renewClassform.orderId,
@@ -503,11 +515,14 @@ export default {
       let text;
       console.log(data);
       if (type == 1) {
+        text = `本次操作将暂停该学员的${data.lessonName}课程，是否确认？`;
       } else if (type == 2) {
         text = `本次操作将停止该学员的${data.lessonName}课程，剩余${Number(data.num) -
           Number(data.expendNum)}课时将自动转入该学员剩余课时，是否确认？`;
       } else if (type == 3) {
         text = `本次操作将从为学员充值${this.charegeNum}课时，是否确认？`;
+      } else if (type == 4) {
+        text = `本次操作会将该学员的${data.lessonName}课程复课，是否确认？`;
       }
       this.$confirm(text, "确认操作", {
         confirmButtonText: "确定",
@@ -516,6 +531,15 @@ export default {
       })
         .then(async () => {
           if (type == 1) {
+            console.log(111);
+            let res = await pauseClass({ id: data.id });
+            console.log(res);
+            if (res.ok) {
+              this.$message({
+                type: "success",
+                message: "操作成功!"
+              });
+            }
           } else if (type == 2) {
             let res = await stopClass({ id: data.id });
             console.log(res);
@@ -538,6 +562,15 @@ export default {
               });
               this.getStudentChargeHis();
             }
+          } else if (type == 4) {
+            let res = await continueClass({ id: data.id });
+            console.log(res);
+            if (res.ok) {
+              this.$message({
+                type: "success",
+                message: "操作成功!"
+              });
+            }
           }
           this.refreshStudentInfo();
         })
@@ -553,7 +586,7 @@ export default {
         case "请假":
           return "danger";
           break;
-        case "到课":
+        case "已上":
           return "success";
           break;
         case "待上":

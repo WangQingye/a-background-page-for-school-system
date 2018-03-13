@@ -197,6 +197,7 @@ export default {
       this.addSuccessShow = true;
       this.addClassShow = false;
       this.stepNum = 2;
+      Bus.$emit('refreshStudentList');      
     },
     /* 取消添加 */
     async cancelAdd() {
@@ -212,7 +213,6 @@ export default {
       this.$refs.addInfoForm.resetFields();
     },
     goToStudentList() {      
-      Bus.$emit('refreshStudentList');
       this.$router.push("/studentList");
       this.goOnAdd();
     },
