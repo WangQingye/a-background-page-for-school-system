@@ -230,6 +230,7 @@ export default {
                 id: this.lessonId
             });
             if (res.ok) {
+                this.$emit('delClass')
                 this.$message({
                     message: '已成功删除课程',
                     type: 'success'
