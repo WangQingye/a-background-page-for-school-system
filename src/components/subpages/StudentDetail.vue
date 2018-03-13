@@ -72,8 +72,8 @@
                   <el-button size="small" type="primary" @click="openClassChange(scope.row)">修改课时</el-button>
                   <el-button size="small" type="warning" @click="openClassTrans(scope.row)">转班</el-button>
                   <el-button size="small" type="success" @click="openRenewClass(scope.row)">续课</el-button>
-                  <el-button size="small" type="info" @click="openConfirm(1,scope.row)">暂停课</el-button>
-                  <el-button size="small" type="danger" @click="openConfirm(2,scope.row)">退课</el-button>
+                  <el-button size="small" type="danger" @click="openConfirm(1,scope.row)">暂停课</el-button>
+                  <el-button size="small" type="info" @click="openConfirm(2,scope.row)">退课</el-button>
                 </div>
                 <div v-if="scope.row.status == 1">
                   <span>该课程已暂停，我要：</span>
@@ -93,8 +93,8 @@
             <i class="el-icon-date"></i>
             <span>上课记录</span>
           </div>
-          <el-table :data="historyData" v-if="historyData.length" style="width: 90%; margin:0 auto">
-            <el-table-column prop="date" label="上课时间" sortable width="180">
+          <el-table :data="historyData" v-if="historyData.length" style="width: 90%; margin:0 auto" @sort-change="handleSortChange">
+            <el-table-column prop="date" label="上课时间" sortable="custom" width="180">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
                 <span style="margin-left: 10px">{{ scope.row.date }}</span>
@@ -108,7 +108,7 @@
                 <span v-else>暂无</span>
               </template>
             </el-table-column>
-            <el-table-column prop="tag" label="出勤状态" width="100" :filters="[{ text: '请假', value: '请假' }, { text: '已上', value: '已上' }, { text: '待上', value: '待上' }]" :filter-method="filterTag" filter-placement="bottom-end">
+            <el-table-column prop="tag" label="出勤状态" width="100">
               <template slot-scope="scope">
                 <el-tag :type="calClassType(scope.row.typeName)" close-transition>{{scope.row.typeName}}</el-tag>
               </template>
@@ -311,6 +311,7 @@ export default {
       classList: [],
       historyCount: 10,
       historyPage: 1,
+      historySort: "",
       // 展示编辑
       editInfoShow: false,
       // 展示信息
@@ -342,11 +343,23 @@ export default {
       }
     },
     /* 获取学生课程记录 */
-    async getStuClsHistory(page) {
-      let res = await getStudentClassHistory({
-        studentId: this.studentId,
-        page: page || 0
-      });
+    async getStuClsHistory(data) {
+      let page;
+      let postData = {};
+      if (typeof data !== "object") {
+        postData = {
+          studentId: this.studentId,
+          page: data || 0
+        };
+      } else {
+        postData = {
+          studentId: this.studentId,
+          page: data.page || 0,
+          sortField: "date", //排序字段,仅date可用
+          sortWay: data.sortWay //up为逆序，其他正序
+        };
+      }
+      let res = await getStudentClassHistory(postData);
       console.log(res);
       if (res.ok) {
         this.historyCount = res.count;
@@ -600,7 +613,27 @@ export default {
     /* 分页请求课程记录 */
     handleClassHistoryPageChange(val) {
       this.historyPage = val;
-      this.getStuClsHistory(val - 1);
+      if (this.historySort) {
+        this.getStuClsHistory({
+          page: this.historyPage - 1,
+          sortWay: this.historySort
+        });
+      } else {
+        this.getStuClsHistory(val - 1);
+      }
+    },
+    handleSortChange(data) {
+      if (data.order == "descending") {
+        this.historySort = "up";
+      } else if (data.order == "ascending") {
+        this.historySort = "down";
+      } else {
+        this.historySort = "";
+      }
+      this.getStuClsHistory({
+        page: this.historyPage - 1,
+        sortWay: this.historySort
+      });
     },
     /* 在修改后刷新学生数据 */
     refreshStudentInfo() {
