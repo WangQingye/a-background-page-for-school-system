@@ -196,6 +196,7 @@ export default {
       });
       this.addSuccessShow = true;
       this.addClassShow = false;
+      this.addClasses = [];
       this.stepNum = 2;
       Bus.$emit('refreshStudentList');      
     },
@@ -205,6 +206,7 @@ export default {
       let res = await delStudent({ id: this.addClassForm.id });
       this.log(`删除学生${this.addClassForm.id}`, res.ok);
       this.addInfoShow = true;
+      this.addClasses = [];
       this.addClassShow = false;
       this.resetInfoForm();
       this.stepNum = 0;
@@ -218,8 +220,10 @@ export default {
     },
     goOnAdd() {
       this.$refs.addInfoForm.resetFields();
+      this.$refs.addClassForm.resetFields();
       this.addInfoShow = true;
       this.addClassShow = false;
+      this.addClasses = [];
       this.addSuccessShow = false;
       this.stepNum = 0;   
     }
