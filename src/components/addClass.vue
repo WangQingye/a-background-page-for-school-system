@@ -212,14 +212,14 @@ export default {
     margin-right: 20px;
 }
 .location {
-    width: 164px;
+    width: 204px !important;
 }
 .add {
     width: 151px;
 }
 .select {
-    width: 400px;
-    margin-right: 20px;
+    width: 420px !important;
+    margin-right: 45px;
 }
 .lesson,
 .teacher {
@@ -232,7 +232,7 @@ export default {
     width: 700px;
     margin: 0 auto;
     .el-date-editor {
-        width: 120px;
+        width: 120px !important;
     }
 }
 </style>

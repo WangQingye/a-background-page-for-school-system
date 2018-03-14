@@ -265,11 +265,11 @@ export default {
         width: 95px;
     }
     .day {
-        width: 392px;
-        margin-right: 20px;
+        width: 382px !important;
+        margin-right: 12px;
     }
     .time {
-        width: 200px;
+        width: 200px !important;
     }
     .type {
         width: 615px;
