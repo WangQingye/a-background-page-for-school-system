@@ -63,7 +63,7 @@
             </el-table-column>
             <el-table-column prop="desc" label="备注">
               <template slot-scope="scope">
-                <span style="margin-left: 10px;font-size:16px;">{{ scope.row.school + '-' + scope.row.schedules[0].location + '-' + scope.row.teacherName}}</span>
+                <span style="font-size:16px;">{{ scope.row.school + '-' + scope.row.schedules[0].location + '-' + scope.row.teacherName}}</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="480">
