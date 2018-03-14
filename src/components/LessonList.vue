@@ -4,9 +4,13 @@
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
-        <h1 class="title">课程列表</h1>
-        <el-input class="search" @blur="searchLesson" placeholder="请输入要搜索的内容" v-model="search" clearable>
-        </el-input>
+        <p class="text">课程列表</p>
+        <div class="search">
+            <el-input class="search-input" placeholder="请输入要搜索的内容" @change="searchLesson" v-model="search" style="padding-bottom:10px;width:200px" clearable>
+            </el-input>
+            <el-button type="primary" icon="el-icon-search" v-on:click="searchLesson">搜索</el-button>
+        </div>
+
         <el-table :data="lesson" style="width: 100%">
             <el-table-column prop="lessonName" label="课程名称" width="180">
             </el-table-column>
@@ -113,21 +117,18 @@ export default {
 };
 </script>
 <style lang="less">
-.search {
-    width: 400px;
-    margin: 0 auto;
-    vertical-align: middle;
-}
-.title {
-    display: inline-block;
-    width: 400px;
-    text-align: right;
-    margin-right: 100px;
-    vertical-align: middle;
-}
 .school-select {
     width: 900px;
     margin: 20px auto;
+}
+.text {
+    font-size: 20px;
+    font-weight: 600;
+}
+.search {
+    width: 300px;
+    float: right;
+    margin-right: 5%;
 }
 </style>
 
