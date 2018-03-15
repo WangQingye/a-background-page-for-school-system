@@ -284,6 +284,7 @@ export default {
     }
     .school-select {
         width: 615px;
+        margin:0 auto !important;
     }
     .add-template {
         .el-input,
