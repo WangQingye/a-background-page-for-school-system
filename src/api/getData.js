@@ -32,6 +32,7 @@ export const delAdmin = data => fetch('/user/del', data, 'POST');
  */
 export const getFeedBack = data => fetch('/feedback/index', data);
 export const replyFeedBack = data => fetch('/feedback/reply', data, 'POST');
+export const delFeedBack = data => fetch('/feedback/del', data, 'POST');
 /**
  * 校区相关
  */

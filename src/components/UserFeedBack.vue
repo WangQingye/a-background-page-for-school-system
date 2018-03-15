@@ -25,6 +25,9 @@
           <el-button v-show="!(scope.row.isReply == 0)" disabled type="text" size="small">
             已回复
           </el-button>
+          <el-button v-if="isAdmin" @click="deleteFeedBack(scope.row)" type="text" size="small">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -35,12 +38,11 @@
   </div>
 </template>
 <script>
-import { getFeedBack, replyFeedBack } from "../api/getData";
+import { getFeedBack, replyFeedBack, delFeedBack } from "../api/getData";
 export default {
   data() {
     return {
-      feedBackList: [
-      ],
+      feedBackList: [],
       currentPage: 1,
       count: 100
     };
@@ -55,7 +57,7 @@ export default {
       console.log(res);
       if (res.ok) {
         this.feedBackList = res.list;
-        this.count = res.count
+        this.count = res.count;
       }
     },
     handleSizeChange(val) {
@@ -71,8 +73,8 @@ export default {
         cancelButtonText: "取消",
         inputType: "textarea"
       })
-        .then( async ({ value }) => {
-          let res = await replyFeedBack({id:row.id, replyContent: value})
+        .then(async ({ value }) => {
+          let res = await replyFeedBack({ id: row.id, replyContent: value });
           console.log(res);
           if (res.ok) {
             this.$message({
@@ -89,11 +91,40 @@ export default {
             message: "取消输入"
           });
         });
+    },
+    async deleteFeedBack(row) {
+      this.$confirm("本次操作将在后台删除此条反馈，但家长端仍会显示，是否确认", "确认操作", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "info"
+      })
+        .then(async () => {
+          let res = await delFeedBack({ id: row.id });
+          console.log(res);
+          if (res.ok) {
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+          }
+          this.getFeedBack();
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作"
+          });
+        });
     }
   },
-  watch:{
-    currentPage(){
+  watch: {
+    currentPage() {
       this.getFeedBack();
+    }
+  },
+  computed: {
+    isAdmin() {
+      return this.$store.state.adminInfo.type == 1;
     }
   }
 };

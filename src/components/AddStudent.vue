@@ -198,7 +198,7 @@ export default {
       this.addClassShow = false;
       this.addClasses = [];
       this.stepNum = 2;
-      Bus.$emit('refreshStudentList');      
+      Bus.$emit('refreshStudentList');
     },
     /* 取消添加 */
     async cancelAdd() {
