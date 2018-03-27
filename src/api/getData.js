@@ -13,9 +13,9 @@ export const logOut = () => fetch('/login/logout');
  * 首页数据
  */
 // 获取首页统计数据
-export const getMainInfo = () => fetch('/index/index'); 
+export const getMainInfo = () => fetch('/index/index');
 // 获取未来请假情况
-export const getLeaveList = () => fetch('/record/leavelist'); 
+export const getLeaveList = data => fetch('/record/leavelist', data);
 /**
  * 用户相关
  */

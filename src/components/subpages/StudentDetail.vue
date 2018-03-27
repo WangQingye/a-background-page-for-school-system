@@ -19,6 +19,9 @@
             <el-form-item label="校区">
               <span>{{infoForm.school}}</span>
             </el-form-item>
+            <el-form-item label="备注">
+              <span>{{infoForm.mark || '暂无备注'}}</span>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="showEditInfo(true)">编辑信息</el-button>
               <el-button @click="close">关闭</el-button>
@@ -34,6 +37,9 @@
             </el-form-item>
             <el-form-item label="校区">
               <span>{{editForm.school}}</span>
+            </el-form-item>
+            <el-form-item label="备注" prop="mark">
+              <el-input type="textarea" v-model="editForm.mark"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitEditInfo">确认修改</el-button>
@@ -213,472 +219,474 @@
   </div>
 </template>
 <script>
-import StudentAddClass from "../com/StudentAddClass.vue";
+import StudentAddClass from '../com/StudentAddClass.vue';
 import {
-  getStudentInfo,
-  changeStudentInfo,
-  changeExpendNum,
-  stopClass,
-  pauseClass,
-  continueClass,
-  renewClass,
-  transClass,
-  getClassList,
-  getStudentClassInfo,
-  getStudentClassHistory,
-  chargeStudent,
-  getStudentChargeHistory
-} from "../../api/getData";
+    getStudentInfo,
+    changeStudentInfo,
+    changeExpendNum,
+    stopClass,
+    pauseClass,
+    continueClass,
+    renewClass,
+    transClass,
+    getClassList,
+    getStudentClassInfo,
+    getStudentClassHistory,
+    chargeStudent,
+    getStudentChargeHistory
+} from '../../api/getData';
 export default {
-  props: {
-    placeText: {
-      type: String,
-      default: "请输入搜索内容"
-    },
-    dialogVisible: {
-      type: Boolean,
-      default: false
-    },
-    studentId: {
-      type: String,
-      default: "0"
-    }
-  },
-  mounted() {},
-  data() {
-    return {
-      tabName: "课程情况",
-      infoForm: {},
-      editForm: {},
-      rules: {
-        name: [
-          {
-            required: true,
-            message: "请输入学生姓名",
-            trigger: "blur"
-          }
-        ],
-        phone: [
-          {
-            required: true,
-            message: "请输入家长联系方式",
-            trigger: "blur"
-          }
-        ]
-      },
-      changeClassform: {
-        studentName: "",
-        className: "",
-        hadClass: 0,
-        totalClass: 0,
-        orderId: 0
-      },
-      /* 转班时需要获取当前校区课程 */
-      schoolClasses: [],
-      /* 转班数据 */
-      transClassform: {
-        oldClassName: "",
-        oldClassOrderId: "",
-        progress: "6/16",
-        newClassId: ""
-      },
-      /* 续课数据 */
-      renewClassform: {
-        orderId: "",
-        className: "",
-        balanceNum: "",
-        progress: "",
-        renewNum: 16
-      },
-      addClassForm: {},
-      /* 上课记录 */
-      historyData: [],
-      /* 课程信息 */
-      classData: [],
-      /* 充值记录 */
-      chargeData: [
-        {
-          date: "2017-01-01",
-          num: 64,
-          user: "admin"
+    props: {
+        placeText: {
+            type: String,
+            default: '请输入搜索内容'
+        },
+        dialogVisible: {
+            type: Boolean,
+            default: false
+        },
+        studentId: {
+            type: String,
+            default: '0'
         }
-      ],
-      charegeNum: 1,
-      changeClassVisible: false,
-      transClassVisible: false,
-      renewClassVisible: false,
-      // 课程列表（用于转班）
-      classList: [],
-      historyCount: 10,
-      historyPage: 1,
-      historySort: "",
-      // 展示编辑
-      editInfoShow: false,
-      // 展示信息
-      infoShow: true,
-      // 添加课程面板
-      addClassShow: false
-    };
-  },
-  methods: {
-    close() {
-      this.$emit("close");
     },
-    /* 获取学生基本信息 */
-    async getStudentInfo() {
-      let res = await getStudentInfo({ id: this.studentId });
-      this.log(`${this.studentId}学生信息`, res.ok);
-      if (res.ok) {
-        this.infoForm = res.data;
-        // 这个等下会变，所以要先复制一下
-        this.editForm = JSON.parse(JSON.stringify(res.data));
-      }
-    },
-    /* 获取学生课程信息 */
-    async getStudentClasses() {
-      let res = await getStudentClassInfo({ studentId: this.studentId });
-      console.log(res);
-      if (res.ok) {
-        this.classData = res.list;
-      }
-    },
-    /* 获取学生课程记录 */
-    async getStuClsHistory(data) {
-      let page;
-      let postData = {};
-      if (typeof data !== "object") {
-        postData = {
-          studentId: this.studentId,
-          page: data || 0
+    mounted() {},
+    data() {
+        return {
+            tabName: '课程情况',
+            infoForm: {},
+            editForm: {},
+            rules: {
+                name: [
+                    {
+                        required: true,
+                        message: '请输入学生姓名',
+                        trigger: 'blur'
+                    }
+                ],
+                phone: [
+                    {
+                        required: true,
+                        message: '请输入家长联系方式',
+                        trigger: 'blur'
+                    }
+                ]
+            },
+            changeClassform: {
+                studentName: '',
+                className: '',
+                hadClass: 0,
+                totalClass: 0,
+                orderId: 0
+            },
+            /* 转班时需要获取当前校区课程 */
+            schoolClasses: [],
+            /* 转班数据 */
+            transClassform: {
+                oldClassName: '',
+                oldClassOrderId: '',
+                progress: '6/16',
+                newClassId: ''
+            },
+            /* 续课数据 */
+            renewClassform: {
+                orderId: '',
+                className: '',
+                balanceNum: '',
+                progress: '',
+                renewNum: 16
+            },
+            addClassForm: {},
+            /* 上课记录 */
+            historyData: [],
+            /* 课程信息 */
+            classData: [],
+            /* 充值记录 */
+            chargeData: [
+                {
+                    date: '2017-01-01',
+                    num: 64,
+                    user: 'admin'
+                }
+            ],
+            charegeNum: 1,
+            changeClassVisible: false,
+            transClassVisible: false,
+            renewClassVisible: false,
+            // 课程列表（用于转班）
+            classList: [],
+            historyCount: 10,
+            historyPage: 1,
+            historySort: '',
+            // 展示编辑
+            editInfoShow: false,
+            // 展示信息
+            infoShow: true,
+            // 添加课程面板
+            addClassShow: false
         };
-      } else {
-        postData = {
-          studentId: this.studentId,
-          page: data.page || 0,
-          sortField: "date", //排序字段,仅date可用
-          sortWay: data.sortWay //up为逆序，其他正序
-        };
-      }
-      let res = await getStudentClassHistory(postData);
-      console.log(res);
-      if (res.ok) {
-        this.historyCount = res.count;
-        this.historyData = res.list;
-      }
     },
-    async getStudentChargeHis() {
-      let res = await getStudentChargeHistory({ studentId: this.studentId });
-      console.log(res);
-      if (res.ok) {
-        this.chargeData = res.list;
-      }
-    },
-    showEditInfo(flag) {
-      if (flag) {
-        this.editInfoShow = true;
-        this.infoShow = false;
-      } else {
-        this.editInfoShow = false;
-        this.infoShow = true;
-      }
-    },
-    async submitEditInfo() {
-      let res = await changeStudentInfo({
-        id: this.studentId,
-        name: this.editForm.name,
-        phone: this.editForm.phone
-      });
-      if (res.ok) {
-        this.$message({
-          type: "success",
-          message: "编辑成功!"
-        });
-        this.getStudentInfo();
-        this.$emit("renewStudentList");
-        this.showEditInfo(false);
-      }
-    },
-    changeClass(value, direction, movedKeys) {
-      if (this.allClass - this.classChoose.length * 16 < 0) {
-        this.$message.error("您的剩余课时不够添加这些课程哦");
-        movedKeys.forEach(key => {
-          this.classChoose.splice(
-            this.classChoose.findIndex(value => {
-              return value == key;
-            })
-          );
-        }, this);
-        return;
-      }
-      this.restClass = this.allClass - this.classChoose.length * 16;
-    },
-    filterTag(value, row) {
-      return row.tag === value;
-    },
-    handleTabClick(tab) {
-      if (tab.name == "课程情况") {
-        this.getStudentClasses();
-      } else if (tab.name == "上课记录") {
-        this.getStuClsHistory();
-      } else if (tab.name == "充值相关") {
-        this.getStudentChargeHis();
-      }
-    },
-    /* 课程课时修改 */
-    openClassChange(data) {
-      console.log(data);
-      this.changeClassform.className = data.lessonName;
-      this.changeClassform.hadClass = data.expendNum;
-      this.changeClassform.totalClass = data.num;
-      this.changeClassform.orderId = data.id;
-      this.changeClassVisible = true;
-    },
-    async submitChangeHadClass() {
-      let res = await changeExpendNum({
-        id: this.changeClassform.orderId,
-        expendNum: this.changeClassform.hadClass
-      });
-      if (res.ok) {
-        this.$message({
-          type: "success",
-          message: "操作成功!"
-        });
-        this.refreshStudentInfo();
-        this.changeClassVisible = false;
-      }
-    },
-    /* 转班修改 */
-    openClassTrans(data) {
-      console.log(data);
-      this.transClassform.oldClassName = data.lessonName;
-      this.transClassform.progress = data.expendNum + "/" + data.num;
-      this.transClassform.oldClassOrderId = data.id;
-      this.getSchoolClasses();
-      this.transClassVisible = true;
-    },
-    async getSchoolClasses() {
-      let res = await getClassList({ schoolId: this.infoForm.schoolId });
-      console.log(res);
-      if (res.ok) {
-        this.classList = res.list;
-      }
-    },
-    async submitTransClass() {
-      console.log("确定转班");
-      let newClassName = this.switchIdorName(
-        this.transClassform.newClassId,
-        this.classList,
-        "id"
-      );
-      if (newClassName == this.transClassform.oldClassName) {
-        this.$message.error("不能转到相同的班级哦");
-        return;
-      }
-      let res = await transClass({
-        id: this.transClassform.oldClassOrderId,
-        transferLessonId: this.transClassform.newClassId
-      });
-      console.log(res);
-      if (res.ok) {
-        this.$message({
-          type: "success",
-          message: "操作成功!"
-        });
-        this.refreshStudentInfo();
-        this.transClassVisible = false;
-      }
-    },
-    /* 续课修改 */
-    openRenewClass(data) {
-      this.renewClassform.orderId = data.id;
-      this.renewClassform.balanceNum = this.infoForm.balanceNum;
-      this.renewClassform.progress = data.expendNum + "/" + data.num;
-      this.renewClassform.className = data.lessonName;
-      this.renewClassVisible = true;
-    },
-    async submitRenewClass() {
-      if (this.renewClassform.renewNum > this.renewClassform.balanceNum) {
-        this.$message.error("可用课时不足哦");
-      }
-      let res = await renewClass({
-        id: this.renewClassform.orderId,
-        num: this.renewClassform.renewNum
-      });
-      if (res.ok) {
-        this.$message({
-          type: "success",
-          message: "操作成功!"
-        });
-        this.refreshStudentInfo();
-        this.renewClassVisible = false;
-        this.renewClassform.renewNum = 0;
-      }
-    },
-    /* 打开添加课程界面 */
-    openAddClass() {
-      this.addClassShow = true;
-      this.addClassForm.name = this.infoForm.name;
-      this.addClassForm.balanceNum = this.infoForm.balanceNum;
-      this.addClassForm.singleClass = 16;
-      this.addClassForm.studentId = this.studentId;
-      this.addClassForm.schoolId = this.infoForm.schoolId;
-    },
-    /* 确认框，暂时分为续课和停课 */
-    async openConfirm(type, data) {
-      let text;
-      console.log(data);
-      if (type == 1) {
-        text = `本次操作将暂停该学员的${data.lessonName}课程，是否确认？`;
-      } else if (type == 2) {
-        text = `本次操作将停止该学员的${data.lessonName}课程，剩余${Number(data.num) -
-          Number(data.expendNum)}课时将自动转入该学员剩余课时，是否确认？`;
-      } else if (type == 3) {
-        text = `本次操作将从为学员充值${this.charegeNum}课时，是否确认？`;
-      } else if (type == 4) {
-        text = `本次操作会将该学员的${data.lessonName}课程复课，是否确认？`;
-      }
-      this.$confirm(text, "确认操作", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "info"
-      })
-        .then(async () => {
-          if (type == 1) {
-            console.log(111);
-            let res = await pauseClass({ id: data.id });
+    methods: {
+        close() {
+            this.$emit('close');
+        },
+        /* 获取学生基本信息 */
+        async getStudentInfo() {
+            let res = await getStudentInfo({ id: this.studentId });
+            this.log(`${this.studentId}学生信息`, res.ok);
+            if (res.ok) {
+                this.infoForm = res.data;
+                // 这个等下会变，所以要先复制一下
+                this.editForm = JSON.parse(JSON.stringify(res.data));
+            }
+        },
+        /* 获取学生课程信息 */
+        async getStudentClasses() {
+            let res = await getStudentClassInfo({ studentId: this.studentId });
+            if (res.ok) {
+                this.classData = res.list;
+            }
+        },
+        /* 获取学生课程记录 */
+        async getStuClsHistory(data) {
+            let page;
+            let postData = {};
+            if (typeof data !== 'object') {
+                postData = {
+                    studentId: this.studentId,
+                    page: data || 0
+                };
+            } else {
+                postData = {
+                    studentId: this.studentId,
+                    page: data.page || 0,
+                    sortField: 'date', //排序字段,仅date可用
+                    sortWay: data.sortWay //up为逆序，其他正序
+                };
+            }
+            let res = await getStudentClassHistory(postData);
             console.log(res);
             if (res.ok) {
-              this.$message({
-                type: "success",
-                message: "操作成功!"
-              });
+                this.historyCount = res.count;
+                this.historyData = res.list;
             }
-          } else if (type == 2) {
-            let res = await stopClass({ id: data.id });
-            console.log(res);
-            if (res.ok) {
-              this.$message({
-                type: "success",
-                message: "操作成功!"
-              });
-            }
-          } else if (type == 3) {
-            let res = await chargeStudent({
-              studentId: this.studentId,
-              num: this.charegeNum
+        },
+        async getStudentChargeHis() {
+            let res = await getStudentChargeHistory({
+                studentId: this.studentId
             });
             console.log(res);
             if (res.ok) {
-              this.$message({
-                type: "success",
-                message: "操作成功!"
-              });
-              this.getStudentChargeHis();
+                this.chargeData = res.list;
             }
-          } else if (type == 4) {
-            let res = await continueClass({ id: data.id });
+        },
+        showEditInfo(flag) {
+            if (flag) {
+                this.editInfoShow = true;
+                this.infoShow = false;
+            } else {
+                this.editInfoShow = false;
+                this.infoShow = true;
+            }
+        },
+        async submitEditInfo() {
+            let res = await changeStudentInfo({
+                id: this.studentId,
+                name: this.editForm.name,
+                phone: this.editForm.phone,
+                mark: this.editForm.mark
+            });
+            if (res.ok) {
+                this.$message({
+                    type: 'success',
+                    message: '编辑成功!'
+                });
+                this.getStudentInfo();
+                this.$emit('renewStudentList');
+                this.showEditInfo(false);
+            }
+        },
+        changeClass(value, direction, movedKeys) {
+            if (this.allClass - this.classChoose.length * 16 < 0) {
+                this.$message.error('您的剩余课时不够添加这些课程哦');
+                movedKeys.forEach(key => {
+                    this.classChoose.splice(
+                        this.classChoose.findIndex(value => {
+                            return value == key;
+                        })
+                    );
+                }, this);
+                return;
+            }
+            this.restClass = this.allClass - this.classChoose.length * 16;
+        },
+        filterTag(value, row) {
+            return row.tag === value;
+        },
+        handleTabClick(tab) {
+            if (tab.name == '课程情况') {
+                this.getStudentClasses();
+            } else if (tab.name == '上课记录') {
+                this.getStuClsHistory();
+            } else if (tab.name == '充值相关') {
+                this.getStudentChargeHis();
+            }
+        },
+        /* 课程课时修改 */
+        openClassChange(data) {
+            console.log(data);
+            this.changeClassform.className = data.lessonName;
+            this.changeClassform.hadClass = data.expendNum;
+            this.changeClassform.totalClass = data.num;
+            this.changeClassform.orderId = data.id;
+            this.changeClassVisible = true;
+        },
+        async submitChangeHadClass() {
+            let res = await changeExpendNum({
+                id: this.changeClassform.orderId,
+                expendNum: this.changeClassform.hadClass
+            });
+            if (res.ok) {
+                this.$message({
+                    type: 'success',
+                    message: '操作成功!'
+                });
+                this.refreshStudentInfo();
+                this.changeClassVisible = false;
+            }
+        },
+        /* 转班修改 */
+        openClassTrans(data) {
+            console.log(data);
+            this.transClassform.oldClassName = data.lessonName;
+            this.transClassform.progress = data.expendNum + '/' + data.num;
+            this.transClassform.oldClassOrderId = data.id;
+            this.getSchoolClasses();
+            this.transClassVisible = true;
+        },
+        async getSchoolClasses() {
+            let res = await getClassList({ schoolId: this.infoForm.schoolId });
             console.log(res);
             if (res.ok) {
-              this.$message({
-                type: "success",
-                message: "操作成功!"
-              });
+                this.classList = res.list;
             }
-          }
-          this.refreshStudentInfo();
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消操作"
-          });
-        });
-    },
-    calClassType(tag) {
-      switch (tag) {
-        case "请假":
-          return "danger";
-          break;
-        case "已上":
-          return "success";
-          break;
-        case "待上":
-          return "primary";
-          break;
+        },
+        async submitTransClass() {
+            console.log('确定转班');
+            let newClassName = this.switchIdorName(
+                this.transClassform.newClassId,
+                this.classList,
+                'id'
+            );
+            if (newClassName == this.transClassform.oldClassName) {
+                this.$message.error('不能转到相同的班级哦');
+                return;
+            }
+            let res = await transClass({
+                id: this.transClassform.oldClassOrderId,
+                transferLessonId: this.transClassform.newClassId
+            });
+            console.log(res);
+            if (res.ok) {
+                this.$message({
+                    type: 'success',
+                    message: '操作成功!'
+                });
+                this.refreshStudentInfo();
+                this.transClassVisible = false;
+            }
+        },
+        /* 续课修改 */
+        openRenewClass(data) {
+            this.renewClassform.orderId = data.id;
+            this.renewClassform.balanceNum = this.infoForm.balanceNum;
+            this.renewClassform.progress = data.expendNum + '/' + data.num;
+            this.renewClassform.className = data.lessonName;
+            this.renewClassVisible = true;
+        },
+        async submitRenewClass() {
+            if (this.renewClassform.renewNum > this.renewClassform.balanceNum) {
+                this.$message.error('可用课时不足哦');
+            }
+            let res = await renewClass({
+                id: this.renewClassform.orderId,
+                num: this.renewClassform.renewNum
+            });
+            if (res.ok) {
+                this.$message({
+                    type: 'success',
+                    message: '操作成功!'
+                });
+                this.refreshStudentInfo();
+                this.renewClassVisible = false;
+                this.renewClassform.renewNum = 0;
+            }
+        },
+        /* 打开添加课程界面 */
+        openAddClass() {
+            this.addClassShow = true;
+            this.addClassForm.name = this.infoForm.name;
+            this.addClassForm.balanceNum = this.infoForm.balanceNum;
+            this.addClassForm.singleClass = 16;
+            this.addClassForm.studentId = this.studentId;
+            this.addClassForm.schoolId = this.infoForm.schoolId;
+        },
+        /* 确认框，暂时分为续课和停课 */
+        async openConfirm(type, data) {
+            let text;
+            console.log(data);
+            if (type == 1) {
+                text = `本次操作将暂停该学员的${data.lessonName}课程，是否确认？`;
+            } else if (type == 2) {
+                text = `本次操作将停止该学员的${data.lessonName}课程，剩余${Number(data.num) -
+                    Number(data.expendNum)}课时将自动转入该学员剩余课时，是否确认？`;
+            } else if (type == 3) {
+                text = `本次操作将从为学员充值${this.charegeNum}课时，是否确认？`;
+            } else if (type == 4) {
+                text = `本次操作会将该学员的${data.lessonName}课程复课，是否确认？`;
+            }
+            this.$confirm(text, '确认操作', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+            })
+                .then(async () => {
+                    if (type == 1) {
+                        console.log(111);
+                        let res = await pauseClass({ id: data.id });
+                        console.log(res);
+                        if (res.ok) {
+                            this.$message({
+                                type: 'success',
+                                message: '操作成功!'
+                            });
+                        }
+                    } else if (type == 2) {
+                        let res = await stopClass({ id: data.id });
+                        console.log(res);
+                        if (res.ok) {
+                            this.$message({
+                                type: 'success',
+                                message: '操作成功!'
+                            });
+                        }
+                    } else if (type == 3) {
+                        let res = await chargeStudent({
+                            studentId: this.studentId,
+                            num: this.charegeNum
+                        });
+                        console.log(res);
+                        if (res.ok) {
+                            this.$message({
+                                type: 'success',
+                                message: '操作成功!'
+                            });
+                            this.getStudentChargeHis();
+                        }
+                    } else if (type == 4) {
+                        let res = await continueClass({ id: data.id });
+                        console.log(res);
+                        if (res.ok) {
+                            this.$message({
+                                type: 'success',
+                                message: '操作成功!'
+                            });
+                        }
+                    }
+                    this.refreshStudentInfo();
+                })
+                .catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消操作'
+                    });
+                });
+        },
+        calClassType(tag) {
+            switch (tag) {
+                case '请假':
+                    return 'danger';
+                    break;
+                case '已上':
+                    return 'success';
+                    break;
+                case '待上':
+                    return 'primary';
+                    break;
 
-        default:
-          break;
-      }
+                default:
+                    break;
+            }
+        },
+        /* 分页请求课程记录 */
+        handleClassHistoryPageChange(val) {
+            this.historyPage = val;
+            if (this.historySort) {
+                this.getStuClsHistory({
+                    page: this.historyPage - 1,
+                    sortWay: this.historySort
+                });
+            } else {
+                this.getStuClsHistory(val - 1);
+            }
+        },
+        handleSortChange(data) {
+            if (data.order == 'descending') {
+                this.historySort = 'up';
+            } else if (data.order == 'ascending') {
+                this.historySort = 'down';
+            } else {
+                this.historySort = '';
+            }
+            this.getStuClsHistory({
+                page: this.historyPage - 1,
+                sortWay: this.historySort
+            });
+        },
+        /* 在修改后刷新学生数据 */
+        refreshStudentInfo() {
+            this.getStudentInfo();
+            this.getStudentClasses();
+            this.$emit('renewStudentList');
+        }
     },
-    /* 分页请求课程记录 */
-    handleClassHistoryPageChange(val) {
-      this.historyPage = val;
-      if (this.historySort) {
-        this.getStuClsHistory({
-          page: this.historyPage - 1,
-          sortWay: this.historySort
-        });
-      } else {
-        this.getStuClsHistory(val - 1);
-      }
+    watch: {
+        dialogVisible(newVal) {
+            if (newVal) {
+                this.getStudentInfo();
+                this.tabName = '基本信息';
+            }
+        }
     },
-    handleSortChange(data) {
-      if (data.order == "descending") {
-        this.historySort = "up";
-      } else if (data.order == "ascending") {
-        this.historySort = "down";
-      } else {
-        this.historySort = "";
-      }
-      this.getStuClsHistory({
-        page: this.historyPage - 1,
-        sortWay: this.historySort
-      });
-    },
-    /* 在修改后刷新学生数据 */
-    refreshStudentInfo() {
-      this.getStudentInfo();
-      this.getStudentClasses();
-      this.$emit("renewStudentList");
+    components: {
+        StudentAddClass
     }
-  },
-  watch: {
-    dialogVisible(newVal) {
-      if (newVal) {
-        this.getStudentInfo();
-        this.tabName = "基本信息";
-      }
-    }
-  },
-  components: {
-    StudentAddClass
-  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .detail-form {
-  width: 500px;
-  margin: 0 auto;
+    width: 500px;
+    margin: 0 auto;
 }
 .class-title {
-  font-size: 18px;
-  margin-top: 20px;
+    font-size: 18px;
+    margin-top: 20px;
 }
 /* .class-checkboxs{
   text-align: center;
 } */
 .el-transfer-panel__item .el-checkbox__input {
-  left: 40px;
+    left: 40px;
 }
 .el-transfer-panel .el-transfer-panel__header {
-  padding-left: 0;
+    padding-left: 0;
 }
 /* .el-form-item__content {
-  text-align: left; 
+  text-align: left;
 } */
 .el-transfer {
-  text-align: center;
+    text-align: center;
 }
 </style>

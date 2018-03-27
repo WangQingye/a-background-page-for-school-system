@@ -11,6 +11,10 @@
       <p>当前课程总人次：
         <span style="background:transparent;color:black">{{infos.studentTime}}</span>次</p>
     </div>
+    <div class="info-block">
+      <p>当前学员总剩余课时：
+        <span style="background:transparent;color:black; width:60px">{{infos.totalRestNum}}</span>课时</p>
+    </div>
     <p class="small-title">
       <i class="el-icon-service"></i> 每日上课人次统计</p>
     <el-table :data="timesData" border style="width: 80%" class="count-table">
@@ -63,130 +67,131 @@
   </div>
 </template>
 <script>
-import { getMainInfo, getLeaveList } from "../api/getData";
+import { getMainInfo, getLeaveList } from '../api/getData';
 export default {
-  data() {
-    return {
-      timesData: [
-        {
-          d1: 0,
-          d2: 0,
-          d3: 0,
-          d4: 0,
-          d5: 0,
-          d6: 0,
-          d7: 0
+    data() {
+        return {
+            timesData: [
+                {
+                    d1: 0,
+                    d2: 0,
+                    d3: 0,
+                    d4: 0,
+                    d5: 0,
+                    d6: 0,
+                    d7: 0
+                }
+            ],
+            infos: {},
+            leaveTableVisible: false,
+            leaveList: [
+                // {
+                //   id: 1, //记录id
+                //   lessonName: "xxx", //课程名字
+                //   studentName: "xxx", //学生名字
+                //   date: "2018-03-01", //日期
+                //   timeRange: "08:00-09:00", //时间
+                //   phone: "13800138000" //家长手机号
+                // },
+                // {
+                //   id: 1, //记录id
+                //   lessonName: "xxx", //课程名字
+                //   studentName: "xxx", //学生名字
+                //   date: "2018-03-01", //日期
+                //   timeRange: "08:00-09:00", //时间
+                //   phone: "13800138000" //家长手机号
+                // },
+                // {
+                //   id: 1, //记录id
+                //   lessonName: "xxx", //课程名字
+                //   studentName: "xxx", //学生名字
+                //   date: "2018-03-01", //日期
+                //   timeRange: "08:00-09:00", //时间
+                //   phone: "13800138000" //家长手机号
+                // }
+            ],
+            leavePage: 1,
+            leaveCount: 0
+        };
+    },
+    mounted() {
+        this.getInfos();
+    },
+    methods: {
+        async getInfos() {
+            let res = await getMainInfo();
+            console.log(res);
+            if (res.ok) {
+                this.infos = res;
+                for (let i = 0; i < 7; i++) {
+                    this.timesData[0]['d' + (i + 1)] = res.everydayTime[i];
+                }
+                console.log(this.timesData);
+            }
+        },
+        async getLeaveInfo() {
+            let res = await getLeaveList({ page: this.leavePage - 1 });
+            console.log(res);
+            if (res.ok) {
+                this.leaveList = res.list;
+                this.leaveCount = res.count;
+            }
+        },
+        goToFeedBack() {
+            this.$router.push('/userFeedBack');
+        },
+        showLeaveList() {
+            this.leaveTableVisible = true;
+            this.getLeaveInfo();
+            if (!this.leaveList.length) {
+            }
+        },
+        handleCurrentChange(val) {
+            console.log(val);
+            this.leavePage = val;
+            this.getLeaveInfo();
         }
-      ],
-      infos: {},
-      leaveTableVisible: false,
-      leaveList: [
-        // {
-        //   id: 1, //记录id
-        //   lessonName: "xxx", //课程名字
-        //   studentName: "xxx", //学生名字
-        //   date: "2018-03-01", //日期
-        //   timeRange: "08:00-09:00", //时间
-        //   phone: "13800138000" //家长手机号
-        // },
-        // {
-        //   id: 1, //记录id
-        //   lessonName: "xxx", //课程名字
-        //   studentName: "xxx", //学生名字
-        //   date: "2018-03-01", //日期
-        //   timeRange: "08:00-09:00", //时间
-        //   phone: "13800138000" //家长手机号
-        // },
-        // {
-        //   id: 1, //记录id
-        //   lessonName: "xxx", //课程名字
-        //   studentName: "xxx", //学生名字
-        //   date: "2018-03-01", //日期
-        //   timeRange: "08:00-09:00", //时间
-        //   phone: "13800138000" //家长手机号
-        // }
-      ],
-      leavePage: 1,
-      leaveCount: 0
-    };
-  },
-  mounted() {
-    this.getInfos();
-  },
-  methods: {
-    async getInfos() {
-      let res = await getMainInfo();
-      console.log(res);
-      if (res.ok) {
-        this.infos = res;
-        for (let i = 0; i < 7; i++) {
-          this.timesData[0]["d" + (i + 1)] = res.everydayTime[i];
-        }
-        console.log(this.timesData);
-      }
-    },
-    async getLeaveInfo(page) {
-      let res = await getLeaveList({ page: this.leavePage - 1 });
-      console.log(res);
-      if (res.ok) {
-        this.leaveList = res.list;
-        this.leaveCount = res.count;
-      }
-    },
-    goToFeedBack() {
-      this.$router.push("/userFeedBack");
-    },
-    showLeaveList() {
-      this.leaveTableVisible = true;
-      this.getLeaveInfo();
-      if (!this.leaveList.length) {
-      }
-    },
-    handleCurrentChange(val) {
-      this.leavePage = val;
-      this.getLeaveList();
     }
-  }
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .text {
-  font-size: 20px;
-  font-weight: 600;
+    font-size: 20px;
+    font-weight: 600;
 }
 .count-table {
-  margin-left: 10%;
+    margin-left: 10%;
 }
 .small-title {
-  text-align: left;
-  padding-left: 100px;
-  margin-bottom: 20px;
-  color: orangered;
+    text-align: left;
+    padding-left: 100px;
+    margin-bottom: 20px;
+    color: orangered;
 }
 .info-block {
-  text-align: left;
-  padding-left: 140px;
+    text-align: left;
+    padding-left: 140px;
 }
 .info-block p {
-  text-align: left;
-  margin-right: 50px;
-  display: inline-block;
+    text-align: left;
+    margin-right: 50px;
+    display: inline-block;
 }
 .info-block p span {
-  font-size: 24px;
-  text-align: center;
-  color: white;
-  width: 30px;
-  height: 30px;
-  display: inline-block;
-  background: #f56c6c;
-  border-radius: 50%;
-  margin: 0 10px;
+    font-size: 24px;
+    text-align: center;
+    color: white;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    background: #f56c6c;
+    border-radius: 50%;
+    margin: 0 10px;
 }
 .feed-back-pagination {
-  display: block;
-  width: 460px;
-  margin: 0 auto;
+    display: block;
+    width: 460px;
+    margin: 0 auto;
 }
 </style>
