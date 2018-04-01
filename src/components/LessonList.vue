@@ -4,7 +4,13 @@
             <el-option v-for="(item,index) in schoolList" :key="index" :label="item.label" :value="item.value">
             </el-option>
         </el-select>
-        <h1>课程列表</h1>
+        <p class="text">课程列表</p>
+        <div class="search">
+            <el-input class="search-input" placeholder="请输入要搜索的内容" @change="searchLesson" v-model="search" style="padding-bottom:10px;width:200px" clearable>
+            </el-input>
+            <el-button type="primary" icon="el-icon-search" v-on:click="searchLesson">搜索</el-button>
+        </div>
+
         <el-table :data="lesson" style="width: 100%">
             <el-table-column prop="lessonName" label="课程名称" width="180">
             </el-table-column>
@@ -23,7 +29,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <classDetail @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
+        <classDetail @delClass="delClass" @close="closeDetail" :dialogVisible="dialogVisible" :lessonId="lessonId"></classDetail>
     </div>
 </template>
 <script>
@@ -47,7 +53,8 @@ export default {
                     teacherName: '余老师',
                     schedules: ['周一 / 08:00-09:00 / A教室']
                 }
-            ]
+            ],
+            search: null
         };
     },
     created() {
@@ -63,6 +70,20 @@ export default {
         }
     },
     methods: {
+        async searchLesson() {
+            const res = await getList({
+                schoolId: this.school,
+                search: this.search
+            });
+            if (res.ok) {
+                console.log('成功请求搜索列表');
+                this.lesson = res.list;
+            }
+            console.log(res);
+        },
+        delClass() {
+            this.getLessonList();
+        },
         async getLessonList() {
             const res = await getList({
                 schoolId: this.school
@@ -99,6 +120,15 @@ export default {
 .school-select {
     width: 900px;
     margin: 20px auto;
+}
+.text {
+    font-size: 20px;
+    font-weight: 600;
+}
+.search {
+    width: 300px;
+    float: right;
+    margin-right: 5%;
 }
 </style>
 
