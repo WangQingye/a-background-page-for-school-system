@@ -4,6 +4,7 @@ import {
   isLogin
 } from '../api/getData'
 import router from "../router/index.js" //首先导入路由对象
+import Bus from '../utils/bus'; 
 
 Vue.use(Vuex)
 

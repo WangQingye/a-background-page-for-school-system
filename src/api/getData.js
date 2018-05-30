@@ -13,9 +13,9 @@ export const logOut = () => fetch('/login/logout');
  * 首页数据
  */
 // 获取首页统计数据
-export const getMainInfo = () => fetch('/index/index'); 
+export const getMainInfo = () => fetch('/index/index');
 // 获取未来请假情况
-export const getLeaveList = () => fetch('/record/leavelist'); 
+export const getLeaveList = data => fetch('/record/leavelist', data);
 /**
  * 用户相关
  */
@@ -32,6 +32,7 @@ export const delAdmin = data => fetch('/user/del', data, 'POST');
  */
 export const getFeedBack = data => fetch('/feedback/index', data);
 export const replyFeedBack = data => fetch('/feedback/reply', data, 'POST');
+export const delFeedBack = data => fetch('/feedback/del', data, 'POST');
 /**
  * 校区相关
  */

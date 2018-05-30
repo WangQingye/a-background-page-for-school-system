@@ -1,21 +1,5 @@
-# a-background-page-for-school-system
+# 基于学校的后台管理系统
 
-> A Vue.js project
+![](https://user-gold-cdn.xitu.io/2018/4/26/162ff90252d12c08?w=1466&h=1420&f=png&s=110785)
 
-## Build Setup
 
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

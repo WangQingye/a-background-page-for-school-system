@@ -22,6 +22,9 @@
       <el-form-item label="充值课时" prop="lessonNum">
         <el-input-number v-model="addInfoForm.lessonNum" :min="0" :max="1000" label="第一次充值课时"></el-input-number>
       </el-form-item>
+      <el-form-item label="备注" prop="mark">
+        <el-input v-model="addInfoForm.mark" type="textarea"></el-input>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitInfoAdd">完成，去录入课程</el-button>
         <el-button @click="resetInfoForm">重置</el-button>
@@ -70,173 +73,176 @@
 
 
 <script>
-import StudentAddClass from "./com/StudentAddClass.vue";
-import StudentDetail from "./subpages/StudentDetail.vue";
-import Bus from '../utils/bus'; 
+import StudentAddClass from './com/StudentAddClass.vue';
+import StudentDetail from './subpages/StudentDetail.vue';
+import Bus from '../utils/bus';
 import {
-  getSchools,
-  addStudentInfo,
-  getClassList,
-  delStudent,
-  addClassToStudent
-} from "../api/getData";
+    getSchools,
+    addStudentInfo,
+    getClassList,
+    delStudent,
+    addClassToStudent
+} from '../api/getData';
 export default {
-  data() {
-    return {
-      addInfoForm: {
-        name: "",
-        phone: "",
-        schoolId: "1",
-        lessonNum: ""
-      },
-      rules: {
-        name: [{ required: true, message: "请输入学生姓名", trigger: "blur" }],
-        phone: [{ required: true, message: "请输入家长联系方式", trigger: "blur" }]
-      },
-      // 添加信息成功服务器后的学生信息
-      addClassForm: {},
-      singleClass: 16,
-      className: "",
-      addClasses: [],
-      stepNum: 0,
-      addInfoShow: true,
-      addClassShow: false,
-      addSuccessShow: false,
-      schoolList: [],
-      classList: [],
-      afterAddClassLeft: 0
-    };
-  },
-  mounted() {
-    this.getSchoolList();
-  },
-  methods: {
-    async getSchoolList() {
-      let res = await getSchools();
-      this.log("获取学校列表", res.ok);
-      if (res.ok) this.schoolList = res.list;
+    data() {
+        return {
+            addInfoForm: {
+                name: '',
+                phone: '',
+                schoolId: '1',
+                lessonNum: '',
+                mark: ''
+            },
+            rules: {
+                name: [{ required: true, message: '请输入学生姓名', trigger: 'blur' }],
+                phone: [
+                    { required: true, message: '请输入家长联系方式', trigger: 'blur' }
+                ]
+            },
+            // 添加信息成功服务器后的学生信息
+            addClassForm: {},
+            singleClass: 16,
+            className: '',
+            addClasses: [],
+            stepNum: 0,
+            addInfoShow: true,
+            addClassShow: false,
+            addSuccessShow: false,
+            schoolList: [],
+            classList: [],
+            afterAddClassLeft: 0
+        };
     },
-    async getSchoolClasses(schoolId) {
-      let res = await getClassList({ schoolId: schoolId });
-      this.log(`获取校区${schoolId}课程`, res.ok);
-      console.log(res);
-      if (res.ok) {
-        // 复制一次，因为添加了课程后会删除
-        this.classList = JSON.parse(JSON.stringify(res.list));
-      }
+    mounted() {
+        this.getSchoolList();
     },
-    async submitInfoAdd() {
-      this.$refs.addInfoForm.validate(async valid => {
-        if (valid) {
-          let res = await addStudentInfo(this.addInfoForm);
-          this.log("添加学员信息", res.ok);
-          console.log(res);
-          if (res.ok) {
-            this.$message({
-              type: "success",
-              message: "录入成功"
+    methods: {
+        async getSchoolList() {
+            let res = await getSchools();
+            this.log('获取学校列表', res.ok);
+            if (res.ok) this.schoolList = res.list;
+        },
+        async getSchoolClasses(schoolId) {
+            let res = await getClassList({ schoolId: schoolId });
+            this.log(`获取校区${schoolId}课程`, res.ok);
+            console.log(res);
+            if (res.ok) {
+                // 复制一次，因为添加了课程后会删除
+                this.classList = JSON.parse(JSON.stringify(res.list));
+            }
+        },
+        async submitInfoAdd() {
+            this.$refs.addInfoForm.validate(async valid => {
+                if (valid) {
+                    let res = await addStudentInfo(this.addInfoForm);
+                    this.log('添加学员信息', res.ok);
+                    console.log(res);
+                    if (res.ok) {
+                        this.$message({
+                            type: 'success',
+                            message: '录入成功'
+                        });
+                        this.addClassForm = res;
+                        this.afterAddClassLeft = res.balanceNum;
+                        this.getSchoolClasses(this.addInfoForm.schoolId);
+                        this.addInfoShow = false;
+                        this.addClassShow = true;
+                        this.stepNum = 1;
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.errorMsg
+                        });
+                        return false;
+                    }
+                }
             });
-            this.addClassForm = res;
-            this.afterAddClassLeft = res.balanceNum;
-            this.getSchoolClasses(this.addInfoForm.schoolId);
-            this.addInfoShow = false;
-            this.addClassShow = true;
-            this.stepNum = 1;
-          } else {
-            this.$message({
-              type: "error",
-              message: res.errorMsg
+        },
+        /* 现在课程只一门一门的添加 */
+        async addOneClass() {
+            if (this.afterAddClassLeft - this.singleClass < 0) {
+                this.$message.error('剩余课时不够添加这些课程哦');
+                return;
+            }
+            let res = await addClassToStudent({
+                studentId: this.addClassForm.id,
+                lessonId: this.className,
+                num: this.singleClass
             });
-            return false;
-          }
+            this.log(`为${this.addClassForm.id}学员添加${this.className}课程`, res.ok);
+            console.log(res);
+            if (res.ok) {
+                // 扣除课时
+                this.afterAddClassLeft -= this.singleClass;
+                // 放入已选择课程
+                this.addClasses.push(
+                    this.switchIdorName(this.className, this.classList, 'id') +
+                        ' - ' +
+                        this.singleClass +
+                        '课时'
+                );
+                // 添加后将之从课程列表中删除
+                this.classList.splice(
+                    this.classList.findIndex(item => {
+                        return item.id == this.className;
+                    }),
+                    1
+                );
+                // 重置选择器
+                this.className = '';
+            } else {
+                this.$message.error('添加失败');
+            }
+        },
+        /* 完成添加 */
+        finishAdd() {
+            this.$message({
+                type: 'success',
+                message: '添加成功'
+            });
+            this.addSuccessShow = true;
+            this.addClassShow = false;
+            this.addClasses = [];
+            this.stepNum = 2;
+            Bus.$emit('refreshStudentList');
+        },
+        /* 取消添加 */
+        async cancelAdd() {
+            //因为在上一步其实已经实际添加了学生，所以如果在这里取消，需要删除学生
+            let res = await delStudent({ id: this.addClassForm.id });
+            this.log(`删除学生${this.addClassForm.id}`, res.ok);
+            this.addInfoShow = true;
+            this.addClasses = [];
+            this.addClassShow = false;
+            this.resetInfoForm();
+            this.stepNum = 0;
+        },
+        resetInfoForm() {
+            this.$refs.addInfoForm.resetFields();
+        },
+        goToStudentList() {
+            this.$router.push('/studentList');
+            this.goOnAdd();
+        },
+        goOnAdd() {
+            this.$refs.addInfoForm.resetFields();
+            this.$refs.addClassForm.resetFields();
+            this.addInfoShow = true;
+            this.addClassShow = false;
+            this.addClasses = [];
+            this.addSuccessShow = false;
+            this.stepNum = 0;
         }
-      });
     },
-    /* 现在课程只一门一门的添加 */
-    async addOneClass() {
-      if (this.afterAddClassLeft - this.singleClass < 0) {
-        this.$message.error("剩余课时不够添加这些课程哦");
-        return;
-      }
-      let res = await addClassToStudent({
-        studentId: this.addClassForm.id,
-        lessonId: this.className,
-        num: this.singleClass
-      });
-      this.log(`为${this.addClassForm.id}学员添加${this.className}课程`, res.ok);
-      console.log(res);
-      if (res.ok) {
-        // 扣除课时
-        this.afterAddClassLeft -= this.singleClass;
-        // 放入已选择课程
-        this.addClasses.push(
-          this.switchIdorName(this.className, this.classList, "id") +
-            " - " +
-            this.singleClass +
-            "课时"
-        );
-        // 添加后将之从课程列表中删除
-        this.classList.splice(
-          this.classList.findIndex(item => {
-            return item.id == this.className;
-          }),
-          1
-        );
-        // 重置选择器
-        this.className = "";
-      } else {
-        this.$message.error("添加失败");
-      }
+    watch: {
+        allClass() {
+            this.form.restClass = this.form.allClass;
+        }
     },
-    /* 完成添加 */
-    finishAdd() {
-      this.$message({
-        type: "success",
-        message: "添加成功"
-      });
-      this.addSuccessShow = true;
-      this.addClassShow = false;
-      this.addClasses = [];
-      this.stepNum = 2;
-      Bus.$emit('refreshStudentList');      
-    },
-    /* 取消添加 */
-    async cancelAdd() {
-      //因为在上一步其实已经实际添加了学生，所以如果在这里取消，需要删除学生
-      let res = await delStudent({ id: this.addClassForm.id });
-      this.log(`删除学生${this.addClassForm.id}`, res.ok);
-      this.addInfoShow = true;
-      this.addClasses = [];
-      this.addClassShow = false;
-      this.resetInfoForm();
-      this.stepNum = 0;
-    },
-    resetInfoForm() {
-      this.$refs.addInfoForm.resetFields();
-    },
-    goToStudentList() {      
-      this.$router.push("/studentList");
-      this.goOnAdd();
-    },
-    goOnAdd() {
-      this.$refs.addInfoForm.resetFields();
-      this.$refs.addClassForm.resetFields();
-      this.addInfoShow = true;
-      this.addClassShow = false;
-      this.addClasses = [];
-      this.addSuccessShow = false;
-      this.stepNum = 0;   
+    components: {
+        StudentAddClass,
+        StudentDetail
     }
-  },
-  watch: {
-    allClass() {
-      this.form.restClass = this.form.allClass;
-    }
-  },
-  components: {
-    StudentAddClass,
-    StudentDetail
-  }
 };
 </script>
 
@@ -244,27 +250,27 @@ export default {
 <style>
 /* @import '../style/common.less';   */
 .text {
-  font-size: 20px;
-  font-weight: 600;
+    font-size: 20px;
+    font-weight: 600;
 }
 .add-form {
-  width: 700px;
-  margin: 0 auto;
+    width: 700px;
+    margin: 0 auto;
 }
 .el-transfer-panel__item .el-checkbox__input {
-  left: 40px;
+    left: 40px;
 }
 .el-transfer-panel .el-transfer-panel__header {
-  padding-left: 0;
+    padding-left: 0;
 }
 .class-overplus {
-  margin: 0;
-  font-size: 18px;
+    margin: 0;
+    font-size: 18px;
 }
 .el-transfer {
-  text-align: center;
+    text-align: center;
 }
 .class-name {
-  display: block;
+    display: block;
 }
 </style>

@@ -46,6 +46,9 @@
           <el-button @click="showStudentDetail(scope.row.id)" type="text" size="small">
             查看详情
           </el-button>
+          <el-button v-show="isAdmin" style="margin-left:0" @click="deleteStudent(scope.row.id)" type="text" size="small">
+            删除学员
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -59,8 +62,8 @@
 <script>
 import Search from "./com/Search.vue";
 import StudentDetail from "./subpages/StudentDetail.vue";
-import { getStudentList } from "../api/getData";
-import Bus from '../utils/bus'; 
+import { getStudentList, delStudent } from "../api/getData";
+import Bus from "../utils/bus";
 export default {
   data() {
     function mockData() {
@@ -101,8 +104,8 @@ export default {
       searchStudentName: ""
     };
   },
-  created(){
-    Bus.$on('refreshStudentList',this.getStudentsList);
+  created() {
+    Bus.$on("refreshStudentList", this.getStudentsList);
   },
   mounted() {
     // this.nowData = this.studentList.slice(0, 10);
@@ -110,13 +113,13 @@ export default {
   },
   methods: {
     async getStudentsList(data) {
-      console.log(1111);
+      console.log(this.isAdmin);
       if (!data) data = {};
       if (this.isFilter) {
         data.haveClassEnd = this.isFilter;
       }
       if (this.isSort) {
-        data.sortField = 'restNum';
+        data.sortField = "restNum";
         data.sortWay = this.isSort;
       }
       let res = await getStudentList(data);
@@ -135,7 +138,7 @@ export default {
       let text = "";
       classArr.forEach(item => {
         // text += item.lessonName + "　\r";
-        text += "<p style='margin:0 0'>"+ item.lessonName +"</p>";
+        text += "<p style='margin:0 0'>" + item.lessonName + "</p>";
       });
       return text;
     },
@@ -154,11 +157,11 @@ export default {
     handleSortChange(data) {
       console.log(data);
       if (data.order == "descending") {
-        this.isSort = 'up'
+        this.isSort = "up";
       } else if (data.order == "ascending") {
-        this.isSort = 'down'
+        this.isSort = "down";
       } else {
-        this.isSort = ''
+        this.isSort = "";
       }
       this.getStudentsList();
     },
@@ -174,6 +177,30 @@ export default {
       this.detailId = id;
       this.dialogVisible = true;
     },
+    async deleteStudent(id) {
+      this.$confirm('本次操作将彻底删除该学员的一切信息，是否确认', "确认操作", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "info"
+      })
+        .then(async () => {
+          let res = await delStudent({ id: id });
+          console.log(res);
+          if (res.ok) {
+            this.$message({
+              type: "success",
+              message: "删除成功!"
+            });
+          }
+          this.getStudentsList();
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作"
+          });
+        });
+    },
     closeDetail() {
       this.dialogVisible = false;
     }
@@ -184,6 +211,9 @@ export default {
         this.currentPage * 10 - 10,
         this.currentPage * 10
       );
+    },
+    isAdmin() {
+      return this.$store.state.adminInfo.type == 1
     }
   },
   components: {
