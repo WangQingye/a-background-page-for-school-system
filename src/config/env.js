@@ -6,9 +6,6 @@
  */
 // class.wuxin.ren
 //  let baseUrl = 'https://back.yuiyu.cn/api';
-let baseUrl = 'http://class.wuxin.ren/api';
+let baseUrl = 'https://back.yuiyu.cn/api';
 let routerMode = 'history';
-export {
-  baseUrl,
-  routerMode
-}
+export { baseUrl, routerMode };
