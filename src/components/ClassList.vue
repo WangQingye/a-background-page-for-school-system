@@ -92,20 +92,26 @@ export default {
             const res = await getClassDetail({
                 schoolId: this.schoolId
             });
+            console.log(res);
             if (res.ok) {
                 console.log('成功请求课程表');
                 this.title = res.title;
                 this.heads = res.heads;
-                this.classList = res.list;
-                this.classList.forEach(item => {
+
+                res.list.forEach(item => {
                     item.forEach(subItem => {
-                        console.log(subItem.id);
+                        subItem.id.forEach(xItem => {
+                            xItem.lessonName =
+                                xItem.lessonName + '-' + xItem.lessonId;
+                        });
                         this.ids = this.ids.concat(subItem.id);
                     });
                 });
+                this.classList = res.list;
             }
         },
         clickCell(row, column, cell, event) {
+            console.log(row, column, cell);
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
             const className = tempName.replace('</div>', '');
             const query = {
@@ -115,7 +121,6 @@ export default {
                 location: column.label,
                 lessonName: row[column.property]
             };
-
             // 如果点击空课程表，跳转到课程添加页面
             if (!className) {
                 this.$router.push({
@@ -128,15 +133,16 @@ export default {
                 className.indexOf('周') > -1 ||
                 className.indexOf('上午') > -1 ||
                 className.indexOf('下午') > -1 ||
-                className.indexOf('晚上') > -1 ||
-                className.indexOf('-') > -1
+                className.indexOf('晚上') > -1
             ) {
                 console.log(123);
             } else {
+                console.log(45);
+                // console.log(this.ids);
                 this.ids.forEach(item => {
                     if (item.lessonName === className) {
                         this.lessonId = item.lessonId;
-                        console.log(this.lessonId);
+                        // console.log(this.lessonId);
                         this.dialogVisible = true;
                     }
                 });
