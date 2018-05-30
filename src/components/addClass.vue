@@ -188,7 +188,7 @@ export default {
         },
         addMoreTime() {
             this.form.schedule.push({
-                week: '周一',
+                week: '1',
                 startTime: null,
                 endTime: null,
                 location: null
