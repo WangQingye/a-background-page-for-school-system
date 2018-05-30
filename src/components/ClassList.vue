@@ -114,8 +114,33 @@ export default {
             console.log(row, column, cell);
             const tempName = cell.innerHTML.replace('<div class="cell">', '');
             const className = tempName.replace('</div>', '');
+
+            let weekday;
+            switch (row.weekday) {
+                case '周一':
+                    weekday = '1';
+                    break;
+                case '周二':
+                    weekday = '2';
+                    break;
+                case '周三':
+                    weekday = '3';
+                    break;
+                case '周四':
+                    weekday = '4';
+                    break;
+                case '周五':
+                    weekday = '5';
+                    break;
+                case '周六':
+                    weekday = '6';
+                    break;
+                case '周日':
+                    weekday = '7';
+                    break;
+            }
             const query = {
-                weekday: row.weekday,
+                weekday,
                 startTime: row.startTime,
                 endTime: row.endTime,
                 location: column.label,
