@@ -527,7 +527,7 @@ export default {
             this.addClassShow = true;
             this.addClassForm.name = this.infoForm.name;
             this.addClassForm.balanceNum = this.infoForm.balanceNum;
-            this.addClassForm.singleClass = 16;
+            this.addClassForm.singleClass = this.infoForm.balanceNum > 16 ? 16 : this.infoForm.balanceNum;
             this.addClassForm.studentId = this.studentId;
             this.addClassForm.schoolId = this.infoForm.schoolId;
         },

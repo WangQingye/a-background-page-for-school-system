@@ -1,28 +1,28 @@
 <template>
-  <div class="student-add-class">
-    <el-dialog :title="'添加课程'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="500px">
-      <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="150px" width="300px" style="text-align:left">
-        <el-form-item label="学生姓名" prop="name">
-          <span>{{addClassForm.name}}</span>
-        </el-form-item>
-        <el-form-item label="可用课时" prop="balanceNum">
-          <span>{{addClassForm.balanceNum}}</span>
-        </el-form-item>
-        <el-form-item label="要添加的课程课时" prop="singleClass">
-          <el-input-number v-model="addClassForm.singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
-        </el-form-item>
-        <el-form-item label="选择课程" prop="repassword">
-          <el-select v-model="classId" placeholder="请选择课程">
-            <el-option v-for="(cls,index) in classList" :key="index" :label="cls.name" :value="cls.id"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitAddClass">确认添加</el-button>
-          <el-button @click="close">关闭</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-  </div>
+    <div class="student-add-class">
+        <el-dialog :title="'添加课程'" :before-close="close" :show-close="false" :visible.sync="dialogVisible" width="500px">
+            <el-form class="account-dialog" ref="addClassForm" :model="addClassForm" label-width="150px" width="300px" style="text-align:left">
+                <el-form-item label="学生姓名" prop="name">
+                    <span>{{addClassForm.name}}</span>
+                </el-form-item>
+                <el-form-item label="可用课时" prop="balanceNum">
+                    <span>{{addClassForm.balanceNum}}</span>
+                </el-form-item>
+                <el-form-item label="要添加的课程课时" prop="singleClass">
+                    <el-input-number v-model="addClassForm.singleClass" :min="1" :max="addClassForm.leftClass" label="课程课时"></el-input-number>
+                </el-form-item>
+                <el-form-item label="选择课程" prop="repassword">
+                    <el-select v-model="classId" placeholder="请选择课程">
+                        <el-option v-for="(cls,index) in classList" :key="index" :label="cls.name" :value="cls.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submitAddClass">确认添加</el-button>
+                    <el-button @click="close">关闭</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+    </div>
 </template>
 <script>
 import { getClassList, addClassToStudent } from '../../api/getData';
@@ -75,6 +75,10 @@ export default {
                 lessonId: this.classId,
                 num: this.addClassForm.singleClass
             });
+            if (!this.classId) {
+                this.$message.error('还没有选择课程呢');
+                return;
+            }
             if (
                 this.addClassForm.balanceNum - this.addClassForm.singleClass <
                 0
